@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Events\LogedIn;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+
+class LoginController extends Controller
+{
+    /**
+     * @param LoginRequest $request
+     * @return UserResource|JsonResponse
+     * @throws ValidationException
+     */
+    public function login(LoginRequest $request): UserResource|JsonResponse
+    {
+        $user = User::firstWhere('email', $request->email);
+
+        if (is_null($user)) {
+            throw ValidationException::withMessages([
+                'error' => 'کاربر با این آدرس ایمیل یافت نشد'
+            ]);
+        } else {
+            if (RateLimiter::remaining($this->throttle($user), $perMinute = 3)) {
+                $user->events()->create([
+                    'event' => 'ورود به حساب کاربری',
+                    'ip' => $request->ip(),
+                    'device' => $request->userAgent(),
+                    'status' => 0,
+                ]);
+                RateLimiter::hit($this->throttle($user), 300);
+                if (! Hash::check($request->password, $user->password)) {
+                    throw ValidationException::withMessages([
+                        'email' => 'رمز عبور اشتباه است'
+                    ]);
+                } else {
+
+                    RateLimiter::clear($this->throttle($user));
+
+                    $user->token = $user->createToken('token-'.$user->id)->plainTextToken;
+                    $user->ip = $request->ip();
+
+                    LogedIn::dispatch($user);
+
+                    $user->events()->create([
+                        'event' => 'ورود به حساب کاربری',
+                        'ip' => $request->ip(),
+                        'device' => $request->userAgent(),
+                        'status' => 1,
+                    ]);
+
+                    return new UserResource($user);
+                }
+            } else {
+                $seconds = RateLimiter::availableIn($this->throttle($user));
+                return response()->json([
+                    'error' => 'خطایی رخ داده است. لطفا بعد از ' . $seconds . 'تلاش کنید'
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return Response|Application|ResponseFactory
+     */
+    public function logout(Request $request): Response|Application|ResponseFactory
+    {
+        $latestActivity = $request->user()->latestActivity;
+                if(isset($latestActivity) && is_null($latestActivity->end))
+                {
+                    $start = Carbon::parse($latestActivity->start);
+                    $end = now();
+
+                    $total = $start->diffInMinutes($end);
+
+                    $latestActivity->update([
+                        'end' => $end,
+                        'total' => $total,
+                    ]);
+                }
+        $request->user()->tokens()->delete();
+        return response('شما با موفقیت خارج شدید', 200);
+    }
+
+    /**
+     * @param User $user
+     * @return string
+     */
+    private function throttle(User $user): string
+    {
+        return Str::random(10) . '_' . $user->email;
+    }
+}
