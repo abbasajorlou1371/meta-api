@@ -17,12 +17,12 @@ class SendVerifyEmailCode extends Notification
      *
      * @return void
      */
-    public $email, $code;
+    public $code, $email;
 
-    public function __construct($reset)
+    public function __construct($email, $code)
     {
-        $this->email = $reset->email;
-        $this->code = $reset->code;
+        $this->email = $email;
+        $this->code = $code;
     }
 
     /**
@@ -45,7 +45,7 @@ class SendVerifyEmailCode extends Notification
     public function toMail($notifiable)
     {
         return (new VerifyEmailCodeMail($this->code))
-                    ->to($this->email)
+                    ->to($this->email ?? $notifiable->email)
                     ->subject('کد تایید ایمیل');
     }
 

@@ -23,7 +23,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\VerificationController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OtpController;
@@ -171,21 +170,17 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
 
     Route::post('/order', [OrderController::class, 'create']);
 
-    // Route::controller(VerificationController::class)->prefix('verify')->group(function () {
-    //     Route::post('/phone/send-code', 'sendPhoneVerificationCode');
-    //     Route::post('/phone/verify-code', 'verifyPhone');
-
-    //     Route::post('/email/send-code', 'sendEmailVerificationCode');
-    //     Route::post('/email/verify-code', 'verifyEmail');
-    // });
-
     Route::prefix('reset')->group(function() {
         Route::controller(ResetPhoneController::class)->prefix('phone')->group(function() {
             Route::post('/old/send-code', 'sendOtpToOldPhone');
             Route::post('/old/verify-code', 'verifyOldPhoneOtp');
             Route::post('/new/verify-code', 'verifyNewPhoneOtp');
         });
-        Route::controller(ResetEmailController::class)->prefix('email')->group(function() {});
+        Route::controller(ResetEmailController::class)->prefix('email')->group(function() {
+            Route::post('/old/send-code', 'sendOtpToOldEmail');
+            Route::post('/old/verify-code', 'verifyOldEmailOtp');
+            Route::post('/new/verify-code', 'verifyNewEmailOtp');
+        });
     });
 
     Route::controller(ResetPasswordController::class)->group(function() {

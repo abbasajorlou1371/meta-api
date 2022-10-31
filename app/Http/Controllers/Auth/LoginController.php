@@ -35,14 +35,14 @@ class LoginController extends Controller
             ]);
         } else {
             if (RateLimiter::remaining($this->throttle($user), $perMinute = 3)) {
-                $user->events()->create([
-                    'event' => 'ورود به حساب کاربری',
-                    'ip' => $request->ip(),
-                    'device' => $request->userAgent(),
-                    'status' => 0,
-                ]);
                 RateLimiter::hit($this->throttle($user), 300);
                 if (! Hash::check($request->password, $user->password)) {
+                    $user->events()->create([
+                        'event' => 'ورود به حساب کاربری',
+                        'ip' => $request->ip(),
+                        'device' => $request->userAgent(),
+                        'status' => 0,
+                    ]);
                     throw ValidationException::withMessages([
                         'email' => 'رمز عبور اشتباه است'
                     ]);

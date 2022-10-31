@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ResetInfo;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reset\ResetPhone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\GetOtpNotification;
@@ -11,6 +12,15 @@ class ResetPhoneController extends Controller
 {
     public function sendOtpToOldPhone(Request $request)
     {
+        $resetPhone = ResetPhone::where('user_id', $request->user()->id)->first();
+
+        if($resetPhone)
+        {
+            if($resetPhone->count() > 0)
+            {
+                abort(403, 'شما فقط یکبار مجاز به تغییر شماره تلفن خود می باشید');
+            }
+        }
 
         if(Cache::has('reset-phone-old-phone-verification-'. $request->user()->id))
         {
