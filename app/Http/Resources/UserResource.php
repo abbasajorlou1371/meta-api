@@ -21,7 +21,9 @@ class UserResource extends JsonResource
             'id' => (string)$this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'token' => $this->token,
+            $this->mergeWhen($this->token, [
+                'token' => $this->token,
+            ]),
             'score' => $this->score,
             'phone' => $this->phone,
             'automatic_logout' => $this->settings->automatic_logout,
