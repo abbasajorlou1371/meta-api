@@ -46,15 +46,14 @@ class JoinRequestController extends Controller
 
         if (!empty($joinRequest)) {
             if ($joinRequest->updated_at->addMonths(1) > now()) {
-                return \response()->json([
-                    'message' => 'محدودیت زمانی ارسال درخواست ملحق شدن به سلسله برای کاربر مورد نظر از سمت شما به حداکثر خود رسیده است',
-                ], Response::HTTP_METHOD_NOT_ALLOWED);
+                abort(403, 'محدودیت زمانی ارسال درخواست ملحق شدن به سلسله برای کاربر مورد نظر از سمت شما به پایان نرسیده است');
             }
         }
 
         $toUser = User::findOrFail($request->getToUser());
 
-        if ($request->user()->can('addFamilyMember', [$toUser, $request->relation])) {
+        if ($request->user()->can('addFamilyMember', [$toUser, $request->getRelationship()])) {
+            dd('success');
             /*if (isUnderEighteen($request->user())) {
                 if ($request->has('no_father')) {
                     if (!$request->has('mother_code') || !$request->has('death_license')) {
@@ -105,18 +104,19 @@ class JoinRequestController extends Controller
             } else {*/
             $joinRequest = JoinRequest::create([
                 'to_user' => $request->getToUser(),
-                'from_user' => auth()->user()->id,
-                'relation' => $request->getRelation()
+                'from_user' => $request->user()->id,
+                'relation' => $request->getRelationship()
             ]);
             $this->sendOtp($joinRequest, $request->user()->id);
             return \response()->json([
                 'message' => 'بیامی حاوی کد تایید برای شما ارسال شد'
             ], Response::HTTP_OK);
             /*}*/
+        } else {
+            return \response()->json([
+                'message' => 'عملیات نا معتبر'
+            ], Response::HTTP_METHOD_NOT_ALLOWED);
         }
-        return \response()->json([
-            'message' => 'عملیات نا معتبر'
-        ], Response::HTTP_METHOD_NOT_ALLOWED);
     }
 
     /**

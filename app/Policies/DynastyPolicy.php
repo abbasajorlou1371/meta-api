@@ -44,7 +44,7 @@ class DynastyPolicy
     public function create(User $user)
     {
         if(! $user->verified()) {
-            abort(403, 'شما برای تاسیس سلسله باید احراز هویت مرحله ۲ را انجام دهید');
+            return Response::deny('شما برای تاسیس سلسله باید احراز هویت مرحله 2 را انجام دهید', 403);
         }
 
         if(! empty($user->dynasty)) {
