@@ -39,7 +39,7 @@ return [
                 'host' => '127.0.0.1',
                 'port' => 6001,
                 'scheme' => 'http',
-                'encrypted' => true,
+                'encrypted' => false,
                 'cluster' => env('PUSHER_APP_CLUSTER')
             ],
             'client_options' => [
