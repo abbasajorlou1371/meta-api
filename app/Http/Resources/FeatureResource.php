@@ -47,13 +47,7 @@ class FeatureResource extends JsonResource
                 'price_irr' => $this->properties->price_irr,
             ],
             'geometry' => $this->geometry->load('coordinates'),
-            $this->mergeWhen($this->images, [
-                'images' => $this->images->map(function($image) {
-                    return [
-                        'url' => $this->image->url ?? ""
-                    ];
-                }),
-            ]),
+            'images' => $this->images,
         ];
     }
 }
