@@ -163,7 +163,7 @@ function getScorePercentageToNextLevel(?Level $level, int $score) : int
 {
     if(! $level)
     {
-        if($score == 0) return 0;
+        if($score == 0) return 100;
 
         $firstLevel = Level::first();
         return ($score / $firstLevel->score) * 100;

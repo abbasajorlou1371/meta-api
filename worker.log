@@ -804,3 +804,18 @@
 
   2022-11-06 09:52:19 App\Notifications\LogedInNotification .... 500.75ms DONE
   2022-11-06 09:55:01 App\Notifications\LogedInNotification .... 359.13ms DONE
+  2022-11-06 10:08:08 App\Notifications\LogedInNotification .... 410.35ms DONE
+
+   INFO  Processing jobs from the [default] queue.  
+
+
+   INFO  Processing jobs from the [default] queue.  
+
+  2022-11-06 10:48:55 App\Events\FeaturePriced .................. 84.68ms FAIL
+  2022-11-06 11:00:02 App\Notifications\LogedInNotification .... 397.99ms DONE
+
+   INFO  Processing jobs from the [default] queue.  
+
+
+   INFO  Processing jobs from the [default] queue.  
+
