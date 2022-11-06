@@ -105,7 +105,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
 
     Route::middleware(['verified.phone', 'check.otp'])->group(function () {
         Route::controller(BuyFeatureController::class)->prefix('feature')->group(function () {
-            Route::get('/{feature}', 'show')->withoutMiddleware(['verified.phone', 'check.otp', 'auth:sanctum']);
+            Route::get('/{feature}', 'show')->withoutMiddleware(['verified.phone', 'check.otp', 'auth:sanctum', 'verified']);
             Route::post('/buy/{feature}', 'buy')
                 ->middleware(['verified.phone', 'can:buy,feature'])->missing(function () {
                     return response()->json(['error' => 'ملک مورد نظر یافت نشد']);
