@@ -47,7 +47,6 @@ class OrderController extends Controller
             'status' => 0
         ]);
 
-
         $response = Http::post(config('rgb.curl.post'), [
             "merchant_id" => env('ZARINPAL_MERCHANT_ID'),
             "amount" => $order->amount * $rate,
@@ -58,7 +57,6 @@ class OrderController extends Controller
 
         if($response->successful()) {
             $result = $response->json();
-            return $result;
             if($result['data']['code'] == 100) {
                 return response()->json([
                     'link' => 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"],
