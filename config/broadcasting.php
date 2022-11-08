@@ -40,7 +40,7 @@ return [
                 'port' => 6001,
                 'scheme' => 'http',
                 'encrypted' => false,
-                'cluster' => env('PUSHER_APP_CLUSTER')
+                'cluster' => env('PUSHER_APP_CLUSTER'),
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
