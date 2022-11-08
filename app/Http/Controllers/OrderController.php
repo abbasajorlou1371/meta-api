@@ -11,6 +11,7 @@ use App\Notifications\TransactionNotification;
 use App\Services\ReferalService;
 use Illuminate\Support\Facades\Http;
 use Morilog\Jalali\Jalalian;
+use function PHPUnit\Framework\returnArgument;
 
 class OrderController extends Controller
 {
@@ -57,6 +58,7 @@ class OrderController extends Controller
 
         if($response->successful()) {
             $result = $response->json();
+            return $result;
             if($result['data']['code'] == 100) {
                 return response()->json([
                     'link' => 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"],
