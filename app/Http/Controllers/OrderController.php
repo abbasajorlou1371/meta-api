@@ -11,17 +11,12 @@ use App\Notifications\TransactionNotification;
 use App\Services\ReferalService;
 use Illuminate\Support\Facades\Http;
 use Morilog\Jalali\Jalalian;
-use function PHPUnit\Framework\returnArgument;
 
 class OrderController extends Controller
 {
     public function create(BuyAssetRequest $request)
     {
-        if($request->asset == 'irr') {
-            $rate = 1;
-        } else {
-            $rate = Variable::getRate($request->asset);
-        }
+        $rate = Variable::getRate($request->asset);
 
         $user = $request->user();
 
@@ -73,7 +68,7 @@ class OrderController extends Controller
             $order->update(['status' => -1]);
             $transaction->update(['status' => -1]);
             return response()->json([
-                'error' => $response->clientError()
+                'error' => $response->serverError()
             ]);
         }
     }
@@ -124,16 +119,15 @@ class OrderController extends Controller
 
                 $user->notify(new TransactionNotification($order));
                 $user->deposit();
-                return redirect()->to('https://rgb.irpsc.com/payment/verifed?status=OK?trackID=' . $payment->ref_id);
+                return redirect()->to('https://rgb.irpsc.com/payment/verify');
             }
         } else {
             if($result['errors']['code'] == -51) {
                 $transaction->update(['status' => -1]);
                 $next_transaction->update(['status' => -1]);
                 $order->update(['status' => -1]);
-                return redirect()->to('https://rgb.irpsc.com/payment/verifed?status=NOK');
-            } else {
-                return redirect()->to('https://rgb.irpsc.com/payment/verifed?status=NOK');
+                dd($response);
+                return redirect()->to('https://rgb.irpsc.com/payment/verify');
             }
         }
     }
