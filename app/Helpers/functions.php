@@ -53,7 +53,7 @@ function addSeller(User $seller, $feature)
     $seller->assets->increment('irr', $seller_add_amount['irr']);
 }
 
-function iszero($value)
+function iszero($value) : bool
 {
     return $value == 0;
 }
