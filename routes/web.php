@@ -23,9 +23,7 @@ Route::get('/', function () {
 });
 
 Route::get('/event', function() {
-    // event(new TestEvent('test message'));
-    $user = User::first();
-    $user->notify(new ExampleNotification());
+    event(new TestEvent('test message'));
     return 'test event sent';
 });
 
