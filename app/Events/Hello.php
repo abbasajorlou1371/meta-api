@@ -6,12 +6,11 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TestEvent implements ShouldBroadcast
+class Hello implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,12 +19,16 @@ class TestEvent implements ShouldBroadcast
      *
      * @return void
      */
-
-     public $message;
-
-    public function __construct(string $message)
+    public function __construct()
     {
-        $this->message = $message;
+        //
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'hello' => 'hey there'
+        ];
     }
 
     /**
@@ -35,6 +38,6 @@ class TestEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('test-channel');
+        return new PrivateChannel('channel');
     }
 }

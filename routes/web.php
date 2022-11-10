@@ -1,11 +1,8 @@
 <?php
 
+use App\Events\Hello;
 use App\Events\TestEvent;
-use App\Mail\TestMail;
-use App\Models\User;
-use App\Notifications\ExampleNotification;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +20,7 @@ Route::get('/', function () {
 });
 
 Route::get('/event', function() {
-    event(new TestEvent('test message'));
+    broadcast(new Hello());
     return 'test event sent';
 });
 
