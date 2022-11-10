@@ -20,7 +20,9 @@ class PackageResource extends JsonResource
             'amount' => $this->amount,
             'totalPrice' => Variable::getRate($this->asset) * $this->amount,
             'unitPrice' => Variable::getRate($this->asset),
-            'image' => $this->image
+            $this->mergeWhen($this->image, [
+                'image' => $this->image?->url
+            ]),
         ];
     }
 }
