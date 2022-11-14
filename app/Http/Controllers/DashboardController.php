@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\LatestTransactionResource;
+use App\Http\Resources\PublicProfile\PersonalInfo;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Morilog\Jalali\Jalalian;
 
 class DashboardController extends Controller
 {
@@ -32,5 +31,14 @@ class DashboardController extends Controller
         }
 
         return new LatestTransactionResource($user);
+    }
+
+    public function home(Request $request, string $code) {
+        $user = User::with('kyc', 'customs', 'customs.passions', 'profilePhoto', 'level')
+        ->where('code', $code)->first();
+        if(!$user) {
+            return response()->json(['error' => 'کاربر یافت نشد'], 404);
+        }
+        return new PersonalInfo($user);
     }
 }

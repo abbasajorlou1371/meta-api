@@ -33,7 +33,7 @@ class CustomController extends Controller
         $this->authorize('addCustom', Custom::class);
         $custom = Custom::create([
             'user_id' => $request->user()->id,
-            'prifle_code' => $request->profile_code,
+            'profile_code' => $request->profile_code,
             'occupation' => $request->occupation,
             'education' => $request->education,
             'memory' => $request->memory,
@@ -79,7 +79,7 @@ class CustomController extends Controller
         $this->authorize('updateCustom', $custom);
         $custom->update([
             'user_id' => $request->user()->id,
-            'prifle_code' => $request->profile_code,
+            'profile_code' => $request->profile_code,
             'occupation' => $request->occupation,
             'education' => $request->education,
             'memory' => $request->memory,

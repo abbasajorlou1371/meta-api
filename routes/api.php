@@ -68,6 +68,10 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
+
+        Route::prefix('citizen')->withoutMiddleware(['auth:sanctum', 'verified'])->group(function() {
+            Route::get('/{code}', 'home');
+        });
     });
 
     Route::controller(FeatureController::class)->scopeBindings()->prefix('my-features')->group(function () {
