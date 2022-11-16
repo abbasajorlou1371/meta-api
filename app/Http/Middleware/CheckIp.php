@@ -17,18 +17,15 @@ class CheckIp
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = Http::post(env('ADMIN_PANEL_URL').'api/check/ip', ['ip' => $request->ip()]);
+        $response = Http::post(env('ADMIN_PANEL_URL') . 'api/check/ip', ['ip' => $request->ip()]);
 
         if ($response->successful()) {
             $response = $response->json();
-            dd($response);
-            if($response['code'] == '200') {
+            if ($response['code'] == '200') {
                 return $next($request);
-            } else {
-                abort(403, 'Access Denied');
             }
-        } else {
             abort(403, 'Access Denied');
         }
+        abort(403, 'Access Denied');
     }
 }
