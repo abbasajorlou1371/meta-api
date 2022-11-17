@@ -53,7 +53,7 @@ function addSeller(User $seller, $feature)
     $seller->assets->increment('irr', $seller_add_amount['irr']);
 }
 
-function iszero($value)
+function iszero($value) : bool
 {
     return $value == 0;
 }
@@ -163,7 +163,7 @@ function getScorePercentageToNextLevel(?Level $level, int $score) : int
 {
     if(! $level)
     {
-        if($score == 0) return 0;
+        if($score == 0) return 100;
 
         $firstLevel = Level::first();
         return ($score / $firstLevel->score) * 100;
