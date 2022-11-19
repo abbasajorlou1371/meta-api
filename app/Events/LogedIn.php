@@ -28,6 +28,22 @@ class LogedIn implements ShouldBroadcast
         $this->user = $user;
     }
 
+    public function broadcastWhen() {
+        return $this->user->score > 1000;
+    }
+
+    public function broadcastAs()
+    {
+        return 'event';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'name' => $this->user->name,
+        ];
+    }
+
     /**
      * Get the channels the event should broadcast on.
      *
@@ -36,6 +52,6 @@ class LogedIn implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('user-login' . $this->user->id);
-        return new Channel('user-login');
+        return new Channel('channel');
     }
 }
