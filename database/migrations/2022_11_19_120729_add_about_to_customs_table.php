@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('locked_maps', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('customs', function (Blueprint $table) {
+            $table->text('about')->after('prediction');
+            $table->dropColumn('profile_code');
         });
     }
 
@@ -26,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('locked_maps');
+        Schema::table('customs', function (Blueprint $table) {
+            //
+        });
     }
 };
