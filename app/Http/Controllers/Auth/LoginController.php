@@ -37,7 +37,7 @@ class LoginController extends Controller
         } else {
             if (RateLimiter::remaining($this->throttle($user), $perMinute = 3)) {
                 RateLimiter::hit($this->throttle($user), 300);
-                if (! Hash::check($request->password, $user->password)) {
+                if (!Hash::check($request->password, $user->password)) {
                     $user->events()->create([
                         'event' => 'ورود به حساب کاربری',
                         'ip' => $request->ip(),
@@ -50,8 +50,8 @@ class LoginController extends Controller
                 } else {
 
                     RateLimiter::clear($this->throttle($user));
-
-                    $user->token = $user->createToken('token-'.$user->id)->plainTextToken;
+                    $user->update(['last_seen' => now()]);
+                    $user->token = $user->createToken('token-' . $user->id)->plainTextToken;
                     $user->ip = $request->ip();
 
                     LogedIn::dispatch($user);
@@ -67,6 +67,7 @@ class LoginController extends Controller
                         'device' => $request->userAgent(),
                         'status' => 1,
                     ]);
+
 
                     return new UserResource($user);
                 }
@@ -86,18 +87,18 @@ class LoginController extends Controller
     public function logout(Request $request): Response|Application|ResponseFactory
     {
         $latestActivity = $request->user()->latestActivity;
-                if(isset($latestActivity) && is_null($latestActivity->end))
-                {
-                    $start = Carbon::parse($latestActivity->start);
-                    $end = now();
+        if (isset($latestActivity) && is_null($latestActivity->end)) {
+            $start = Carbon::parse($latestActivity->start);
+            $end = now();
 
-                    $total = $start->diffInMinutes($end);
+            $total = $start->diffInMinutes($end);
 
-                    $latestActivity->update([
-                        'end' => $end,
-                        'total' => $total,
-                    ]);
-                }
+            $latestActivity->update([
+                'end' => $end,
+                'total' => $total,
+            ]);
+        }
+        $request->user()->update(['last_seen' => now()->subMinutes(2)]);
         $request->user()->tokens()->delete();
         broadcast(new UserStatusChanged([
             'code' => $request->user()->code,

@@ -45,9 +45,10 @@ class FeaturePolicy
             return Response::deny('ملک مورد نظر به فروش گذاشته نشده است. شما می توانید پیشنهاد خرید برای این ملک ثبت کنید');
         } else if($user->id === $feature->owner_id){
             return Response::deny('این ملک متعلق به شما می باشد');
-        }else {
-           return Response::allow();
+        }else if(! $feature->priced()) {
+            return Response::deny('ملک مورد نظر قیمت گذاری نشده است', 403);
         }
+        return true;
     }
 
     public function sell(User $user, Feature $feature) {
@@ -67,7 +68,7 @@ class FeaturePolicy
         }
 
         if(! $user->verified()) {
-            return Response::deny('جهت فروش ملک خود باید احراز مرحله اول را انجام دهید', 403);
+            return Response::deny('جهت فروش ملک خود باید احراز مرحله دو را انجام دهید', 403);
         }
 
         // if (isUnderEighteen($user)) {

@@ -97,4 +97,9 @@ class Feature extends Model
     {
         return $this->hasOne(FeatureHourlyProfit::class);
     }
+
+    public function priced()
+    {
+        return count($this->sellRequests) > 0;
+    }
  }

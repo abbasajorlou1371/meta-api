@@ -108,14 +108,16 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
         });
 
         Route::controller(SellRequestsController::class)->prefix('sell-requests')->group(function () {
-            Route::get('/', 'index')->withoutMiddleware('check.otp');
+            Route::get('/', 'index')->withoutMiddleware(['check.otp', 'verified.phone']);
             Route::post('/store/{feature}', 'store')->can('sell', 'feature');
             Route::delete('/delete/{sellRequest}', 'destroy')->can('delete', 'sellRequest');
         });
 
         Route::controller(BuyRequestsController::class)->prefix('buy-requests')->group(function () {
-            Route::get('/', 'index')->withoutMiddleware('check.otp');
-            Route::get('/recieved', 'recievedBuyRequests')->withoutMiddleware('check.otp');
+            Route::withoutMiddleware(['check.otp', 'verified.phone'])->group(function() {
+                Route::get('/', 'index');
+                Route::get('/recieved', 'recievedBuyRequests');
+            });
             Route::post('/buy/{feature}', 'buy')->can('buy', 'feature');
             Route::post('/store/{feature}', 'store')->can('sendBuyRequest', 'feature');
             Route::delete('/delete/{buyFeatureRequest}', 'destroy')->can('delete', 'buyFeatureRequest');

@@ -26,6 +26,7 @@ class UserStatusChanged implements ShouldBroadcast
     {
         $this->data = $data;
     }
+
     public function broadcastAs()
     {
         return 'user-status-changed';
@@ -35,7 +36,7 @@ class UserStatusChanged implements ShouldBroadcast
     {
         return [
             'code' => $this->data['code'],
-            'status' => $this->data['status']
+            'status' => $this->data['status'],
         ];
     }
 
