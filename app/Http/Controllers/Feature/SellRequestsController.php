@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Feature;
 
-use App\Events\FeaturePriced;
 use App\Events\FeatureStatusChanged;
 use App\Helpers\AssetHelper;
 use App\Http\Controllers\Controller;
