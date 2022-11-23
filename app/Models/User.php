@@ -461,7 +461,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function joinRequests()
     {
-        return $this->hasMany(JoinRequest::class);
+        return $this->hasMany(JoinRequest::class, 'from_user', 'id');
     }
     //
 }

@@ -208,7 +208,12 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
             Route::post('/add/member', 'store');
             Route::post('/add/member/{user}/verify/{joinRequest}', 'verify')
             ->missing(function() {
-                return 'درخواست معتبر نمی باشد';
+
+                return response()->json(['error' => 'درخواست معتبر نمی باشد'], 404);
+            });
+            Route::get('/add/member/{user}/verify/{joinRequest}/resend/otp', 'resendOtp')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
             });
         });
     });
