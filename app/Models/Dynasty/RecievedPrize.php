@@ -12,7 +12,7 @@ class RecievedPrize extends Model
 
     protected $table = 'received_prizes';
 
-    protected $fillable = ['user_id', 'prize_id'];
+    protected $fillable = ['user_id', 'prize_id', 'message'];
 
     public function user()
     {

@@ -84,10 +84,6 @@ class AcceptJoinRequestController extends Controller
                 'relationship' => $recievedJoinRequest->relationship,
                 'user_id' => $user->id,
             ]);
-            $prize = DynastyPrize::where('member', $recievedJoinRequest->relationship)->first();
-            $requestedUser->recievedDynastyPrizes()->create([
-                'prize_id' => $prize->id,
-            ]);
             $requesterMessage = DynastyMessage::firstWhere('type', 'requester_accept_message')->message;
             $recieverMessage = DynastyMessage::firstWhere('type', 'reciever_accept_message')->message;
 
@@ -113,6 +109,11 @@ class AcceptJoinRequestController extends Controller
                 ],
                 $recieverMessage
             );
+            $prize = DynastyPrize::where('member', $recievedJoinRequest->relationship)->first();
+            $requestedUser->recievedDynastyPrizes()->create([
+                'prize_id' => $prize->id,
+                'message' => $requesterMessage,
+            ]);
             $requestedUser->notify(new JoinDynastyNotification([
                 'type' => 'requester_accept_message',
                 'title' => 'پیام تایید پیوستن به سلسله توسط کاربر مورد نظر',

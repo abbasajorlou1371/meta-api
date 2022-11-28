@@ -23,4 +23,12 @@ class DynastyPolicy
         }
         return true;
     }
+
+    public function updateDynastyFeature(User $user, Dynasty $dynasty, Feature $feature)
+    {
+        if($feature->hasPendingRequests()) return false;
+        if($feature->owner_id !== $user->id) return false;
+        if($feature->id === $dynasty->feature_id) return false;
+        return $user->id === $dynasty->user_id;
+    }
 }

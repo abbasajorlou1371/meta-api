@@ -206,6 +206,12 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
         Route::controller(DynastyController::class)->group(function() {
             Route::get('/', 'index');
             Route::get('/create/{feature}', 'store')->can('create', 'App\\Models\Dynasty\Dynasty');
+            Route::get('/{dynasty}/update/{feature}', 'updateDynastyFeature')
+            ->can('updateDynastyFeature', ['dynasty', 'feature']);
+            Route::post('/{dynasty}/update/{feature}', 'verifyUpdateDynastyFeature')
+            ->can('updateDynastyFeature', ['dynasty', 'feature']);
+            Route::get('/{dynasty}/update/{feature}/resend/otp', 'resendOtp')
+            ->can('updateDynastyFeature', ['dynasty', 'feature']);
         });
         Route::controller(SendJoinRequestController::class)->scopeBindings()->group(function() {
             Route::get('/requests/sent', 'index');
@@ -258,7 +264,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
             });
         });
         Route::controller(ChildernPermissionsController::class)->group(function() {
-            Route::post('/children/{user}', 'updatePermissions')->can('changePermissions', 'user');
+            Route::post('/children/{user}', 'updatePermissions')->can('updatePermissions', 'user');
         });
     });
 

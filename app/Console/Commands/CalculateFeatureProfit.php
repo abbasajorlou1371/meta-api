@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Feature;
 use Illuminate\Console\Command;
 use App\Models\Feature\FeatureHourlyProfit;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class CalculateFeatureProfit extends Command
 {

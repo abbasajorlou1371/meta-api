@@ -56,6 +56,9 @@ class FeaturePolicy
 
     public function sell(User $user, Feature $feature)
     {
+        if ($feature->properties->label == 'locked') {
+            return Response::deny('ملک قفل شده است.', 403);
+        }
         if ($feature->hasPendingRequests()) {
             return Response::deny('این ملک قبلا به فروش گذاشته شده است');
         }
@@ -73,8 +76,12 @@ class FeaturePolicy
         }
 
         if (isUnderEighteen($user)) {
-            if(! $user->permissions->SF) {
-                abort(403, 'امکان فروش شما توسط پدر شما بسته شده است');
+            if (!$user->permissions) {
+                return Response::deny('شما دسترسی مورد نیاز را ندارید!', 403);
+            } elseif (!$user->permissions->verified) {
+                return Response::deny('شما دسترسی مورد نیاز را ندارید!', 403);
+            } elseif (!$user->permissions->SF) {
+                Response::deny('امکان فروش شما توسط پدر شما بسته شده است', 403);
             }
         }
         return true;

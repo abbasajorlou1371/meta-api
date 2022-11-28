@@ -3,6 +3,7 @@
 namespace App\Models\Dynasty;
 
 use App\Models\Feature;
+use App\Models\Otp;
 use App\Models\User;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,5 +42,10 @@ class Dynasty extends Model
     public function feature(): HasOne
     {
         return $this->hasOne(Feature::class,'id','feature_id');
+    }
+
+    public function otp()
+    {
+        return $this->morphOne(Otp::class, 'verifiable');
     }
 }

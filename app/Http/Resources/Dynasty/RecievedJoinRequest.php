@@ -4,6 +4,7 @@ namespace App\Http\Resources\Dynasty;
 
 use App\Constants\FamilyMembersType;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Constants\JoinRequestStatus;
 
 class RecievedJoinRequest extends JsonResource
 {
@@ -27,9 +28,23 @@ class RecievedJoinRequest extends JsonResource
                 'code' => $this->toUser->code,
                 'name' => $this->toUser->name,
             ],
-            'status' => $this->status,
+            'status' => JoinRequestStatus::requestStatus($this->status),
             'relationship' => FamilyMembersType::familyMembersTypeList()[$this->relationship],
             'message' => $this->message,
+            $this->mergeWhen($this->relationship === FamilyMembersType::OFFSPRING, [
+                'permissions' => [
+                    'BFR' => $this->toUser->permissions?->BFR,
+                    'SF' => $this->toUser->permissions?->SF,
+                    'W' => $this->toUser->permissions?->W,
+                    'JU' => $this->toUser->permissions?->JU,
+                    'DM' => $this->toUser->permissions?->DM,
+                    'PIUP' => $this->toUser->permissions?->PIUP,
+                    'PITC' => $this->toUser->permissions?->PITC,
+                    'PIC' => $this->toUser->permissions?->PIC,
+                    'ESOO' => $this->toUser->permissions?->ESOO,
+                    'COTB' => $this->toUser->permissions?->COTB,
+                ]
+            ])
         ];
     }
 }

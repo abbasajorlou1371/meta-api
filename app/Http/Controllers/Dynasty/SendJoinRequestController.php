@@ -176,4 +176,9 @@ class SendJoinRequestController extends Controller
         $user->notify(new GetOtpNotification($code));
         return response()->json(['success' => 'کد تایید مجددا ارسال گردید.'], 200);
     }
+
+    public function cancel(User $user, JoinRequest $sentJoinRequest)
+    {
+        $sentJoinRequest->update(['status' => JoinRequestStatus::CANCELED]);
+    }
 }

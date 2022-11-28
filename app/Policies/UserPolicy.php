@@ -98,14 +98,13 @@ class UserPolicy
         return $user->id == $custom->user_id && $user->customs->updated_at < now()->subMonth();
     }
 
-    public function changePermissions(User $user, User $child)
+    public function updatePermissions(User $user, User $child)
     {
+        if($user->id == $child->id) return false;
         if (!isUnderEighteen($child)) return false;
         $dynasty = $user->dynasty;
-
         $family = $dynasty->family;
         $familyMembers = $family->familyMembers;
-
         if (!$familyMembers->where('user_id', $child->id)->first()) return false;
         return true;
     }

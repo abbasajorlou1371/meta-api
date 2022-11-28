@@ -9,17 +9,15 @@ class ChildernPermissionsController extends Controller
 {
     public function updatePermissions(request $request, User $user)
     {
-        $user->permissions()->update([
-            'BFR'  => $request->BFR,
-            'SF'   => $request->SF,
-            'W'    => $request->W,
-            'JU'   => $request->JU,
-            'DM'   => $request->DM,
-            'PIUP' => $request->PIUP,
-            'PITC' => $request->PITC,
-            'PIC'  => $request->PIC,
-            'ESOO' => $request->ESOO,
-            'COTB' => $request->COTB,
+        $this->validate(
+            $request,
+            [
+                'permission' => 'required|string|in:BFR,SF,W,JU,DM,PIUP,PITC,PIC,ESOO,COTB',
+                'status' => 'required_with:permission|numeric|min:0|max:1',
+            ]
+        );
+        $user->permissions->update([
+            $request->permission => $request->status
         ]);
         return response()->json(['success' => 'دسترسی ها بروزرسانی شد!'], 200);
     }
