@@ -7,6 +7,6 @@
     <title>Document</title>
 </head>
 <body>
-    <p>{{ $message }}</p>
+    <p>{{ $msg }}</p>
 </body>
 </html>

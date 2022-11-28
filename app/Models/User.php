@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Dynasty\childrenPermission;
 use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\JoinRequest;
+use App\Models\Dynasty\RecievedPrize;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Feature\FeatureOtp;
 use App\Models\Level\Level;
@@ -380,14 +381,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return HasOne
-     */
-    public function permissions(): HasOne
-    {
-        return $this->hasOne(childrenPermission::class);
-    }
-
-    /**
      * @return HasMany
      */
     public function debts(): HasMany
@@ -459,9 +452,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Dynasty::class);
     }
 
-    public function joinRequests()
+    public function sentJoinRequests()
     {
         return $this->hasMany(JoinRequest::class, 'from_user', 'id');
+    }
+
+    public function recievedJoinRequests()
+    {
+        return $this->hasMany(JoinRequest::class, 'to_user', 'id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function permissions(): HasOne
+    {
+        return $this->hasOne(childrenPermission::class);
+    }
+
+    public function recievedDynastyPrizes()
+    {
+        return $this->hasMany(RecievedPrize::class);
     }
     //
 }

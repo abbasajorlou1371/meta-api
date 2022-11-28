@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SenderConfirmationMail extends Mailable implements ShouldQueue
+class SenderConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,11 +18,12 @@ class SenderConfirmationMail extends Mailable implements ShouldQueue
      *
      * @return void
      */
-    public $message;
+    public $title, $msg;
 
-    public function __construct($message)
+    public function __construct($title, $msg)
     {
-        $this->message = $message;
+        $this->msg = $msg;
+        $this->title = $title;
     }
 
     /**
@@ -33,7 +34,7 @@ class SenderConfirmationMail extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            subject: 'پیام تایید ارسال درخواست پیوستن به سلسله',
+            subject: $this->title,
         );
     }
 

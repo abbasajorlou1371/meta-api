@@ -25,7 +25,9 @@ class AddFamilyMemberRequest extends FormRequest
     {
         return [
             'user_id' => 'required|numeric|integer|min:1',
-            'relationship' => 'required|string|in:father,mother,brother,sister,offspring'
+            'relationship' => 'required|string|in:father,mother,brother,sister,offspring',
+            'permissions' => 'required_if:relationship,offspring|array|min:0',
+            'permissions.*' => 'numeric|min:0'
         ];
     }
 

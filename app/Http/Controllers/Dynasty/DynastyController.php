@@ -4,14 +4,25 @@ namespace App\Http\Controllers\Dynasty;
 
 use App\Constants\FamilyMembersType;
 use App\Http\Requests\CreateDynastyRequest;
-use App\Http\Resources\DynastyResource;
+use App\Http\Resources\Dynasty\DynastyResource;
 use App\Models\Feature;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Dynasty\Dynasty;
 
 class DynastyController extends Controller
 {
+    public function index()
+    {
+        $dynasty = Dynasty::with(['family', 'family.familyMembers'])->where('user_id', request()->user()->id)->first();
+
+        if(!$dynasty)
+        {
+            return response()->json(['error' => 'شما سلسله ندارید!'], 404);
+        }
+        return new DynastyResource($dynasty);
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -36,7 +47,7 @@ class DynastyController extends Controller
             'relationship' => FamilyMembersType::OWNER
         ]);
 
-        return DynastyResource::make($dynasty);
+        return new DynastyResource($dynasty);
     }
 
 }

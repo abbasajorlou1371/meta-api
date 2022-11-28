@@ -16,10 +16,8 @@ class JoinRequest extends Model
         'from_user',
         'to_user',
         'status',
-        'relation',
-        'no_father',
-        'death_license',
-        'mother_code',
+        'relationship',
+        'message',
     ];
 
     /**

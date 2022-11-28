@@ -10,9 +10,11 @@ use App\Http\Controllers\Feature\BuyRequestsController;
 use App\Http\Controllers\Feature\SellRequestsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\ChildernPermissionsController;
+use App\Http\Controllers\Dynasty\ChildernPermissionsController;
 use App\Http\Controllers\CustomController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Dynasty\AcceptJoinRequestController;
+use App\Http\Controllers\Dynasty\DynastyPrizeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Feature\BuyFeatureController;
 use App\Http\Controllers\Feature\FeatureController;
@@ -30,7 +32,6 @@ use App\Http\Controllers\OtpController;
 use App\Http\Controllers\ResetInfo\ResetEmailController;
 use App\Http\Controllers\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\UserEventsController;
-use PhpParser\Node\Expr\FuncCall;
 
 /*
 |--------------------------------------------------------------------------
@@ -202,22 +203,64 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip'])->group(functi
     })->name('user-is-online');
     //    DYNASTY SECTION
     Route::prefix('/dynasty')->group(function () {
-        Route::get('/create/{feature}', [DynastyController::class, 'store'])
-        ->can('create', 'App\\Models\Dynasty\Dynasty');
+        Route::controller(DynastyController::class)->group(function() {
+            Route::get('/', 'index');
+            Route::get('/create/{feature}', 'store')->can('create', 'App\\Models\Dynasty\Dynasty');
+        });
         Route::controller(SendJoinRequestController::class)->scopeBindings()->group(function() {
-            Route::post('/add/member', 'store');
-            Route::post('/add/member/{user}/verify/{joinRequest}', 'verify')
+            Route::get('/requests/sent', 'index');
+            Route::get('/requests/sent/{user}/show/{sentJoinRequest}', 'show')
             ->missing(function() {
-
+                return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
+            });
+            Route::post('/add/member/get/permissions', 'getPermissions');
+            Route::post('/add/member', 'store');
+            Route::post('/add/member/{user}/verify/{sentJoinRequest}', 'verify')
+            ->missing(function() {
                 return response()->json(['error' => 'درخواست معتبر نمی باشد'], 404);
             });
-            Route::get('/add/member/{user}/verify/{joinRequest}/resend/otp', 'resendOtp')
+            Route::get('/add/member/{user}/verify/{sentJoinRequest}/resend/otp', 'resendOtp')
             ->missing(function() {
                 return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
             });
         });
-    });
 
+        Route::controller(AcceptJoinRequestController::class)->scopeBindings()->group(function() {
+            Route::get('/requests/recieved', 'index');
+            Route::get('/requests/recieved/{user}/show/{recievedJoinRequest}', 'show')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست یافت نشد'], 404);
+            });
+            Route::get('/requests/recieved/{user}/accept/{recievedJoinRequest}', 'accept')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست یافت نشد'], 404);
+            });
+            Route::post('/requests/recieved/{user}/verify/{recievedJoinRequest}', 'verify')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست معتبر نمی باشد'], 404);
+            });
+            Route::get('/requests/recieved/{user}/verify/{recievedJoinRequest}/resend/otp', 'resendOtp')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
+            });
+            Route::get('/requests/recieved/{user}/reject/{recievedJoinRequest}', 'reject')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست یافت نشد'], 404);
+            });
+
+            Route::controller(DynastyPrizeController::class)->scopeBindings()->group(function() {
+                Route::get('/prizes', 'index');
+                Route::get('/prizes/{recievedDynastyPrize}', 'show');
+                Route::get('/prizes/{user}/get/{recievedDynastyPrize}', 'getPrize')
+                ->missing(function() {
+                    return response()->json(['error' => 'یافت نشد.'], 404);
+                });
+            });
+        });
+        Route::controller(ChildernPermissionsController::class)->group(function() {
+            Route::post('/children/{user}', 'updatePermissions')->can('changePermissions', 'user');
+        });
+    });
 
     Route::controller(FeatureHourlyProfitController::class)->scopeBindings()->prefix('get-hourly-profits')->group(function () {
         Route::get('/{karbari?}', 'getHourlyProfits');

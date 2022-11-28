@@ -10,6 +10,8 @@ class childrenPermission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'verified',
         'BFR',
         'SF',
         'W',

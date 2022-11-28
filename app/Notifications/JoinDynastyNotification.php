@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class JoinDynastyNotification extends Notification
+class JoinDynastyNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -22,6 +22,7 @@ class JoinDynastyNotification extends Notification
 
     public function __construct(array $data)
     {
+        $this->afterCommit();
         $this->data = $data;
     }
 
@@ -46,16 +47,24 @@ class JoinDynastyNotification extends Notification
     {
         switch ($this->data['type']) {
             case 'requester_confirmation_message':
-                return (new SenderConfirmationMail($this->data['message']))
+                return (new SenderConfirmationMail($this->data['title'], $this->data['message']))
                     ->from('rgb@gmail.com', 'متارنگ')
-                    ->to($notifiable->email)
-                    ->subject('درخواست پیوستن به سلسله');
+                    ->to($notifiable->email);
                 break;
-            case 'reciever_confirmation_message':
-                return (new RecieverConfirmationMail($this->data['message']))
+            case 'reciever_message':
+                return (new RecieverConfirmationMail($this->data['title'], $this->data['message']))
                     ->from('rgb@gmail.com')
-                    ->to($notifiable->email)
-                    ->subject('تایید پذیرش پیوستن به سلسله');
+                    ->to($notifiable->email);
+                break;
+            case 'requester_accept_message':
+                return (new SenderConfirmationMail($this->data['title'], $this->data['message']))
+                    ->from('rgb@gmail.com', 'متارنگ')
+                    ->to($notifiable->email);
+                break;
+            case 'reciever_accept_message':
+                return (new RecieverConfirmationMail($this->data['title'], $this->data['message']))
+                    ->from('rgb@gmail.com')
+                    ->to($notifiable->email);
                 break;
             default:
                 return [];
@@ -70,8 +79,31 @@ class JoinDynastyNotification extends Notification
      */
     public function toDatabase($notifiable)
     {
-        return [
-            $this->data['message']
-        ];
+        switch ($this->data['type']) {
+            case 'requester_confirmation_message':
+                return [
+                    'درخواست پیوستن به سلسله شما ارسال گردید.'
+                ];
+                break;
+            case 'reciever_message':
+                return [
+                    'درخواستی جهت پیوستن به سلسله دریافت شد.'
+                ];
+            case 'requester_accept_message':
+                return [
+                    'درخواست پیوستن به سلسله شما توسط کاربر مورد نظر پذیرفته شد.'
+                ];
+                break;
+            case 'reciever_accept_message':
+                return [
+                    'شما درخواست پیوستن به سلسله را پذیرفته و به سلسله پیوستید.'
+                ];
+            case 'requester_reject_message':
+                return [
+                    $this->data['message']
+                ];
+            default:
+                return [];
+        }
     }
 }
