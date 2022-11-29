@@ -111,8 +111,8 @@ class PersonalInfo extends JsonResource
             $this->mergeWhen($this->level, [
                 'level' => [
                     'name' => $this->level?->name,
+                    'slug' => $this->level?->slug,
                     'levels_images' => [
-                        // 'images' => $this->level?->image?->url,
                         'images' => getLevelsImages($this->level),
                     ]
                 ]
