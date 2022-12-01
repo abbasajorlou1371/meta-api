@@ -97,10 +97,7 @@ class LoginController extends Controller
                 'end' => $end,
                 'total' => $total,
             ]);
-<<<<<<< HEAD
-=======
             $request->user()->hourReached();
->>>>>>> bf9baa8490005faa41d71c71545c971d4b4f081f
         }
         $request->user()->update(['last_seen' => now()->subMinutes(2)]);
         $request->user()->tokens()->delete();
