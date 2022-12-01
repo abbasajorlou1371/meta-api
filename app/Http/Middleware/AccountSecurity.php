@@ -2,10 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 
-class TurnOffOtp
+class AccountSecurity
 {
     /**
      * Handle an incoming request.
@@ -16,20 +17,13 @@ class TurnOffOtp
      */
     public function handle(Request $request, Closure $next)
     {
-        // $feature_otp = $request->user()->featureOtp;
-        $user_otp = $request->user()->otps->firstWhere('otp_reason', 'trade-feature-sms');
-        // dd($user_otp);
-
-        if( $user_otp->code != $request->get('code') || $user_otp->updated_at->addMinutes(5) < now()) {
-            return response()->json([
-                'code' => 403,
-                'message' => 'جهت ادامه شماره تلفن همراه خود را تایید کنید'
-            ]);
-
-
-
+        $accountSecurity = $request->user()->accountSecurity;
+        if (is_null($accountSecurity) || time() > $accountSecurity?->until) {
+            return $request->expectsJson() ?
+                abort(403, 'جهت ادامه شماره تلفن خود را تایید کنید!')
+                : RouteServiceProvider::HOME;
         }
-
+        $accountSecurity->update(['last_activity' => time()]);
         return $next($request);
     }
 }

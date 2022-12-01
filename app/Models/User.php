@@ -41,7 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'followed',
         'traded',
         'deposit',
-        'hourRiched'
+        'hourReached'
     ];
 
     protected $casts = [
@@ -57,18 +57,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'reference_id',
         'referal_link',
         'phone',
         'ip',
-        'actiev_status',
-        'avatar',
-        'dark_mode',
-        'messenger_color',
         'last_seen',
         'code',
-        'score'
+        'score',
+        'phone_verified_at',
     ];
+
+    public function accountSecurity()
+    {
+        return $this->hasOne(AccountSecurity::class);
+    }
 
     public function assets()
     {

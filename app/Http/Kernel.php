@@ -67,10 +67,9 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'verified.phone' => \App\Http\Middleware\VerifyPhone::class,
-        'check.otp' => \App\Http\Middleware\CheckOtp::class,
-        'turnOff.otp' => \App\Http\Middleware\TurnOffOtp::class,
         'check.ip' => \App\Http\Middleware\CheckIp::class,
+        'account.security' => \App\Http\Middleware\AccountSecurity::class,
+        'user.activity' => \App\Http\Middleware\UserActivity::class,
     ];
 
     /**
@@ -81,8 +80,9 @@ class Kernel extends HttpKernel
      * @var string[]
      */
     protected $middlewarePriority = [
-        \App\Http\Middleware\VerifyPhone::class,
-        \App\Http\Middleware\CheckOtp::class,
-        \App\Http\Middleware\TurnOffOtp::class,
+        \App\Http\Middleware\CheckIp::class,
+        \App\Http\Middleware\UserActivity::class,
+        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        \App\Http\Middleware\AccountSecurity::class,
     ];
 }

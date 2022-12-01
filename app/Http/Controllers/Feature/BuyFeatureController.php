@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Feature;
 
 use App\Events\FeatureStatusChanged;
-use App\Events\FeatureTraded;
 use App\Http\Controllers\Controller;
-use App\Models\FeatureProperties;
 use App\Helpers\FeatureHelper;
 use App\Helpers\AssetHelper;
 use App\Http\Resources\FeatureResource;
