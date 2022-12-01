@@ -27,9 +27,9 @@ class SendJoinRequest extends FormRequest
     {
         $data = [
             'to_user' => 'required|string',
-            'relation' => ['required', Rule::in(FamilyMembersType::toArray())]
+            'relationship' => ['required', Rule::in(FamilyMembersType::toArray())]
         ];
-        if ($this->get('relation') == FamilyMembersType::FATHER) {
+        if ($this->get('relationship') == FamilyMembersType::FATHER) {
             if ($this->has('no_father')) {
                 return array_merge($data, [
                     'death_license' => 'required|file|mimes:jpg,png,pdf|max:1024',
@@ -41,9 +41,9 @@ class SendJoinRequest extends FormRequest
         return $data;
     }
 
-    public function getRelation()
+    public function getRelationship()
     {
-        return $this->get('relation');
+        return $this->get('relationship');
     }
 
     public function getToUser()

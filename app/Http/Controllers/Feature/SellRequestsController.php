@@ -36,13 +36,18 @@ class SellRequestsController extends Controller
     {
         $pricingLimit = FeaturePricingLimit::first();
 
-        if(isset($request->minimum_price_percentage) && ($request->price_psc  || $request->price_irr)) {
+        if (isset($request->minimum_price_percentage) && ($request->price_psc  || $request->price_irr)) {
             abort(403, 'قیمت ملک خود را یا با درصد یا با قیمت psc و یا ریال مشخص کنید');
         }
 
         if (isset($request->minimum_price_percentage)) {
-            if($request->minimum_price_percentage < $pricingLimit->public_price_limit) {
-                abort(403, 'شما مجاز به فروش زمین خود به کمتر از ۸۰٪ قیمت خرید ملک نمی باشید');
+            if(isUnderEighteen($request->user())) {
+                if ($request->minimum_price_percentage < $pricingLimit->under_eighteen_price_limit) {
+                    abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->under_eighteen_price_limit} قیمت خرید ملک نمی باشید");
+                }
+            }
+            if ($request->minimum_price_percentage < $pricingLimit->public_price_limit) {
+                abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->public_price_limit} قیمت خرید ملک نمی باشید");
             }
             $color = AssetHelper::getAssetColor($feature);
             $totalPrice = $feature->properties->stability * currentColorPrice($color) * ($request->minimum_price_percentage / 100);
@@ -70,16 +75,27 @@ class SellRequestsController extends Controller
 
                 $price_limit = floor(($totalRequested_price / $totalTradedPrice) * 100);
 
+                if(isUnderEighteen($request->user())) {
+                    if ($request->minimum_price_percentage < $pricingLimit->under_eighteen_price_limit) {
+                        abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->under_eighteen_price_limit} قیمت خرید ملک نمی باشید");
+                    }
+                }
+
                 if ($price_limit < $pricingLimit->public_price_limit) {
-                    abort(403, 'شما مجاز به فروش زمین خود به کمتر از ۸۰٪ قیمت خرید ملک نمی باشید');
+                    abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->public_price_limit} قیمت خرید ملک نمی باشید");
                 }
             } else {
                 //If user bought this feature from a User
                 $totalTradedPrice = (currentPscPrice() * $latestTraded->psc_amount) + $latestTraded->irr_amount;
                 $price_limit = floor(($totalRequested_price / $totalTradedPrice) * 100);
                 // Check if the price limit is less than the allowed price limit by administor
+                if(isUnderEighteen($request->user())) {
+                    if ($request->minimum_price_percentage < $pricingLimit->under_eighteen_price_limit) {
+                        abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->under_eighteen_price_limit} قیمت خرید ملک نمی باشید");
+                    }
+                }
                 if ($price_limit < $pricingLimit->public_price_limit) {
-                    abort(403, 'شما مجاز به فروش زمین خود به کمتر از ۸۰٪ قیمت خرید ملک نمی باشید');
+                    abort(403, "شما مجاز به فروش زمین خود به کمتر از {$pricingLimit->public_price_limit} قیمت خرید ملک نمی باشید");
                 }
             }
         }

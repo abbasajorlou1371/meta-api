@@ -20,8 +20,8 @@ class Debt extends Model
         'reason'
     ];
 
-    public function debtable()
+    public function user()
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class);
     }
 }

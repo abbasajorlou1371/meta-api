@@ -12,39 +12,10 @@ class DynastyPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can view any models.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function viewAny(User $user)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Dynasty  $dynasty
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function view(User $user, Dynasty $dynasty)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
     public function create(User $user)
     {
         if(! $user->verified()) {
-            abort(403, 'شما برای تاسیس سلسله باید احراز هویت مرحله ۲ را انجام دهید');
+            return Response::deny('شما برای تاسیس سلسله باید احراز هویت مرحله 2 را انجام دهید', 403);
         }
 
         if(! empty($user->dynasty)) {
@@ -53,51 +24,11 @@ class DynastyPolicy
         return true;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Dynasty  $dynasty
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function update(User $user, Dynasty $dynasty)
+    public function updateDynastyFeature(User $user, Dynasty $dynasty, Feature $feature)
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Dynasty  $dynasty
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function delete(User $user, Dynasty $dynasty)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Dynasty  $dynasty
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Dynasty $dynasty)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Dynasty  $dynasty
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Dynasty $dynasty)
-    {
-        //
+        if($feature->hasPendingRequests()) return false;
+        if($feature->owner_id !== $user->id) return false;
+        if($feature->id === $dynasty->feature_id) return false;
+        return $user->id === $dynasty->user_id;
     }
 }

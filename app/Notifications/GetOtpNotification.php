@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GetOtpNotification extends Notification
+class GetOtpNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -20,7 +20,7 @@ class GetOtpNotification extends Notification
 
     private $code, $phone;
 
-    public function __construct($phone = null, $code)
+    public function __construct($code, $phone = null)
     {
         $this->code = $code;
         $this->phone = $phone;

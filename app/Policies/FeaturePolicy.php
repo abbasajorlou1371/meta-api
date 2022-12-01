@@ -8,11 +8,6 @@ use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
-use App\Models\Dynasty\Dynasty;
-use App\Models\Feature\FeaturePricingLimit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
 class FeaturePolicy
 {
     use HandlesAuthorization;
@@ -56,6 +51,9 @@ class FeaturePolicy
 
     public function sell(User $user, Feature $feature)
     {
+        if ($feature->properties->label == 'locked') {
+            return Response::deny('ملک قفل شده است.', 403);
+        }
         if ($feature->hasPendingRequests()) {
             return Response::deny('این ملک قبلا به فروش گذاشته شده است');
         }
@@ -72,12 +70,15 @@ class FeaturePolicy
             return Response::deny('جهت فروش ملک خود باید احراز مرحله دو را انجام دهید', 403);
         }
 
-        // if (isUnderEighteen($user)) {
-        //     if(! $user->permissions->SF){
-        //         abort(403, 'امکان فروش شما توسط پدر شما بسته شده است');
-        //     }
-        //     abort(403, 'شما جهت فروش ملک خود بایستی سلسله ای تاسیس کرده و پدر خود را معرفی کنید تا ایشان به شما این امکان را بدهد تا ملک خود را بفرویش برسانید');
-        // }
+        if (isUnderEighteen($user)) {
+            if (!$user->permissions) {
+                return Response::deny('شما دسترسی مورد نیاز را ندارید!', 403);
+            } elseif (!$user->permissions->verified) {
+                return Response::deny('شما دسترسی مورد نیاز را ندارید!', 403);
+            } elseif (!$user->permissions->SF) {
+                Response::deny('امکان فروش شما توسط پدر شما بسته شده است', 403);
+            }
+        }
         return true;
     }
 

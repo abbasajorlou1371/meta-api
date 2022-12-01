@@ -5,14 +5,13 @@ namespace App\Models;
 use App\Models\Dynasty\childrenPermission;
 use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\JoinRequest;
+use App\Models\Dynasty\RecievedPrize;
 use App\Models\Feature\FeatureHourlyProfit;
-use App\Models\Feature\FeatureOtp;
 use App\Models\Level\Level;
 use App\Models\Level\UserActivity;
 use App\Models\Level\UserLevel;
 use App\Models\Level\RecievedLevelPrize;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -24,10 +23,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\SellFeatureRequest;
 use App\Models\Note;
-use App\Models\Reset\ResetEmail;
-use App\Models\Reset\ResetPhone;
 use App\Models\User\Custom;
-use App\Models\User\Passion;
 use App\Models\User\UserEvent;
 use App\Models\User\UserVariable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -40,7 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'followed',
         'traded',
         'deposit',
-        'hourRiched'
+        'hourReached'
     ];
 
     protected $casts = [
@@ -56,18 +52,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'reference_id',
         'referal_link',
         'phone',
         'ip',
-        'actiev_status',
-        'avatar',
-        'dark_mode',
-        'messenger_color',
         'last_seen',
         'code',
-        'score'
+        'score',
+        'phone_verified_at',
+        'email_verified_at'
     ];
+
+    public function accountSecurity()
+    {
+        return $this->hasOne(AccountSecurity::class);
+    }
 
     public function assets()
     {
@@ -135,8 +133,14 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function referals(): HasManyThrough
     {
-        return $this->hasManyThrough(__CLASS__, Referal::class,
-        'reference_id', 'id', 'id', 'referer_id');
+        return $this->hasManyThrough(
+            __CLASS__,
+            Referal::class,
+            'reference_id',
+            'id',
+            'id',
+            'referer_id'
+        );
     }
 
     /**
@@ -144,7 +148,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function has_reference(): bool
     {
-        return ! empty($this->referals());
+        return !empty($this->referals());
     }
 
     /**
@@ -152,8 +156,14 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function reference(): HasOneThrough
     {
-        return $this->hasOneThrough(__CLASS__, Referal::class, 'referer_id', 'id',
-        'id', 'reference_id');
+        return $this->hasOneThrough(
+            __CLASS__,
+            Referal::class,
+            'referer_id',
+            'id',
+            'id',
+            'reference_id'
+        );
     }
 
     /**
@@ -235,7 +245,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function settings(): HasOne
     {
-        return $this->hasOne(Setting::class,'user_id','id');
+        return $this->hasOne(Setting::class, 'user_id', 'id');
     }
 
     /**
@@ -292,7 +302,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function prizes(): BelongsToMany
     {
-        return $this->belongsToMany(Prize::class,'received_prizes','user_id','prize_id');
+        return $this->belongsToMany(Prize::class, 'received_prizes', 'user_id', 'prize_id');
     }
 
     /**
@@ -327,7 +337,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return HasMany
      */
-    public function activities(): HasMany
+    public function activities()
     {
         return $this->hasMany(UserActivity::class);
     }
@@ -335,7 +345,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return HasOne
      */
-    public function latestActivity(): HasOne
+    public function latestActivity()
     {
         return $this->hasOne(UserActivity::class)->latestOfMany();
     }
@@ -343,10 +353,70 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return HasMany
      */
-    public function reports(): HasMany
+    public function reports()
     {
         return $this->hasMany(Report::class);
     }
+
+    /**
+     * @return bool
+     */
+    public function verified(): bool
+    {
+        if (!empty($this->kyc))
+            if ($this->kyc->status == 1)
+                return true;
+        return false;
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function debts()
+    {
+        return $this->hasMany(Debt::class);
+    }
+
+    public function latestSellRequest()
+    {
+        return $this->hasOne(SellFeatureRequest::class, 'seller_id', 'id')->latestOfMany();
+    }
+
+    public function featureProfits()
+    {
+        return $this->hasMany(FeatureHourlyProfit::class);
+    }
+
+    public function variables()
+    {
+        return $this->hasOne(UserVariable::class);
+    }
+
+    public function customs()
+    {
+        return $this->hasOne(Custom::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(UserEvent::class);
+    }
+
+    public function latestOrder()
+    {
+        return $this->hasOne(Order::class)->latestOfMany();
+    }
+
+    public function profilePhotos() {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
+    }
+
+    // Dynasty
     /**
      * @return HasOne
      */
@@ -355,48 +425,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Dynasty::class);
     }
 
-    /**
-     * @return HasOne
-     */
-    public function otps(): HasMany
+    public function sentJoinRequests()
     {
-        return $this->hasMany(Otp::class);
+        return $this->hasMany(JoinRequest::class, 'from_user', 'id');
     }
 
-    /**
-     * @return HasMany
-     */
-    public function sendRequests(): HasMany
+    public function recievedJoinRequests()
     {
-        return $this->hasMany(JoinRequest::class, 'from_user', 'code');
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function recievedRequests(): HasMany
-    {
-        return $this->hasMany(JoinRequest::class, 'to_user', 'code');
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function findUserNotification($id): mixed
-    {
-        return $this->notifications()->where('id',$id)->first();
-    }
-
-    /**
-     * @return bool
-     */
-    public function verified(): bool
-    {
-        if(! empty($this->kyc))
-            if($this->kyc->status == 1)
-                return true;
-        return false;
+        return $this->hasMany(JoinRequest::class, 'to_user', 'id');
     }
 
     /**
@@ -407,62 +443,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(childrenPermission::class);
     }
 
-    /**
-     * @return HasMany
-     */
-    public function debts(): HasMany
+    public function recievedDynastyPrizes()
     {
-        return $this->hasMany(Debt::class,'user_id','id');
+        return $this->hasMany(RecievedPrize::class);
     }
+    //
 
-    public function latestSellRequest()
+    public function latestResetRequest()
     {
-        return $this->hasOne(SellFeatureRequest::class, 'seller_id', 'id')->latestOfMany();
-    }
-
-    public function featureProfits() {
-        return $this->hasMany(FeatureHourlyProfit::class);
-    }
-
-    public function featureOtp()
-    {
-        return $this->hasOne(FeatureOtp::class);
-    }
-
-    public function profilePhotos() {
-        return $this->morphMany(Image::class, 'imageable');
-    }
-
-    public function variables() {
-        return $this->hasOne(UserVariable::class);
-    }
-
-    public function customs() {
-        return $this->hasOne(Custom::class);
-    }
-
-    public function events()
-    {
-        return $this->hasMany(UserEvent::class);
-    }
-
-    public function resetPhone()
-    {
-        return $this->hasOne(ResetPhone::class);
-    }
-
-    public function resetEmail()
-    {
-        return $this->hasOne(ResetEmail::class);
-    }
-
-    public function latestOrder()
-    {
-        return $this->hasOne(Order::class)->latestOfMany();
-    }
-
-    public function latestPayment()
-    {
-        return $this->hasOne(Payment::class)->latestOfMany();
+        return $this->hasOne(Reset::class)->latestOfMany();
     }
 }

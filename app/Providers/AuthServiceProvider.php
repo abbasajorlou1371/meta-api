@@ -10,6 +10,7 @@ use App\Policies\BuyFeatureRequestPolicy;
 use App\Policies\SellRequestPolicy;
 use App\Mail\VerifyEmail as Mail;
 use App\Models\Dynasty\Dynasty;
+use App\Models\Dynasty\JoinRequest;
 use App\Models\Feature;
 use App\Models\Kyc;
 use App\Models\Level\Prize;
@@ -18,6 +19,7 @@ use App\Models\User;
 use App\Models\User\Custom;
 use App\Policies\DynastyPolicy;
 use App\Policies\FeaturePolicy;
+use App\Policies\JoinRequestPolicy;
 use App\Policies\KycPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\PrizePolicy;
@@ -45,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         Dynasty::class => DynastyPolicy::class,
         User::class => UserPolicy::class,
         Custom::class => UserPolicy::class,
+        JoinRequest::class => JoinRequestPolicy::class,
     ];
 
     /**

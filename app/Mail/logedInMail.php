@@ -17,7 +17,7 @@ class logedInMail extends Mailable
      * @return void
      */
 
-     public $user;
+    public $user;
 
     public function __construct($user)
     {

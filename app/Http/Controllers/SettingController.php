@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Notifications\GetOtpNotification;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 class SettingController extends Controller
 {
@@ -33,32 +28,24 @@ class SettingController extends Controller
         }
 
         if ($request->has('setting')) {
-            $key = $request->input('setting');
-            $value = $request->input('status');
-
             $settings->update([
-                $key => $value,
+                $request->input('setting') => $request->input('status'),
             ]);
         }
 
         return response()->json([
             'success' => 'تنظیمات بروز رسانی شد'
-        ]);
+        ], 200);
     }
 
-    /**
-     * @param Request $request
-     * @return Response|Application|ResponseFactory
-     */
-    public function generalSettingsUpdate(Request $request): Response|Application|ResponseFactory
+    public function generalSettingsUpdate(Request $request)
     {
-        $setting = $request->input('setting');
-        $status = $request->input('status');
-
-        auth()->user()->generalSettings->update([
-            $setting => $status,
+        $request->user()->generalSettings->update([
+            $request->input('setting') => $request->input('status'),
         ]);
-        return response('تنظیمات بروز رسانی شد', 200);
+        return response()->json([
+            'message' => 'تنظیمات بروزرسانی شد'
+        ], 200);
     }
 
 
@@ -81,6 +68,7 @@ class SettingController extends Controller
             'message' => 'تصویر بارگذاری شد'
         ], 200);
     }
+<<<<<<< HEAD
 
     public function sendPhoneVerificationOtp(Request $request)
     {
@@ -138,4 +126,6 @@ class SettingController extends Controller
             'success' => 'شماره تلفن ثبت شد'
         ]);
     }
+=======
+>>>>>>> bf9baa8490005faa41d71c71545c971d4b4f081f
 }

@@ -72,8 +72,7 @@ function isUnderEighteen(User $user)
 {
     $birthdate = Carbon::parse($user->kyc->birthdate)->format('Y-m-d');
     $birthdate = Carbon::createFromDate($birthdate);
-    $now = Carbon::now();
-    if ($birthdate->diffInYears($now) < 18) return true;
+    if ($birthdate->diffInYears(now()) < 18) return true;
     return false;
 }
 
@@ -169,7 +168,7 @@ function ticketStatusTitle($status)
 function getScorePercentageToNextLevel(?Level $level, int $score): int
 {
     if (!$level) {
-        if ($score == 0) return 100;
+        if ($score == 0) return 0;
 
         $firstLevel = Level::first();
         return ($score / $firstLevel->score) * 100;

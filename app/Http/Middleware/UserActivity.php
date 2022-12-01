@@ -20,6 +20,7 @@ class UserActivity
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check()) {
+            dd('fadfas');
             $latestActivity = $request->user()->latestActivity;
             if ($request->has('online') && $request->query('online') === 'true') {
                 if (isset($latestActivity) && isset($latestActivity->end)) {
@@ -48,7 +49,6 @@ class UserActivity
             }
             $request->user()->update(['last_seen' => now()]);
         }
-
         return $next($request);
     }
 }

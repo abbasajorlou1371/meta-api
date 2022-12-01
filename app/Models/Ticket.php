@@ -34,11 +34,6 @@ class Ticket extends Model
         return $this->hasMany(TicketResponse::class);
     }
 
-    public function response()
-    {
-        return $this->hasOne(TicketResponse::class);
-    }
-
     public function isClosed()
     {
         return $this->status === 3;

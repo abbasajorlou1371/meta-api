@@ -2,6 +2,7 @@
 
 namespace App\Models\Dynasty;
 
+use App\Models\User;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,8 +18,18 @@ class FamilyMember extends Model
         'relationship',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     public function family(): BelongsTo
     {
         return $this->belongsTo(Family::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
