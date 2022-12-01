@@ -1,23 +1,18 @@
 <?php
 
-namespace App\Models\Feature;
+namespace App\Models;
 
-use App\Models\Otp;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FeatureOtp extends Model
+class AccountSecurity extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'otp_off',
-        'time'
-    ];
+    protected $guarded = [];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 

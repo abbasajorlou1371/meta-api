@@ -8,7 +8,6 @@ use App\Http\Requests\FeatureImageRequest;
 use App\Http\Resources\FeatureResource;
 use Illuminate\Http\JsonResponse;
 use App\Models\Feature;
-use App\Models\Feature\FeatureOtp;
 use App\Models\Image;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -68,35 +67,6 @@ class FeatureController extends Controller
         ], 200);
     }
 
-    public function turnOffOtp(Request $request)
-    {
-        $request->validate([
-            'time' => 'nullable|integer|min:5|max:60'
-        ]);
-        FeatureOtp::updateOrCreate(
-            ['user_id' => $request->user()->id],
-            [
-                'otp_off' => 1,
-                'time' => $request->time
-            ]
-        );
-        return response()->json([
-            'message' => sprintf('قفل معاملات شما به مدت"%s" دقیقه غیر فعال گردید',$request->time)
-        ], 200);
-    }
-
-    public function turnOnOtp(Request $request)
-    {
-        FeatureOtp::updateOrCreate(
-            ['user_id' => $request->user()->id],
-            [
-                'otp_off' => 0,
-                'time' => 0
-            ]
-        );
-        return response()->json(['قفل معاملات فعال گردید'], 200);
-    }
-
     public function updateFeature(User $user, Feature $feature, Request $request)
     {
         $this->validate(
@@ -108,12 +78,12 @@ class FeatureController extends Controller
             ]
         );
 
-        if($request->minimum_price_percentage < 80) {
+        if ($request->minimum_price_percentage < 80) {
             abort(403, 'شما مجاز به قیمت گذاری  ملک خود کمتر از ۸۰ درصد نمی باشید');
         }
 
         $color = AssetHelper::getAssetColor($feature);
-        $totalPrice = $feature->properties->stability * currentColorPrice($color) * ($request->minimum_price_percentage/100);
+        $totalPrice = $feature->properties->stability * currentColorPrice($color) * ($request->minimum_price_percentage / 100);
         $price_psc = ($totalPrice * 0.5) / currentPscPrice();
         $price_irr = $totalPrice * 0.5;
         $feature->properties->update([

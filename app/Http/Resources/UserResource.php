@@ -24,9 +24,9 @@ class UserResource extends JsonResource
                 'token' => $this->token,
             ]),
             'score' => $this->score,
-            'phone' => $this->phone,
+            'phone' => str_pad($this->phone, 3, '*'),
             'automatic_logout' => $this->settings->automatic_logout,
-            'level' => $this->level ?? null,
+            'level' => $this->level,
             'score_percentage_to_next_level' => getScorePercentageToNextLevel($this->level, $this->score),
             $this->mergeWhen(isset($this->profilePhotos), [
                 'profile-photos' => $this->profilePhotos

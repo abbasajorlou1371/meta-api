@@ -18,10 +18,10 @@ class UserLogObserver
      */
     public function hourReached(User $user): void
     {
-        $totalActiveHours = $user->activies->sum('total');
+        $totalActiveHours = $user->activities->sum('total');
         if ($totalActiveHours % 60 == 0) {
             $user->log->update([
-                'activity_hours' => $totalActiveHours * 0.1
+                'activity_hours' => ceil($totalActiveHours / 60) * 0.1
             ]);
         }
         $this->calculateScore($user);
@@ -89,7 +89,7 @@ class UserLogObserver
         $sum = array_sum([
             $log->followers_count,
             $log->transactions_count,
-            $log->acitivity_hours,
+            $log->activity_hours,
             $log->deposit_amount,
         ]);
         $log->increment('score', $sum);
