@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Option whereKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Option whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Option whereValue($value)
+ * @method static lazy()
  * @mixin \Eloquent
  */
 class Option extends Model

@@ -25,6 +25,7 @@ use App\Policies\OrderPolicy;
 use App\Policies\PrizePolicy;
 use App\Policies\TicketPolicy;
 use App\Policies\UserPolicy;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -66,6 +67,8 @@ class AuthServiceProvider extends ServiceProvider
                 ->subject('تایید آدرس ایمیل');
         });
 
-        //
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            return 'https://rgb.irpsc.com/metaverse/reset-password?token='.$token;
+        });
     }
 }

@@ -1,37 +1,38 @@
 <?php
 
 use App\Http\Controllers\AccountSecurityController;
+use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\Dynasty\DynastyController;
-use App\Http\Controllers\Dynasty\SendJoinRequestController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Feature\BuyRequestsController;
-use App\Http\Controllers\Feature\SellRequestsController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Dynasty\ChildernPermissionsController;
 use App\Http\Controllers\CustomController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dynasty\AcceptJoinRequestController;
+use App\Http\Controllers\Dynasty\ChildernPermissionsController;
+use App\Http\Controllers\Dynasty\DynastyController;
 use App\Http\Controllers\Dynasty\DynastyPrizeController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Dynasty\SendJoinRequestController;
 use App\Http\Controllers\Feature\BuyFeatureController;
+use App\Http\Controllers\Feature\BuyRequestsController;
 use App\Http\Controllers\Feature\FeatureController;
 use App\Http\Controllers\Feature\FeatureHourlyProfitController;
+use App\Http\Controllers\Feature\SellRequestsController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KycController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ResetInfo\ResetEmailController;
+use App\Http\Controllers\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TicketController;
-use Illuminate\Http\Request;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ResetInfo\ResetEmailController;
-use App\Http\Controllers\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\UserEventsController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,8 +61,15 @@ Route::middleware(['api', 'check.ip'])->group(function () {
     });
 
     Route::post('/register/{referral?}', [RegisterController::class, 'register']);
-    Route::post('/login', [LoginController::class, 'login']);
-    Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
+    Route::controller(LoginController::class)->middleware('auth:sanctum')->group(function () {
+        Route::post('/login', 'login')->withoutMiddleware('auth:sanctum');
+        Route::post('/logout', 'logout');
+    });
+
+    Route::controller(ResetPasswordController::class)->middleware('guest')->group(function () {
+        Route::post('/forgot-password', 'sendResetPasswordLink');
+        Route::post('/forgot-password/reset/password', 'resetPassword');
+    });
 
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -186,7 +194,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
             Route::post('/', 'sendVerifyCode');
             Route::post('/verify', 'verify');
         });
-        Route::controller(ResetPasswordController::class)->group(function () {
+        Route::controller(ChangePasswordController::class)->group(function () {
             Route::post('/password', 'changePassword');
         });
     });

@@ -30,9 +30,9 @@ class HomeController extends Controller
                         'id' => $user->id,
                         'code' => $user->code,
                         'score' => $user->score,
-                        'profile-photo' => $user->profilePhoto->url ?? "",
+                        'profile-photos' => $user->profilePhotos,
                         'level' => $user->level,
-                        'online' => Carbon::parse($user->last_seen)->diffInMinutes(now()) > 2 ? false : true,
+                        'online' => !(Carbon::parse($user->last_seen)->diffInMinutes(now()) > 2),
                     ];
                 })  : [],
             'features' => Feature::with(['properties', 'geometry','geometry.coordinates'])->lazyById()->map(function ($feature) {
@@ -71,12 +71,12 @@ class HomeController extends Controller
         ];
     }
 
-    public function showUserDetails(User $user)
+    public function showUserDetails(User $user): TopPlayerResource
     {
         return new TopPlayerResource($user);
     }
 
-    public function store()
+    public function store(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return PackageResource::collection(Option::lazy());
     }

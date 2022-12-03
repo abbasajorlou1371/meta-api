@@ -21,11 +21,10 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\SellFeatureRequest;
-use App\Models\Note;
 use App\Models\User\Custom;
 use App\Models\User\UserEvent;
 use App\Models\User\UserVariable;
+use App\Notifications\sendPasswordResetNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -452,5 +451,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function latestResetRequest()
     {
         return $this->hasOne(Reset::class)->latestOfMany();
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $url = 'https://rgb.irpsc.com/metaverse?token='.$token;
+        $this->notify(new sendPasswordResetNotification($url));
     }
 }
