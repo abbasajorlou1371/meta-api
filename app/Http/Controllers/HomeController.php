@@ -16,17 +16,13 @@ use Morilog\Jalali\Jalalian;
 class HomeController extends Controller
 {
 
-    public function features() {
-        return FeatureResource::collection(Feature::with('geometry.coordinates')->lazy());
-    }
-
     /**
      * @return array
      */
-    public function index(Request $request): array
+    public function index(Request $request)
     {
         $user = $request->user('sanctum');
-        return [
+        return response()->json([
             'user' => $user ? new UserResource($user) : [],
             'top_players' => !$user
                 ? User::orderBy('score', 'DESC')->take(10)->get()->map(function($user) {
@@ -72,7 +68,7 @@ class HomeController extends Controller
             }),
             'feature_hourly_profit_info' => $user && $user->features ?
             hourlyProfitInfo($user) : null,
-        ];
+        ]);
     }
 
     public function showUserDetails(User $user): TopPlayerResource
