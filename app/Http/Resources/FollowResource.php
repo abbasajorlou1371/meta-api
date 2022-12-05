@@ -20,7 +20,7 @@ class FollowResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'score' => $this->score,
-            'code' =>
+            'code' => $this->code,
             $this->mergeWhen(isset($this->profilePhotos), [
                 'image' => $this->profilePhotos,
             ]),

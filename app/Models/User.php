@@ -212,7 +212,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function tickets(): HasMany
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(Ticket::class, 'user_id', 'id');
     }
 
     /**

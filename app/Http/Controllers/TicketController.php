@@ -7,6 +7,7 @@ use App\Http\Requests\CreateTicketRequest;
 use App\Http\Requests\TicketResponseRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
+use App\Models\TicketResponse;
 use App\Models\User;
 use App\Notifications\TicketRecieved;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +30,7 @@ class TicketController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
+        $tickets = $this->user->tickets;
         return TicketResource::collection($this->user->tickets);
     }
 
@@ -61,11 +63,10 @@ class TicketController extends Controller
             abort(403, 'عملیات با خطا مواجه شد');
         }
 
+        $path = "";
         if ($request->hasFile('attachment')) {
             $path = env('FTP_ENDPOINT') .
                 $request->file('attachment')->store('/tickets/' . $this->user->id);
-        } else {
-            $path = "";
         }
 
         $ticket = Ticket::create([
@@ -80,7 +81,7 @@ class TicketController extends Controller
 
         if (isset($ticket->reciever)) {
             $message = 'تیکتی از طرف ' . $this->user->name . 'دریافت شده است';
-            $ticket->reciever->notify(new TicketRecieved($message));
+            $ticket->reciever->notify(new TicketRecieved($ticket->sender->name, $message));
         }
 
         $ticket->message = 'تیکت با موفقیت ارسال گردید';
@@ -105,7 +106,8 @@ class TicketController extends Controller
         } else {
             $path = "";
         }
-        $ticket->response()->create([
+        TicketResponse::create([
+            'ticket_id' => $ticket->id,
             'response' => $request->response,
             'attachment' => $path,
         ]);
@@ -117,7 +119,7 @@ class TicketController extends Controller
 
         $message = 'به تیکت شما با شماره ' . $ticket->code . 'پاسخی ارسال شده است';
 
-        $ticket->sender->notify(new TicketRecieved($message));
+        $ticket->sender->notify(new TicketRecieved($ticket->sender->name, $message));
 
         $ticket->message = 'پاسخ تیکت با موفقیت ارسال گردید';
 
@@ -130,7 +132,7 @@ class TicketController extends Controller
      */
     public function close(Ticket $ticket): JsonResponse
     {
-        $ticket->update(['status' => 3]);
+        $ticket->update(['status' => TicketStatus::CLOSED]);
         return response()->json([
             'success' => 'تیکت بسته شد'
         ]);

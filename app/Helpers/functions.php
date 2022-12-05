@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\FamilyMembersType;
+use App\Constants\TicketStatus;
 use App\Models\Feature;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Level\Level;
@@ -150,17 +151,23 @@ function ticketDepartmentsTitle($department)
 function ticketStatusTitle($status)
 {
     switch ($status) {
-        case 0:
+        case TicketStatus::NEW:
             return 'جدید';
             break;
-        case 1:
+        case TicketStatus::ANSWERED:
             return 'پاسخ داده شده';
             break;
-        case 2:
+        case TicketStatus::TRACKING:
             return 'درحال بررسی';
             break;
-        case 3:
+        case TicketStatus::CLOSED:
             return 'بسته شده';
+            break;
+        case TicketStatus::RESOLVED:
+            return 'حل شده';
+            break;
+        case TicketStatus::UNRESOLVED:
+            return 'حل نشده';
             break;
     }
 }

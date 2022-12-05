@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -17,11 +18,12 @@ class TicketRecieved extends Notification
      * @return void
      */
 
-     private $message;
+     private $message, $sender;
 
-    public function __construct($message)
+    public function __construct($sender, $message)
     {
         $this->message = $message;
+        $this->sender = $sender;
     }
 
     /**
@@ -58,6 +60,7 @@ class TicketRecieved extends Notification
     public function toArray($notifiable)
     {
         return [
+            'sender' => $this->sender,
             'message' => $this->message,
         ];
     }
