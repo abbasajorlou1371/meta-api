@@ -115,9 +115,9 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     });
 
     Route::middleware('account.security')->group(function () {
-        Route::controller(BuyFeatureController::class)->prefix('feature')->group(function () {
+        Route::controller(BuyFeatureController::class)->prefix('features')->group(function () {
             Route::get('/{feature}', 'show')->withoutMiddleware(['account.security', 'auth:sanctum', 'verified']);
-            Route::post('/buy/{feature}', 'buy')
+            Route::get('/buy/{feature}', 'buy')
                 ->middleware('can:buy,feature')->missing(function () {
                     return response()->json(['error' => 'ملک مورد نظر یافت نشد']);
                 });
@@ -134,7 +134,6 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
                 Route::get('/', 'index');
                 Route::get('/recieved', 'recievedBuyRequests');
             });
-            Route::post('/buy/{feature}', 'buy')->can('buy', 'feature');
             Route::post('/store/{feature}', 'store')->can('sendBuyRequest', 'feature');
             Route::delete('/delete/{buyFeatureRequest}', 'destroy')->can('delete', 'buyFeatureRequest');
             Route::post('/accept/{buyFeatureRequest}', 'acceptBuyRequest')->can('accept', 'buyFeatureRequest');
@@ -194,9 +193,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
             Route::post('/', 'sendVerifyCode');
             Route::post('/verify', 'verify');
         });
-        Route::controller(ChangePasswordController::class)->group(function () {
-            Route::post('/password', 'changePassword');
-        });
+        Route::post('/password', ChangePasswordController::class);
     });
 
     Route::get('/online', function () {
