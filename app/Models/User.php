@@ -147,7 +147,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function has_reference(): bool
     {
-        return !empty($this->referals());
+        return isset($this->reference);
     }
 
     /**
