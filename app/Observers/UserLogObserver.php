@@ -19,11 +19,9 @@ class UserLogObserver
     public function hourReached(User $user): void
     {
         $totalActiveHours = $user->activities->sum('total');
-        if ($totalActiveHours % 60 == 0) {
-            $user->log->update([
-                'activity_hours' => ceil($totalActiveHours / 60) * 0.1
-            ]);
-        }
+        $user->log->update([
+            'activity_hours' => ceil($totalActiveHours / 60) * 0.1
+        ]);
         $this->calculateScore($user);
     }
 
@@ -87,34 +85,30 @@ class UserLogObserver
     {
         $log = $user->log;
         $sum = array_sum([
-            $log->followers_count,
             $log->transactions_count,
-            $log->activity_hours,
+            $log->followers_count,
             $log->deposit_amount,
+            $log->activity_hours,
         ]);
-        $log->increment('score', $sum);
-        $user->increment('score', $sum);
+        $log->update(['score' => $sum]);
+        $user->update(['score' => $sum]);
 
         $next_level = null;
 
-        foreach(Level::lazy() as $level)
-        {
-            if($sum >= $level->score)
-            {
+        foreach (Level::lazy() as $level) {
+            if ($sum >= $level->score) {
                 $next_level = $level;
             }
         }
 
-        if(! $next_level) return;
-        if ($sum >= $next_level->score)
-        {
+        if (!$next_level) return;
+        if ($sum >= $next_level->score) {
             UserLevel::updateOrCreate(
                 ['user_id' => $user->id],
                 ['level_id' => $next_level->id]
             );
             $prize = $next_level->prize;
-            if ($user->can('recievePrize', $prize))
-            {
+            if ($user->can('recievePrize', $prize)) {
                 $assets = $user->assets;
                 $assets->increment('psc', $prize->psc);
                 $assets->increment('blue', $prize->blue);

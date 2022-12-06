@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>تعداد : {{ $amount }}</h1>
-    <h2>مبلغ : {{ $order->transaction->amount / 10}}</h2>
+    <h1>تعداد : {{ $order->amount }}</h1>
+    <h2>مبلغ : {{ $order->transaction->amount}} ریال</h2>
 </body>
 </html>

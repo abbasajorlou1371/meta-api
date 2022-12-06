@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class AccountSecurity
+class Activity
 {
     /**
      * Handle an incoming request.
@@ -17,12 +17,6 @@ class AccountSecurity
      */
     public function handle(Request $request, Closure $next)
     {
-        $accountSecurity = $request->user()->accountSecurity;
-        if (is_null($accountSecurity) || time() > $accountSecurity?->until) {
-            return $request->expectsJson() ?
-                abort(403, 'جهت ادامه امنیت حساب کاربری خود را غیر فعال کنید!')
-                : RouteServiceProvider::HOME;
-        }
         return $next($request);
     }
 }

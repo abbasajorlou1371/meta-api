@@ -2,7 +2,6 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\UserActivity;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -37,14 +36,13 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\UserActivity::class,
         ],
 
         'api' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\UserActivity::class,
+            \App\Http\Middleware\Activity::class,
             \App\Http\Middleware\CheckIp::class,
         ],
     ];
@@ -69,7 +67,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.ip' => \App\Http\Middleware\CheckIp::class,
         'account.security' => \App\Http\Middleware\AccountSecurity::class,
-        'user.activity' => \App\Http\Middleware\UserActivity::class,
+        'user.activity' => \App\Http\Middleware\Activity::class,
     ];
 
     /**
@@ -81,7 +79,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewarePriority = [
         \App\Http\Middleware\CheckIp::class,
-        \App\Http\Middleware\UserActivity::class,
+        \App\Http\Middleware\Activity::class,
         \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         \App\Http\Middleware\AccountSecurity::class,
     ];

@@ -406,7 +406,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Order::class)->latestOfMany();
     }
 
-    public function profilePhotos() {
+    public function profilePhotos()
+    {
         return $this->morphMany(Image::class, 'imageable');
     }
 
@@ -455,7 +456,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendPasswordResetNotification($token)
     {
-        $url = 'https://rgb.irpsc.com/metaverse?token='.$token;
+        $url = 'https://rgb.irpsc.com/metaverse?token=' . $token;
         $this->notify(new sendPasswordResetNotification($url));
     }
 }
