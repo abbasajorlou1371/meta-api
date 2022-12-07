@@ -2,12 +2,14 @@
 
 use App\Constants\FamilyMembersType;
 use App\Constants\TicketStatus;
+use App\Models\Captcha;
 use App\Models\Feature;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Level\Level;
 use App\Models\User;
 use App\Models\Variable;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 function fee(Feature $feature)
 {
@@ -181,7 +183,7 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
         return ($score / $firstLevel->score) * 100;
     } else {
         $nextLevel = Level::find($level->id + 1);
-        if(is_null($nextLevel)) return 0;
+        if (is_null($nextLevel)) return 0;
         return ($score / $nextLevel->score) * 100;
     }
 }
@@ -193,7 +195,7 @@ function getRemainedTimePercentage($date)
 function hourlyProfitInfo(User $user): array
 {
     $firstHourlyProfit = FeatureHourlyProfit::with(['feature', 'feature.properties'])->firstWhere('user_id', $user->id);
-    if($firstHourlyProfit) {
+    if ($firstHourlyProfit) {
         $dead_line = new Carbon($firstHourlyProfit->dead_line);
         $user_withdraw_profit_limit = $user->variables->withdraw_profit * 86400;
         return [
@@ -204,15 +206,68 @@ function hourlyProfitInfo(User $user): array
     return [];
 }
 
-function getLevelsImages($userLevel) {
+function getLevelsImages($userLevel)
+{
     $images = [];
-    if($userLevel) {
+    if ($userLevel) {
         $levels = Level::orderBy('score')->lazy();
-        foreach($levels as $level) {
-            if($userLevel->score >= $level->score) {
+        foreach ($levels as $level) {
+            if ($userLevel->score >= $level->score) {
                 array_push($images, $level->image?->url);
             }
         }
     }
     return $images;
+}
+
+function generate_captcha()
+{
+    $IMG = imagecreate(130, 50);
+
+    $bgColor = imagecolorallocate($IMG, 255, 255, 255);
+    imagefilledrectangle($IMG, 0, 0, 130, 50, $bgColor);
+
+    for ($i = 0; $i < 4; $i++) {
+        $bgColorEllipse = imagecolorallocate($IMG, rand($i + 50, 255), rand($i, 255), rand(0, 255));
+        imagefilledellipse($IMG, rand(5, 130), rand(0, 50), rand(0, 100), rand(0, 50), $bgColorEllipse);
+        imagefilledellipse($IMG, rand(20, 100), rand(0, 40), rand(0, 130), rand(20, 50), $bgColorEllipse);
+    }
+
+    $characters = "AaBbCcDdEeFfGgHh1234567890iIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ0123456789";
+
+    $fonts = [
+        "fonts/poppins/poppins-v5-latin-300.ttf",
+        "fonts/poppins/poppins-v5-latin-500italic.ttf",
+        "fonts/poppins/poppins-v5-latin-600.ttf",
+        "fonts/poppins/poppins-v5-latin-700.ttf"
+    ];
+
+    $txtColor = imagecolorallocate($IMG, 0, 0, 0);
+
+    $phrase = "";
+    for ($i = 0; $i < 4; $i++) {
+        $selectedFont = $fonts[rand(0, count($fonts) - 1)];
+        $font = public_path($selectedFont);
+        $character = $characters[rand(0, strlen($characters) - 1)];
+        imagettftext($IMG, 18, rand(40, -20), 20 + ($i * 30), 35 + $i, $txtColor, $font, $character);
+        $phrase .= $character;
+    }
+
+    $captchaPath = public_path('/captcha/');
+
+    if (!file_exists($captchaPath)) {
+        mkdir($captchaPath, 0777);
+    }
+
+    $captchaFileName = uniqid();
+    $captcha = $captchaPath . $captchaFileName . ".jpeg";
+    imagejpeg($IMG, $captcha);
+    Captcha::updateOrCreate(
+        ['ip' => request()->ip()],
+        [
+            'code' => $phrase,
+            'expires_at' => time() + 30,
+            'fileName' => $captcha
+        ]
+    );
 }

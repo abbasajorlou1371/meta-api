@@ -96,6 +96,7 @@ class LoginController extends Controller
             $latestActivity->update([
                 'end' => $end,
                 'total' => $total,
+                'ip' => $request->ip(),
             ]);
             $request->user()->hourReached();
         }
