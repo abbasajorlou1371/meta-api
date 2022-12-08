@@ -49,7 +49,6 @@ class Transaction extends Model
 		'payable_type',
         'asset',
 		'amount',
-		'authority',
 		'action',
 		'status'
 	];

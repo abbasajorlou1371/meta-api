@@ -82,24 +82,34 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
         switch ($this->data['type']) {
             case 'requester_confirmation_message':
                 return [
-                    'درخواست پیوستن به سلسله شما ارسال گردید.'
+                    'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+                    'sender-name' => 'متارنگ',
+                    'message' => $this->data['message']
                 ];
                 break;
             case 'reciever_message':
                 return [
-                    'درخواستی جهت پیوستن به سلسله دریافت شد.'
+                    'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+                    'sender-name' => 'متارنگ',
+                    'message' => $this->data['message']
                 ];
             case 'requester_accept_message':
                 return [
-                    'درخواست پیوستن به سلسله شما توسط کاربر مورد نظر پذیرفته شد.'
+                    'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+                    'sender-name' => 'متارنگ',
+                    'message' => $this->data['message']
                 ];
                 break;
             case 'reciever_accept_message':
                 return [
-                    'شما درخواست پیوستن به سلسله را پذیرفته و به سلسله پیوستید.'
+                    'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+                    'sender-name' => 'متارنگ',
+                    'message' => $this->data['message']
                 ];
             case 'requester_reject_message':
                 return [
+                    'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+                    'sender-name' => 'متارنگ',
                     $this->data['message']
                 ];
             default:

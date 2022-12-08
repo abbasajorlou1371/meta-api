@@ -5,8 +5,6 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Morilog\Jalali\Jalalian;
 
-use function PHPUnit\Framework\returnSelf;
-
 class BuyRequestResource extends JsonResource
 {
     /**

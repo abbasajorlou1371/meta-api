@@ -6,6 +6,10 @@ use App\Models\Captcha;
 use App\Models\Feature;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Level\Level;
+use App\Models\Trade;
+use App\Models\BuyFeatureRequest;
+use App\Models\Order;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Variable;
 use Carbon\Carbon;
@@ -270,4 +274,28 @@ function generate_captcha()
             'fileName' => $captcha
         ]
     );
+}
+
+function getTransactionTitle(Transaction $transaction) {
+    if($transaction->payable instanceof BuyFeatureRequest) {
+        return 'پیشنهاد خرید ملک';
+    } elseif($transaction->payable instanceof Trade) {
+        return 'معامله ملک';
+    } elseif($transaction->payable instanceof Order) {
+        return 'خرید دارایی';
+    }
+}
+
+function getTransactionStatus(Transaction $transaction) {
+    switch($transaction->status) {
+        case 1:
+            return 'موفق';
+            break;
+        case -1:
+            return 'ناموفق';
+            break;
+        case 0:
+            return 'معلق';
+            break;
+    }
 }

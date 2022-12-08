@@ -12,6 +12,26 @@ use App\Models\Trade;
 class AssetHelper
 {
 
+    public static function getAssetTitle(string $asset) {
+        switch($asset) {
+            case 'psc':
+                return 'psc';
+                break;
+            case 'irr':
+                return 'ریال';
+                break;
+            case 'yellow':
+                return 'رنگ زرد';
+                break;
+            case 'blue':
+                return 'رنگ آبی';
+                break;
+            case 'red':
+                return 'رنگ قرمز';
+                break;
+        }
+    }
+
     public static function checkColorBalance(User $user, Feature $feature)
     {
         switch ($feature->properties->karbari) {
@@ -57,6 +77,39 @@ class AssetHelper
             'psc' => $psc_amount,
             'irr' => $irr_amount
         ]);
+
+        if (!iszero($psc_amount) && !iszero($irr_amount)) {
+            $buyFeatureRequest->transactions()->create([
+                'user_id' => $buyer->id,
+                'asset' => 'psc',
+                'amount' => $psc_amount,
+                'action' => 'withdraw',
+                'status' => 0
+            ]);
+            $buyFeatureRequest->transactions()->create([
+                'user_id' => $buyer->id,
+                'asset' => 'irr',
+                'amount' => $irr_amount,
+                'action' => 'withdraw',
+                'status' => 0
+            ]);
+        } elseif (!iszero($psc_amount)) {
+            $buyFeatureRequest->transactions()->create([
+                'user_id' => $buyer->id,
+                'asset' => 'psc',
+                'amount' => $psc_amount,
+                'action' => 'withdraw',
+                'status' => 0
+            ]);
+        } else {
+            $buyFeatureRequest->transactions()->create([
+                'user_id' => $buyer->id,
+                'asset' => 'irr',
+                'amount' => $irr_amount,
+                'action' => 'deposit',
+                'status' => 0
+            ]);
+        }
     }
 
     public static function releaseAsset(BuyFeatureRequest $buyFeatureRequest, $rejectOrCancel = false)
@@ -69,6 +122,7 @@ class AssetHelper
         if ($rejectOrCancel) {
             $buyer->assets->increment('psc', $psc_amount);
             $buyer->assets->increment('irr', $irr_amount);
+            $buyFeatureRequest->transactions->each->update(['status' => -1]);
         } else {
             $seller->assets->increment('psc', ($psc_amount - ($psc_amount * config('rgb.fee'))));
             $seller->assets->increment('irr', ($irr_amount - ($irr_amount * config('rgb.fee'))));
@@ -92,6 +146,41 @@ class AssetHelper
                 'psc' => $psc_total_fee,
                 'irr' => $irr_total_fee,
             ]);
+
+            $buyFeatureRequest->transactions->where('user_id', $buyer->id)->each->update(['status' => 1]);
+
+            if (!iszero($trade->irr_amount) && !iszero($trade->psc_amount)) {
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'psc',
+                    'amount' => $psc_amount - ($psc_amount * config('rgb.fee')),
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'irr',
+                    'amount' => $irr_amount - ($irr_amount * config('rgb.fee')),
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            } elseif (!iszero($trade->psc_amount)) {
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'psc',
+                    'amount' => $psc_amount - ($psc_amount * config('rgb.fee')),
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            } else {
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'irr',
+                    'amount' => $irr_amount - ($irr_amount * config('rgb.fee')),
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            }
             self::cancelOthereRequests($buyFeatureRequest);
         }
         $buyFeatureRequest->lockedAsset->delete();

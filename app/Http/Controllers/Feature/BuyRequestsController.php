@@ -21,6 +21,7 @@ use App\Models\SellFeatureRequest;
 use App\Models\User;
 use App\Notifications\BuyFeatureNotification;
 use App\Notifications\BuyRequestNotification;
+use App\Notifications\sellFeature;
 use Illuminate\Validation\ValidationException;
 
 class BuyRequestsController extends Controller
@@ -80,7 +81,6 @@ class BuyRequestsController extends Controller
         ]));
 
         $message = 'درخواست خرید شما با موفقیت ثبت شد';
-
         $buyFeatureRequest->message = $message;
         return new BuyRequestResource($buyFeatureRequest);
     }
@@ -130,7 +130,15 @@ class BuyRequestsController extends Controller
                 'buyer' => $buyFeatureRequest->buyer->name,
                 'seller' => $buyFeatureRequest->seller->name,
                 'template' => 'buy-land-user',
-            ]));
+            ], $feature->latestTraded));
+            $buyFeatureRequest->seller->notify(new sellFeature([
+                'feature' => $feature,
+                'id' => $feature->properties->id,
+                'buyer' => $buyFeatureRequest->buyer->name,
+                'seller' => $buyFeatureRequest->seller->name,
+                'template' => 'buy-land-user',
+            ], $feature->latestTraded));
+
             $feature->message = 'معامله با موفقیت انجام شد';
             return new FeatureResource($feature);
         }
@@ -139,16 +147,18 @@ class BuyRequestsController extends Controller
     private function changeOwnerShip(BuyFeatureRequest $buyFeatureRequest)
     {
         $feature = $buyFeatureRequest->feature;
-        $property = $feature->properties;
+        $properties = $feature->properties;
         $buyer = $buyFeatureRequest->buyer;
         $seller = $buyFeatureRequest->seller;
 
         AssetHelper::releaseAsset($buyFeatureRequest);
 
         $feature->update(['owner_id' => $buyer->id]);
-        $property->update([
+        $properties->update([
             'rgb' => FeatureHelper::getSoldAndNotPricedFeatureStatusColor($feature),
             'owner' => $buyer->name,
+            'price_psc' => $buyFeatureRequest->price_psc,
+            'price_irr' => $buyFeatureRequest->price_irr,
         ]);
 
         $profit = $feature->hourlyProfit->where('user_id', $seller->id)->first();

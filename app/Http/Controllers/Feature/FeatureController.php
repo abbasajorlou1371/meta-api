@@ -58,7 +58,7 @@ class FeatureController extends Controller
      * @param Image $image
      * @return JsonResponse
      */
-    public function removeImage(Feature $feature, Image $image): JsonResponse
+    public function removeّFeatureImage(User $user, Feature $feature, Image $image): JsonResponse
     {
         Storage::disk('ftp')->delete($image->url);
         $image->delete();

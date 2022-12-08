@@ -33,6 +33,8 @@ use App\Http\Controllers\UserEventsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\PublicProfileController;
+use App\Models\Notification;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,12 +85,10 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__
 
 
 Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity'])->group(function () {
-    Route::controller(DashboardController::class)->group(function () {
+    Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
-        Route::prefix('citizen')->withoutMiddleware(['auth:sanctum', 'verified', 'user.activity'])->group(function () {
-            Route::get('/{code}', 'home');
-        });
+        Route::get('/transactions', 'transactions');
     });
 
     Route::controller(AccountSecurityController::class)->group(function () {
@@ -104,7 +104,11 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
                     return response()->json(['error' => 'ملک مورد نظر یافت نشد']);
                 });
         });
-        Route::post('/{user}/addimage/{feature}', 'addFeatureImages')
+        Route::post('/{user}/add-image/{feature}', 'addFeatureImages')
+            ->missing(function () {
+                return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
+            });
+        Route::post('/{user}/remove-image/{feature}/image/{image}', 'removeّFeatureImage')
             ->missing(function () {
                 return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
             });
@@ -282,7 +286,15 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
 
         Route::get('/ping', function () {
         })->withoutMiddleware(['auth:sanctum', 'verified', 'check.ip']);
+
+        Route::get('/notification-read/{notification}', function (Notification $notification) {
+            $notification->update(['read_at' => now()]);
+        });
     });
 });
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
+
+Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
+    Route::get('/{code}', 'home');
+});

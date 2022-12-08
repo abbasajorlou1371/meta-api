@@ -45,4 +45,9 @@ class BuyFeatureRequest extends Model
     public function lockedAsset() {
         return $this->hasOne(LockedAsset::class);
     }
+
+    public function transactions()
+    {
+        return $this->morphMany(Transaction::class, 'payable');
+    }
 }

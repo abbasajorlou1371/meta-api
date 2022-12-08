@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Comission;
 use App\Models\User;
 use App\Models\SellFeatureRequest;
+use App\Notifications\sellFeature;
 
 class BuyFeatureController extends Controller
 {
@@ -37,7 +38,7 @@ class BuyFeatureController extends Controller
             $price = $featureProperties->stability;
 
             if (AssetHelper::checkColorBalance($buyer, $feature)) {
-                return response()->json(['error' => "موجودی شما کافی نیست. شما باید در ابتدا موجودی رنگ {$color} حساب خود را افزایش دهید"]);
+                return response()->json(['error' => "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!"]);
             }
 
             $buyer->assets->decrement(AssetHelper::getAssetColor($feature), $price);
@@ -61,6 +62,14 @@ class BuyFeatureController extends Controller
                 'psc_amount' => 0,
             ]);
 
+            $trade->transactions()->create([
+                'user_id' => $buyer->id,
+                'asset' => AssetHelper::getAssetColor($feature),
+                'amount' => $feature->properties->stability,
+                'action' => 'withdraw',
+                'status' => 1
+            ]);
+
             $time = $buyer->variables->withdraw_profit * 86400;
 
             $feature->hourlyProfit()->create([
@@ -80,7 +89,7 @@ class BuyFeatureController extends Controller
                 'buyer' => $buyer->name,
                 'seller' => "",
                 'template' => 'buy-land-metarang'
-            ]));
+            ], $trade));
         } else {
             if ($feature->underPriced()) {
                 // Get the latest under priced sell request for the owner of this feature
@@ -117,6 +126,68 @@ class BuyFeatureController extends Controller
                 'psc_amount' => $feature->properties->price_psc,
                 'date' => now()
             ]);
+
+            if (!iszero($trade->irr_amount) && !iszero($trade->psc_amount)) {
+                $trade->transactions()->create([
+                    'user_id' => $buyer->id,
+                    'asset' => 'psc',
+                    'amount' => totalPrice($feature, 'buyer', fee($feature))['psc'],
+                    'action' => 'withdraw',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $buyer->id,
+                    'asset' => 'irr',
+                    'amount' => totalPrice($feature, 'buyer', fee($feature))['irr'],
+                    'action' => 'withdraw',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'psc',
+                    'amount' => totalPrice($feature, 'seller', fee($feature))['psc'],
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'irr',
+                    'amount' => totalPrice($feature, 'seller', fee($feature))['irr'],
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            } elseif (!iszero($trade->psc_amount)) {
+                $trade->transactions()->create([
+                    'user_id' => $buyer->id,
+                    'asset' => 'psc',
+                    'amount' => totalPrice($feature, 'buyer', fee($feature))['psc'],
+                    'action' => 'withdraw',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'psc',
+                    'amount' => totalPrice($feature, 'seller', fee($feature))['psc'],
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            } else {
+                $trade->transactions()->create([
+                    'user_id' => $buyer->id,
+                    'asset' => 'irr',
+                    'amount' => totalPrice($feature, 'buyer', fee($feature))['irr'],
+                    'action' => 'withdraw',
+                    'status' => 1
+                ]);
+                $trade->transactions()->create([
+                    'user_id' => $seller->id,
+                    'asset' => 'irr',
+                    'amount' => totalPrice($feature, 'seller', fee($feature))['irr'],
+                    'action' => 'deposit',
+                    'status' => 1
+                ]);
+            }
+
 
             $rgb = User::firstWhere('code', 'hm-2000000');
 
@@ -173,7 +244,14 @@ class BuyFeatureController extends Controller
                 'buyer' => $buyer->name,
                 'seller' => $seller->name,
                 'template' => 'buy-land-user',
-            ]));
+            ], $trade));
+            $seller->notify(new sellFeature([
+                'feature' => $feature,
+                'id' => $feature->properties->id,
+                'buyer' => $buyer->name,
+                'seller' => $seller->name,
+                'template' => 'sell-land',
+            ], $trade));
         }
         return new FeatureResource($feature);
     }

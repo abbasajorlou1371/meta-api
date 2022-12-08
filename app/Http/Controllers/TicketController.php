@@ -81,7 +81,9 @@ class TicketController extends Controller
 
         if (isset($ticket->reciever)) {
             $message = 'تیکتی از طرف ' . $this->user->name . 'دریافت شده است';
-            $ticket->reciever->notify(new TicketRecieved($ticket->sender->name, $message));
+            $image = $request->user()->profilePhotos->first();
+            $image = $image->url ?? "https://dl.qzparadise.ir/public/metarang/noimage.jpeg";
+            $ticket->reciever->notify(new TicketRecieved($ticket->sender->name, $message, $image));
         }
 
         $ticket->message = 'تیکت با موفقیت ارسال گردید';
@@ -119,7 +121,10 @@ class TicketController extends Controller
 
         $message = 'به تیکت شما با شماره ' . $ticket->code . 'پاسخی ارسال شده است';
 
-        $ticket->sender->notify(new TicketRecieved($ticket->sender->name, $message));
+        $image = $request->user()->profilePhotos->first();
+        $image = $image->url ?? "https://dl.qzparadise.ir/public/metarang/noimage.jpeg";
+
+        $ticket->sender->notify(new TicketRecieved($ticket->reciever->name, $message, $image));
 
         $ticket->message = 'پاسخ تیکت با موفقیت ارسال گردید';
 

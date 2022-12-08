@@ -18,12 +18,13 @@ class TicketRecieved extends Notification
      * @return void
      */
 
-     private $message, $sender;
+     private $message, $sender, $image;
 
-    public function __construct($sender, $message)
+    public function __construct($sender, $message, $image)
     {
         $this->message = $message;
         $this->sender = $sender;
+        $this->image = $image;
     }
 
     /**
@@ -60,6 +61,7 @@ class TicketRecieved extends Notification
     public function toArray($notifiable)
     {
         return [
+            'sender-image' => $this->image,
             'sender' => $this->sender,
             'message' => $this->message,
         ];

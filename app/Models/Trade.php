@@ -38,4 +38,9 @@ class Trade extends Model
     public function scopeLatestFeatureTrades($query, Feature $feature) {
         return $query->where('feature_id', $feature->id)->get();
     }
+
+    public function transactions()
+    {
+        return $this->morphMany(Transaction::class, 'payable');
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Channels\SmsChannel;
+use App\Models\BuyFeatureRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -18,11 +19,12 @@ class BuyRequestNotification extends Notification implements ShouldQueue
      * @return void
      */
 
-     public $data;
+    public $data, $buyFeatureRequest;
 
     public function __construct($data)
     {
         $this->data = $data;
+        $this->afterCommit();
     }
 
     /**
@@ -36,7 +38,8 @@ class BuyRequestNotification extends Notification implements ShouldQueue
         return [SmsChannel::class, 'database'];
     }
 
-    public function toSms($notifiable) {
+    public function toSms($notifiable)
+    {
         return [
             'phone' => $notifiable->phone,
             'token' => $this->data['id'],
@@ -54,8 +57,30 @@ class BuyRequestNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        if ($this->data['price_psc'] > 0 && $this->data['price_irr'] > 0) {
+            $message = sprintf(
+                'مبلغ %s psc و %s از حساب شما بابت پیشنهاد خرید ملک %s برداشت شد.',
+                $this->data['price_psc'] + ($this->data['price_psc'] * config('rgb.fee')),
+                $this->data['price_irr'] + ($this->data['price_irr'] * config('rgb.fee')),
+                $this->data['id']
+            );
+        } elseif ($this->data['price_psc'] > 0) {
+            $message = sprintf(
+                'مبلغ %s psc از حساب شما بابت پیشنهاد خرید ملک %s برداشت شد.',
+                $this->data['price_psc'] + ($this->data['price_psc'] * config('rgb.fee')),
+                $this->data['id']
+            );
+        } elseif ($this->data['price_irr'] > 0) {
+            $message = sprintf(
+                'مبلغ %s ریال از حساب شما بابت پیشنهاد خرید ملک %s برداشت شد.',
+                $this->data['price_irr'] + ($this->data['price_irr'] * config('rgb.fee')),
+                $this->data['id']
+            );
+        }
         return [
-            sprintf('شما درخواست خریدی مبنی بر خرید زمین با شناسه %s ارسال کرده اید.', $this->data['id'])
+            'sender-name' => 'متارنگ',
+            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'message' => $message
         ];
     }
 }

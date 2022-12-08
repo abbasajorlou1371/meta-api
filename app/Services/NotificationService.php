@@ -5,96 +5,83 @@ namespace App\Services;
 use App\Channels\SmsChannel;
 use App\Models\User;
 
-class NotificationService {
-    public static function getChannels(User $notifiable, $notificationType)
+class NotificationService
+{
+    public static function getChannels(User $notifiable, $notificationType): array
     {
-        switch($notificationType)
-        {
+        switch ($notificationType) {
             case 'announcements':
-                if(
+                if (
                     $notifiable->generalSettings->announcements_sms
                     && $notifiable->generalSettings->announcements_email
-                )
-                {
+                ) {
                     return ['mail', SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->announcements_sms) {
+                }elseif ($notifiable->generalSettings->announcements_sms) {
                     return [SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->announcements_email) {
+                }elseif ($notifiable->generalSettings->announcements_email) {
                     return ['mail'];
+                } else{
+                    return [];
                 }
                 break;
             case 'login':
-                if(
+                if (
                     $notifiable->generalSettings->login_verification_sms
                     && $notifiable->generalSettings->login_verification_email
-                )
-                {
+                ) {
                     return ['mail', SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->login_verification_sms) {
+                }elseif ($notifiable->generalSettings->login_verification_sms) {
                     return [SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->login_verification_email) {
+                }elseif ($notifiable->generalSettings->login_verification_email) {
                     return ['mail'];
+                }else{
+                    return [];
                 }
                 break;
             case 'reports':
-                if(
+                if (
                     $notifiable->generalSettings->reports_sms
                     && $notifiable->generalSettings->reports_email
-                )
-                {
+                ) {
                     return ['mail', SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->reports_sms) {
+                }elseif ($notifiable->generalSettings->reports_sms) {
                     return [SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->reports_email) {
+                }elseif ($notifiable->generalSettings->reports_email) {
                     return ['mail'];
+                }else{
+                    return [];
                 }
                 break;
             case 'transactions':
-                if(
+                if (
                     $notifiable->generalSettings->transactions_sms
                     && $notifiable->generalSettings->transactions_email
-                )
-                {
-                    return ['mail', SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->transactions_sms) {
-                    return [SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->transactions_email) {
-                    return ['mail'];
+                ) {
+                    return ['mail', SmsChannel::class, 'database'];
+                }elseif ($notifiable->generalSettings->transactions_sms) {
+                    return [SmsChannel::class, 'database'];
+                }elseif ($notifiable->generalSettings->transactions_email) {
+                    return ['mail', 'database'];
+                }else{
+                    return [];
                 }
                 break;
             case 'trades':
-                if(
+                if (
                     $notifiable->generalSettings->trades_sms
                     && $notifiable->generalSettings->trades_email
-                )
-                {
-                    return ['mail', SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->trades_sms) {
-                    return [SmsChannel::class];
-                }
-
-                if($notifiable->generalSettings->trades_email) {
-                    return ['mail'];
+                ) {
+                    return ['mail', SmsChannel::class, 'database'];
+                }elseif ($notifiable->generalSettings->trades_sms) {
+                    return [SmsChannel::class, 'database'];
+                }elseif ($notifiable->generalSettings->trades_email) {
+                    return ['mail', 'database'];
+                }else{
+                    return [];
                 }
                 break;
+            default:
+                return [];
         }
     }
 }
