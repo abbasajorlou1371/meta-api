@@ -398,6 +398,10 @@ class PrivacySeeder extends Seeder
                     'user_id' => $user->id,
                     'name' => 'negative_score',
                 ],
+                [
+                    'user_id' => $user->id,
+                    'name' => 'code'
+                ]
             ]);
         }
     }
