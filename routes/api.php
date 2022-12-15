@@ -90,6 +90,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
         Route::get('/transactions', 'transactions');
+        Route::post('/privacy', 'updatePrivacySettings');
     });
 
     Route::controller(AccountSecurityController::class)->group(function () {

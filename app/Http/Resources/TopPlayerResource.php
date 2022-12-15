@@ -18,17 +18,37 @@ class TopPlayerResource extends JsonResource
     {
         return [
             'online' => Carbon::parse($this->last_seen)->diffInMinutes(now()) > 2 ? false : true,
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
+
+            $this->mergeWhen($this->privacy->where('name', 'name')->pluck('display')->first(), [
+                'name' => $this->name,
+            ]),
+
+            $this->mergeWhen($this->privacy->where('name' , 'email')->pluck('display')->first(),[
+                'email' => $this->email,
+            ]),
+
+            $this->mergeWhen($this->privacy->where('name' , 'phone')->pluck('display')->first(), [
+                'phone' => $this->phone,
+            ]),
+
             'profile-photos' => $this->profilePhotos,
-            'score' => $this->score,
-            'level' => $this->level,
+
+            $this->mergeWhen($this->privacy->where('name' , 'score')->pluck('display')->first(), [
+                'score' => $this->score,
+            ]),
+
+
+            $this->mergeWhen($this->privacy->where('name' , 'level')->pluck('display')->first(),[
+                'level' => $this->level,
+            ]),
+
             'score_percentage_to_next_level' => getScorePercentageToNextLevel($this->level, $this->score),
             'assets' => new AssetResource($this->assets),
             'referral_link' => $this->referal_link,
-            'code' => $this->code,
-            'referals' => $this->referals,
+            $this->mergeWhen($this->privacy->where('name' , 'code')->pluck('display')->first(),[
+                'code' => $this->code,
+            ]),
+
             'follows' => [
                 'followers' => FollowResource::collection($this->followers()->orderBy('score', 'DESC')->lazy()),
                 'following' => FollowResource::collection($this->following),

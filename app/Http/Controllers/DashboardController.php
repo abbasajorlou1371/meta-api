@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\AssetHelper;
 use App\Http\Resources\LatestTransactionResource;
 use App\Http\Resources\UserResource;
+use App\Models\Privacy;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -52,5 +53,21 @@ class DashboardController extends Controller
                 ];
             })], 200);
         }
+    }
+
+
+    public function updatePrivacySettings(Request $request) {
+        $request->validate([
+            'setting' => 'required',
+            'value' => 'required|numeric|min:0|max:1'
+        ]);
+        Privacy::updateOrCreate(
+            ['user_id' => $request->user()->id],
+            [
+                'name' => $request->setting,
+                'display' => $request->value
+            ]
+        );
+        return response()->json(['message' => 'تنظیمات بروزرسانی شد!'], 200);
     }
 }
