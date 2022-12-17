@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::middleware(['api'])->group(function () {
+Route::middleware(['api', 'check.ip'])->group(function () {
     Route::controller(HomeController::class)->group(function () {
         Route::get('/home', 'index');
         Route::get('/get-user-info/{user}', 'showUserDetails');
@@ -99,27 +99,29 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
         Route::post('account/security/verify', 'turnOffAccountSecurity');
     });
 
-    Route::controller(FeatureController::class)->middleware('account.security')->scopeBindings()->prefix('my-features')->group(function () {
-        Route::withoutMiddleware('account.security')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/{user}/features/{feature}', 'show')
+    Route::controller(FeatureController::class)->middleware('account.security')->scopeBindings()->group(function () {
+        Route::prefix('my-features')->group(function() {
+            Route::withoutMiddleware('account.security')->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{user}/features/{feature}', 'show')
+                    ->missing(function () {
+                        return response()->json(['error' => 'ملک مورد نظر یافت نشد']);
+                    });
+            });
+            Route::post('/{user}/add-image/{feature}', 'addFeatureImages')
                 ->missing(function () {
-                    return response()->json(['error' => 'ملک مورد نظر یافت نشد']);
+                    return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
+                });
+            Route::post('/{user}/remove-image/{feature}/image/{image}', 'removeّFeatureImage')
+                ->missing(function () {
+                    return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
+                });
+
+            Route::post('/{user}/features/{feature}', 'updateFeature')
+                ->missing(function () {
+                    return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
                 });
         });
-        Route::post('/{user}/add-image/{feature}', 'addFeatureImages')
-            ->missing(function () {
-                return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
-            });
-        Route::post('/{user}/remove-image/{feature}/image/{image}', 'removeّFeatureImage')
-            ->missing(function () {
-                return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
-            });
-
-        Route::post('/{user}/features/{feature}', 'updateFeature')
-            ->missing(function () {
-                return response()->json(['error' => 'ملک متعلق به شما نمی باشد']);
-            });
         Route::controller(BuyFeatureController::class)->prefix('features')->group(function () {
             Route::get('/{feature}', 'show')->withoutMiddleware(['account.security', 'auth:sanctum', 'verified']);
             Route::post('/buy/{feature}', 'buy')
@@ -145,11 +147,12 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
             Route::post('/reject/{buyFeatureRequest}', 'rejectBuyRequest')->can('reject', 'buyFeatureRequest');
         });
 
-        Route::controller(SettingController::class)->group(function () {
-            Route::post('/settings', 'update');
-            Route::post('/general-settings', 'generalSettingsUpdate');
-            Route::post('/settings/upload-profile-photo', 'uploadProfilePhoto');
-        });
+    });
+
+    Route::controller(SettingController::class)->group(function () {
+        Route::post('/settings', 'update');
+        Route::post('/general-settings', 'generalSettingsUpdate');
+        Route::post('/settings/upload-profile-photo', 'uploadProfilePhoto');
     });
 
     Route::apiResource('reports', ReportController::class);
