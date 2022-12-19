@@ -5,9 +5,8 @@ namespace App\Repositories;
 use App\Models\Feature;
 
 class FeatureRepository {
-    private $features;
 
-    public function __construct()
+    public function __construct( private $features)
     {
         $this->features = Feature::with('properties')->get();
     }

@@ -38,10 +38,10 @@ class AcceptJoinRequestController extends Controller
     {
         if ($user->can('accept', $recievedJoinRequest)) {
             $code = random_int(100000, 999999);
-            $recievedJoinRequest->otp()->create([
-                'user_id' => $user->id,
-                'code' => Hash::make($code)
-            ]);
+            $recievedJoinRequest->otp()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['code' => Hash::make($code)]
+            );
             $user->notify(new GetOtpNotification($code));
             return response()->json(['message' => 'کد تاییدی به شماره تلفن همراه شما ارسال گردید. جهت ادامه آنرا وارد کنید']);
         }
@@ -118,12 +118,14 @@ class AcceptJoinRequestController extends Controller
                 'type' => 'requester_accept_message',
                 'title' => 'پیام تایید پیوستن به سلسله توسط کاربر مورد نظر',
                 'message' => $requesterMessage,
+                'request' => $recievedJoinRequest
             ]));
 
             $user->notify(new JoinDynastyNotification([
                 'type' => 'reciever_accept_message',
                 'title' => 'پیام تایید پیوستن به سلسه',
-                'message' => $recieverMessage
+                'message' => $recieverMessage,
+                'request' => $recievedJoinRequest
             ]));
 
             $recievedJoinRequest->otp->delete();
