@@ -264,12 +264,12 @@
                </div>
             </div>
             <div class="flex flex-col gap-3 text-left w-1-2">
-              <span>1401/11/10</span>
-              <span>21:22</span>
+              <span>{{ \Morilog\Jalali\Jalalian::forge(now())->format('Y/m/d') }}</span>
+              <span>{{ \Morilog\Jalali\Jalalian::forge(now())->format('H:m:s') }}</span>
             </div>
             </div>
             <div class="font-bold flex flex-col gap-8 justify-center mt-5 items-center ">
-              <span>HOSSEINQADIRI69@GMAIL.COM</span>
+              <span>{{ $email }}</span>
               <span >دنیای موازی متارنگ مشتاق دیدار شما است</span>
             </div>
             <div class="w-full mt-8 border border-gray-400 border-solid ">
@@ -277,11 +277,11 @@
                  <div class="flex gap-2 border-t-0 border-r-0 border-l-0 border-b border-solid border-gray-400">
                    <div class="flex justify-between w-1-2 border-gray-400 border-l border-t-0 border-r-0 border-b-0 border-solid px-1 py-2">
                      <span>تاریخ ارسال</span>
-                     <span>1401/5/2</span>
+                     <span>{{ \Morilog\Jalali\Jalalian::forge(now())->format('Y/m/d') }}</span>
                    </div>
                    <div class="flex justify-between w-1-2 pl-1 py-2">
                      <span>ساعت ارسال</span>
-                     <span>11:59</span>
+                     <span>{{ \Morilog\Jalali\Jalalian::forge(now())->format('H:m:s') }}</span>
                    </div>
                  </div>
                  <div class="border-t border-r-0 border-l-0 border-b-0 border-gray-400 border-solid  pt-10 flex flex-col gap-y-8" style="margin-top: 1px;">
