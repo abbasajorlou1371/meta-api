@@ -22,16 +22,21 @@ class DynastyResource extends JsonResource
             'id' => $this->id,
             'family_id' => $this->family->id,
             'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d'),
+            'profile-image' => $this->user->profilePhotos->first()?->url,
             'dynasty-feature' => [
+                'id' => $this->feature->id,
+                'properties_id' => $this->feature->properties->id,
                 'area' => $this->feature->properties->area,
                 'density' => $this->feature->properties->density,
-                'feature-profit-increase' => $this->feature->properties->stability > 1000 ? 1 : 0,
+                'feature-profit-increase' => $this->feature->properties->stability > 1000 ?
+                number_format($this->feature->properties->stability / 1000 - 1, 3)
+                : 0,
                 'family-members-count' => $this->family->familyMembers->count(),
                 'last-updated' => Jalalian::forge($this->updated_at)->format('Y/m/d H:m:s')
             ],
             'features' => $request->user()->features
                 ->reject(function ($feature) {
-                    return $feature->properties->karbari !== 'm';
+                    return $feature->properties->karbari !== 'm' || $feature->id == $this->feature->id;
                 })
                 ->map(function ($feature) {
                     return [

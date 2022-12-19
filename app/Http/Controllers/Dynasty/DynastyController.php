@@ -39,11 +39,14 @@ class DynastyController extends Controller
                     'stability' => $feature->properties->stability
                 ];
             });
+            $prizes = DynastyPrize::all()->reject(function($prize) {
+                return in_array($prize->member, ['mother', 'sister', 'wife']);
+            });
             return response()->json([
                 'data' => [
                     'user-has-dynasty' => false,
                     'features' => $features,
-                    'prizes' => new IntroductionPrizeResource(DynastyPrize::all())
+                    'prizes' => new IntroductionPrizeResource($prizes)
                 ]
             ], 200);
         }
