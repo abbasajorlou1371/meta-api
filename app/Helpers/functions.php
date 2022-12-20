@@ -287,17 +287,11 @@ function getTransactionTitle(Transaction $transaction) {
 }
 
 function getTransactionStatus(Transaction $transaction) {
-    switch($transaction->status) {
-        case 1:
-            return 'موفق';
-            break;
-        case -1:
-            return 'ناموفق';
-            break;
-        case 0:
-            return 'معلق';
-            break;
-    }
+    return match($transaction->status) {
+        1 => 'موفق',
+        -1 => 'ناموفق',
+        0 => 'معلق',
+    };
 }
 
 function createUserPrivacy(User $user){
