@@ -62,7 +62,6 @@ class AuthServiceProvider extends ServiceProvider
 
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
             return (new Mail($url, $notifiable->email))
-                ->from('rgb@gmail.com')
                 ->to($notifiable->email)
                 ->subject('تایید آدرس ایمیل');
         });
