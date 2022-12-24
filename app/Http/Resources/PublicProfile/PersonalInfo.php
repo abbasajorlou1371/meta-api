@@ -33,7 +33,7 @@ class PersonalInfo extends JsonResource
                         'lname' => $this->kyc?->lname,
                     ]),
 
-                    $this->mergeWhen($this->privacy->where('name' , 'birth_date')->pluck('display')->first(),[
+                    $this->mergeWhen($this->privacy->where('name' , 'birthdate')->pluck('display')->first(),[
 
                         'birth_date' => Jalalian::forge($this->kyc?->birthdate)->format('Y/m/d'),
                     ]),
