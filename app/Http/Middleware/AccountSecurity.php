@@ -20,7 +20,7 @@ class AccountSecurity
         $accountSecurity = $request->user()->accountSecurity;
         if (is_null($accountSecurity) || time() > $accountSecurity?->until) {
             return $request->expectsJson() ?
-                abort(403, 'جهت ادامه امنیت حساب کاربری خود را غیر فعال کنید!')
+                abort(410, 'جهت ادامه امنیت حساب کاربری خود را غیر فعال کنید!')
                 : RouteServiceProvider::HOME;
         }
         return $next($request);
