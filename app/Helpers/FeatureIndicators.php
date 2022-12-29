@@ -20,7 +20,7 @@ class FeatureIndicators {
     public const MaskoniSoldAndPriced = 'a';
     public const MaskoniSoldAndNotPriced = 'b';
     public const MaskoniNotPriced = 'c';
-    public const MaskoniPriced = 'c';
+    public const MaskoniPriced = 'd';
 
     public const TejariSoldAndPriced = 'h';
     public const TejariSoldAndNotPriced = 'i';

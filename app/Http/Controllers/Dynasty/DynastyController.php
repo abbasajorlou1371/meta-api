@@ -14,16 +14,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Dynasty\Dynasty;
 use App\Notifications\GetOtpNotification;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\Dynasty\IntroductionPrizeResource;
+use App\Models\Dynasty\DynastyPrize;
 
 class DynastyController extends Controller
 {
-    public function index(): JsonResponse|DynastyResource
+    public function index(Request $request): JsonResponse|DynastyResource
     {
-        $dynasty = Dynasty::with(['family', 'family.familyMembers'])
-            ->where('user_id', request()->user()->id)
-            ->first();
-        if (!$dynasty) {
-            return response()->json(['error' => 'شما سلسله ندارید!'], 404);
+        $dynasty = Dynasty::whereBelongsTo($request->user())->with([
+            'family',
+            'family.familyMembers',
+            'feature',
+            'user'
+            ])->first();
+        if (is_null($dynasty)) {
+            $features =  $request->user()->features
+            ->reject(function($feature) {
+                return $feature->properties->karbari !== 'm';
+            })
+            ->map(function($feature) {
+                return [
+                    'id' => $feature->id,
+                    'properties_id' => $feature->properties->id,
+                    'stability' => $feature->properties->stability
+                ];
+            });
+            $prizes = DynastyPrize::all()->reject(function($prize) {
+                return in_array($prize->member, ['mother', 'sister', 'wife']);
+            });
+            return response()->json([
+                'data' => [
+                    'user-has-dynasty' => false,
+                    'features' => $features,
+                    'prizes' => new IntroductionPrizeResource($prizes)
+                ]
+            ], 200);
         }
         return new DynastyResource($dynasty);
     }

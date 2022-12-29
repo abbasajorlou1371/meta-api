@@ -15,6 +15,7 @@ use App\Http\Controllers\Dynasty\AcceptJoinRequestController;
 use App\Http\Controllers\Dynasty\ChildernPermissionsController;
 use App\Http\Controllers\Dynasty\DynastyController;
 use App\Http\Controllers\Dynasty\DynastyPrizeController;
+use App\Http\Controllers\Dynasty\FamilyController;
 use App\Http\Controllers\Dynasty\SendJoinRequestController;
 use App\Http\Controllers\Feature\BuyFeatureController;
 use App\Http\Controllers\Feature\BuyRequestsController;
@@ -206,13 +207,22 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
     Route::prefix('/dynasty')->group(function () {
         Route::controller(DynastyController::class)->group(function () {
             Route::get('/', 'index');
-            Route::get('/create/{feature}', 'store')->can('create', 'App\\Models\Dynasty\Dynasty');
-            Route::get('/{dynasty}/update/{feature}', 'updateDynastyFeature')
-                ->can('updateDynastyFeature', ['dynasty', 'feature']);
-            Route::post('/{dynasty}/update/{feature}', 'verifyUpdateDynastyFeature')
-                ->can('updateDynastyFeature', ['dynasty', 'feature']);
-            Route::get('/{dynasty}/update/{feature}/resend/otp', 'resendOtp')
-                ->can('updateDynastyFeature', ['dynasty', 'feature']);
+            Route::middleware('account.security')->group(function() {
+                Route::post('/create/{feature}', 'store')->can('create', 'App\\Models\Dynasty\Dynasty');
+                Route::post('/{dynasty}/update/{feature}', 'updateDynastyFeature')
+                    ->can('updateDynastyFeature', ['dynasty', 'feature']);
+                Route::post('/{dynasty}/update/{feature}', 'verifyUpdateDynastyFeature')
+                    ->can('updateDynastyFeature', ['dynasty', 'feature']);
+                Route::post('/{dynasty}/update/{feature}/resend/otp', 'resendOtp')
+                    ->can('updateDynastyFeature', ['dynasty', 'feature']);
+            });
+        });
+
+        Route::controller(FamilyController::class)->group(function() {
+            Route::get('/{dynasty}/family/{family}', 'index')
+            ->missing(function() {
+                return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
+            });
         });
         Route::controller(SendJoinRequestController::class)->scopeBindings()->group(function () {
             Route::get('/requests/sent', 'index');
@@ -238,7 +248,7 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
                 ->missing(function () {
                     return response()->json(['error' => 'درخواست یافت نشد'], 404);
                 });
-            Route::get('/requests/recieved/{user}/accept/{recievedJoinRequest}', 'accept')
+            Route::post('/requests/recieved/{user}/accept/{recievedJoinRequest}', 'accept')
                 ->missing(function () {
                     return response()->json(['error' => 'درخواست یافت نشد'], 404);
                 });
@@ -246,11 +256,11 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
                 ->missing(function () {
                     return response()->json(['error' => 'درخواست معتبر نمی باشد'], 404);
                 });
-            Route::get('/requests/recieved/{user}/verify/{recievedJoinRequest}/resend/otp', 'resendOtp')
+            Route::post('/requests/recieved/{user}/verify/{recievedJoinRequest}/resend/otp', 'resendOtp')
                 ->missing(function () {
                     return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
                 });
-            Route::get('/requests/recieved/{user}/reject/{recievedJoinRequest}', 'reject')
+            Route::post('/requests/recieved/{user}/reject/{recievedJoinRequest}', 'reject')
                 ->missing(function () {
                     return response()->json(['error' => 'درخواست یافت نشد'], 404);
                 });

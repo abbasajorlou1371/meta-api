@@ -33,7 +33,7 @@ class PersonalInfo extends JsonResource
                         'lname' => $this->kyc?->lname,
                     ]),
 
-                    $this->mergeWhen($this->privacy->where('name' , 'birth_date')->pluck('display')->first(),[
+                    $this->mergeWhen($this->privacy->where('name' , 'birthdate')->pluck('display')->first(),[
 
                         'birth_date' => Jalalian::forge($this->kyc?->birthdate)->format('Y/m/d'),
                     ]),
@@ -161,7 +161,7 @@ class PersonalInfo extends JsonResource
                             ]),
                             $this->mergeWhen($this->customs?->passions?->politics_economy, [
 
-                                "politics_economy" =>  'https://dl.qzparadise.ir/public/customs/politics_economy',
+                                "politics_economy" =>  'https://dl.qzparadise.ir/public/customs/politics_economy.png',
                             ])
                         ]
                     ]),

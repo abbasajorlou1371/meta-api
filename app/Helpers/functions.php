@@ -203,7 +203,7 @@ function hourlyProfitInfo(User $user): array
         $dead_line = new Carbon($firstHourlyProfit->dead_line);
         $user_withdraw_profit_limit = $user->variables->withdraw_profit * 86400;
         return [
-            'percentage' => floor(($dead_line->diffInSeconds(now()) / $user_withdraw_profit_limit) * 100),
+            'percentage' => 100 - floor(($dead_line->diffInSeconds(now()) / $user_withdraw_profit_limit) * 100),
             'karbari' => $firstHourlyProfit->feature->properties->karbari,
         ];
     }
@@ -287,17 +287,11 @@ function getTransactionTitle(Transaction $transaction) {
 }
 
 function getTransactionStatus(Transaction $transaction) {
-    switch($transaction->status) {
-        case 1:
-            return 'موفق';
-            break;
-        case -1:
-            return 'ناموفق';
-            break;
-        case 0:
-            return 'معلق';
-            break;
-    }
+    return match($transaction->status) {
+        1 => 'موفق',
+        -1 => 'ناموفق',
+        0 => 'معلق',
+    };
 }
 
 function createUserPrivacy(User $user){

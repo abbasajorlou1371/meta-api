@@ -18,10 +18,10 @@ class FamilyMemberResource extends JsonResource
         return [
             'id' => $this->user->id,
             'code' => $this->user->code,
-            'profile-photos' => $this->user->profilePhotos,
-            'online' => Carbon::parse($this->user->last_seen)->diffInMinutes(now()) > 2 ? 0 : 1,
+            'profile-photos' => $this->user->profilePhotos->first()?->url,
+            'online' => Carbon::parse($this->user->last_seen)->diffInMinutes(now()) > 2 ? false : true,
             'relationship' => $this->relationship,
-            'level' => $this->user->level,
+            'level' => $this->user->level?->slug,
             $this->mergeWhen(isUnderEighteen($this->user), [
                 'permissions' => [
                     'BFR' => $this->user->permissions?->BFR,
