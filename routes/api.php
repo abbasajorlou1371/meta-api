@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Challenge\QuestionController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CustomController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dynasty\AcceptJoinRequestController;
@@ -49,8 +50,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-Route::middleware(['api', 'check.ip'])->group(function () {
+//, 'check.ip'
+Route::middleware(['api'])->group(function () {
     Route::controller(HomeController::class)->group(function () {
         Route::get('/home', 'index');
         Route::get('/get-user-info/{user}', 'showUserDetails');
@@ -84,8 +85,8 @@ Route::middleware(['api', 'check.ip'])->group(function () {
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])
     ->middleware(['signed'])->name('verification.verify');
 
-
-Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity'])->group(function () {
+//'verified', 'check.ip', 'user.activity'
+Route::middleware(['auth:sanctum', 'api'])->group(function () {
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
@@ -292,23 +293,25 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     Route::get('/notification-read/{notification}', function (Notification $notification) {
         $notification->update(['read_at' => now()]);
     });
+
+    // Chat System
+    Route::prefix('/chat-room')->group(function () {
+        Route::get('/', [ChatController::class, 'index']);
+        Route::post('/new-chat/{user}', [ChatController::class, 'newChat']);
+        Route::get('/{chat}', [ChatController::class, 'chat']);
+        Route::post('/{chat}/send', [ChatController::class, 'send']);
+    });
+
+    // Challenge
+    Route::prefix('/challenge')->group(function () {
+        Route::get('/timings', [SystemVariableController::class, 'index']);
+        Route::get('/question', [QuestionController::class, 'index']);
+        Route::post('/{question}/answer/{questionAnswer}', [QuestionController::class, 'answerQuestion']);
+    });
 });
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{code}', 'home');
-});
-
-
-Route::prefix('/challenge')->middleware(['api', 'auth:sanctum', 'check.ip'])->group(function () {
-    Route::get('/timings', [SystemVariableController::class, 'index']);
-    Route::get('/question', [QuestionController::class, 'index']);
-    Route::post('/{question}/answer/{questionAnswer}', [QuestionController::class, 'answerQuestion']);
-    Route::get('/truncate-users', function () {
-        \App\Models\UserQuestionAnswer::truncate();
-        return response()->json([
-            'message' => 'done'
-        ]);
-    });
 });
