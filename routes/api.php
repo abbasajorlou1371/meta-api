@@ -317,6 +317,6 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
-Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
+Route::controller(PublicProfileController::class)->withoutMiddleware('check.ip')->prefix('citizen')->group(function () {
     Route::get('/{code}', 'home');
 });
