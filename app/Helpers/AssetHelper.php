@@ -12,24 +12,15 @@ use App\Models\Trade;
 class AssetHelper
 {
 
-    public static function getAssetTitle(string $asset) {
-        switch($asset) {
-            case 'psc':
-                return 'psc';
-                break;
-            case 'irr':
-                return 'ریال';
-                break;
-            case 'yellow':
-                return 'رنگ زرد';
-                break;
-            case 'blue':
-                return 'رنگ آبی';
-                break;
-            case 'red':
-                return 'رنگ قرمز';
-                break;
-        }
+    public static function getAssetTitle(string $asset) : string
+    {
+        return match ($asset) {
+            'psc'    => 'psc',
+            'irr'    => 'ریال',
+            'yellow' => 'رنگ زرد',
+            'blue'   => 'رنگ آبی',
+            'red'    => 'رنگ قرمز'
+        };
     }
 
     public static function checkColorBalance(User $user, Feature $feature)
