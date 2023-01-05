@@ -53,8 +53,8 @@ class TransactionNotification extends Notification implements ShouldQueue
     {
         return [
             'phone' => $notifiable->phone,
-            'token' => $this->order->amount,
-            'token2' => $this->order->transaction->amount,
+            'token10' => $this->order->amount. ' ' . AssetHelper::getAssetTitle($this->order->asset),
+            'token2' => $this->order->transaction->amount / 10,
             'template' => 'transaction'
         ];
     }
@@ -75,7 +75,7 @@ class TransactionNotification extends Notification implements ShouldQueue
             );
         } else {
             $message = sprintf('مقدار %s %s به حساب شما واریز گردید!',
-                $this->order->asset == 'psc' ? $this->order->amount : $this->order->amount / 10,
+                $this->order->amount,
                 AssetHelper::getAssetTitle($this->order->asset)
             );
         }
