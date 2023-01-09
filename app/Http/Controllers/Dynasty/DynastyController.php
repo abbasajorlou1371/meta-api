@@ -27,7 +27,6 @@ class DynastyController extends Controller
             'feature',
             'user'
             ])->first();
-            $dynasty = null;
         if (is_null($dynasty)) {
             $features =  $request->user()->features
             ->reject(function($feature) {
