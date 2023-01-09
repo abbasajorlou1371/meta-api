@@ -31,7 +31,7 @@ class TopPlayerResource extends JsonResource
                 'phone' => $this->phone,
             ]),
 
-            'profile-photos' => $this->profilePhotos,
+            'profile_photos' => $this->profilePhotos,
 
             $this->mergeWhen($this->privacy->where('name' , 'score')->pluck('display')->first(), [
                 'score' => $this->score,
