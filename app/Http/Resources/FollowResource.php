@@ -22,7 +22,7 @@ class FollowResource extends JsonResource
             'score' => $this->score,
             'code' => $this->code,
             $this->mergeWhen(isset($this->profilePhotos), [
-                'image' => $this->profilePhotos,
+                'profile_photos' => $this->profilePhotos,
             ]),
             'followed_at' => Jalalian::forge($this->created_at)->format('Y/m/d')
         ];
