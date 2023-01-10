@@ -12,54 +12,33 @@ use App\Models\Trade;
 class AssetHelper
 {
 
-    public static function getAssetTitle(string $asset) {
-        switch($asset) {
-            case 'psc':
-                return 'psc';
-                break;
-            case 'irr':
-                return 'ریال';
-                break;
-            case 'yellow':
-                return 'رنگ زرد';
-                break;
-            case 'blue':
-                return 'رنگ آبی';
-                break;
-            case 'red':
-                return 'رنگ قرمز';
-                break;
-        }
+    public static function getAssetTitle(string $asset) : string
+    {
+        return match ($asset) {
+            'psc'    => 'psc',
+            'irr'    => 'ریال',
+            'yellow' => 'رنگ زرد',
+            'blue'   => 'رنگ آبی',
+            'red'    => 'رنگ قرمز'
+        };
     }
 
     public static function checkColorBalance(User $user, Feature $feature)
     {
-        switch ($feature->properties->karbari) {
-            case FeatureIndicators::Tejari:
-                return $user->assets->red < $feature->properties->stability;
-                break;
-            case FeatureIndicators::Maskoni:
-                return $user->assets->yellow < $feature->properties->stability;
-                break;
-            case FeatureIndicators::Amozeshi:
-                return $user->assets->blue < $feature->properties->stability;
-                break;
-        }
+        return match($feature->properties->karbari) {
+            FeatureIndicators::Tejari   => $user->assets->red < $feature->properties->stability,
+            FeatureIndicators::Maskoni  => $user->assets->yellow < $feature->properties->stability,
+            FeatureIndicators::Amozeshi => $user->assets->blue < $feature->properties->stability
+        };
     }
 
     public static function getAssetColor(Feature $feature)
     {
-        switch ($feature->properties->karbari) {
-            case FeatureIndicators::Amozeshi:
-                return 'blue';
-                break;
-            case FeatureIndicators::Tejari:
-                return 'red';
-                break;
-            case FeatureIndicators::Maskoni:
-                return 'yellow';
-                break;
-        }
+        return match($feature->properties->karbari) {
+            FeatureIndicators::Amozeshi => 'blue',
+            FeatureIndicators::Tejari   => 'red',
+            FeatureIndicators::Maskoni  => 'yellow'
+        };
     }
 
     public static function lockAsset(BuyFeatureRequest $buyFeatureRequest, Request $request)

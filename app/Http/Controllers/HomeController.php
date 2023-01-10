@@ -30,7 +30,7 @@ class HomeController extends Controller
                         'id' => $user->id,
                         'code' => $user->code,
                         'score' => $user->score,
-                        'profile-photos' => $user->profilePhotos,
+                        'profile_photos' => $user->profilePhotos,
                         'level' => $user->level,
                         'online' => !(Carbon::parse($user->last_seen)->diffInMinutes(now()) > 2),
                     ];

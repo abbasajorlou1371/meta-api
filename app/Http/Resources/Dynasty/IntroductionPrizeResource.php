@@ -2,18 +2,26 @@
 
 namespace App\Http\Resources\Dynasty;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use App\Constants\FamilyMembersType;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class IntroductionPrizeResource extends ResourceCollection
+class IntroductionPrizeResource extends JsonResource
 {
     /**
-     * Transform the resource collection into an array.
+     * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            "member" => FamilyMembersType::familyMembersTypeList()[$this->member],
+            "satisfaction" => $this->satisfaction,
+            "introduction_profit_increase" => $this->introduction_profit_increase,
+            "accumulated_capital_reserve" => $this->accumulated_capital_reserve,
+            "data_storage" => $this->data_storage,
+            "psc" => $this->psc,
+        ];
     }
 }

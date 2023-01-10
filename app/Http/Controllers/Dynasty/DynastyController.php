@@ -11,10 +11,10 @@ use App\Models\Feature;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Dynasty\IntroductionPrizeResource;
 use App\Models\Dynasty\Dynasty;
 use App\Notifications\GetOtpNotification;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\Dynasty\IntroductionPrizeResource;
 use App\Models\Dynasty\DynastyPrize;
 
 class DynastyController extends Controller
@@ -39,14 +39,12 @@ class DynastyController extends Controller
                     'stability' => $feature->properties->stability
                 ];
             });
-            $prizes = DynastyPrize::all()->reject(function($prize) {
-                return in_array($prize->member, ['mother', 'sister', 'wife']);
-            });
+            $prizes = DynastyPrize::whereIn( 'member',['father', 'wife', 'mother', 'sister', 'brother', 'offspring'])->get();
             return response()->json([
                 'data' => [
                     'user-has-dynasty' => false,
                     'features' => $features,
-                    'prizes' => new IntroductionPrizeResource($prizes)
+                    'prizes' => IntroductionPrizeResource::collection($prizes)
                 ]
             ], 200);
         }

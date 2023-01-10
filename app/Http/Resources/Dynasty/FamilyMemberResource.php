@@ -18,7 +18,7 @@ class FamilyMemberResource extends JsonResource
         return [
             'id' => $this->user->id,
             'code' => $this->user->code,
-            'profile-photos' => $this->user->profilePhotos->first()?->url,
+            'profile_photo' => $this->user->profilePhotos->first()?->url,
             'online' => Carbon::parse($this->user->last_seen)->diffInMinutes(now()) > 2 ? false : true,
             'relationship' => $this->relationship,
             'level' => $this->user->level?->slug,

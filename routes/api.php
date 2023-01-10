@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Challenge\QuestionController;
 use App\Http\Controllers\ChatController;
@@ -86,8 +87,7 @@ Route::middleware(['api'])->group(function () {
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__invoke'])
     ->middleware(['signed'])->name('verification.verify');
 
-//'verified', 'check.ip', 'user.activity'
-Route::middleware(['auth:sanctum', 'api'])->group(function () {
+Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity'])->group(function () {
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
@@ -177,13 +177,8 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
         Route::get('/close/{ticket}', 'close')->can('close', 'ticket');
     });
     Route::apiResource('notes', NoteController::class);
-
-    Route::controller(KycController::class)->prefix('kyc')->group(function () {
-        Route::get('/{kyc}', 'show')->can('view', 'kyc');
-        Route::post('/', 'store')->can('create', 'App\\Models\Kyc');
-        Route::put('/{kyc}', 'update')->can('update', 'kyc');
-        Route::delete('/{kyc}', 'destroy')->can('delete', 'kyc');
-    });
+    Route::apiResource('kyc', KycController::class);
+    Route::apiResource('bank-accounts', BankAccountController::class);
 
     Route::controller(SearchController::class)->group(function () {
         Route::post('search/users', 'users');
@@ -279,9 +274,10 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
         });
     });
 
-    Route::controller(FeatureHourlyProfitController::class)->scopeBindings()->prefix('get-hourly-profits')->group(function () {
-        Route::get('/{karbari?}', 'getHourlyProfits');
-        Route::get('/{user}/features/{feature}', 'getHourlyProfit')->missing(function () {
+    Route::controller(FeatureHourlyProfitController::class)->scopeBindings()->prefix('hourly-profits')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'getProfits');
+        Route::get('/{user}/features/{feature}', 'getProfit')->missing(function () {
             return response()->json([
                 'error' => 'درخواست نا معتبر است'
             ]);
@@ -296,9 +292,6 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
         Route::post('/report/response/{userEvent}', 'sendResponse');
         Route::get('/report/close/{userEvent}', 'closeEventReport');
     });
-
-    Route::get('/ping', function () {
-    })->withoutMiddleware(['auth:sanctum', 'verified', 'check.ip']);
 
     Route::get('/notification-read/{notification}', function (Notification $notification) {
         $notification->update(['read_at' => now()]);
@@ -320,8 +313,10 @@ Route::middleware(['auth:sanctum', 'api'])->group(function () {
     });
 });
 
+Route::get('/ping', static fn() => null);
+
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
-Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
+Route::controller(PublicProfileController::class)->withoutMiddleware('check.ip')->prefix('citizen')->group(function () {
     Route::get('/{code}', 'home');
 });

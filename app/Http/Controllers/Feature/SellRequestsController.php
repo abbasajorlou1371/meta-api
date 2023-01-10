@@ -55,7 +55,7 @@ class SellRequestsController extends Controller
             $requestedPrice_irr = $totalPrice * 0.5;
             $price_limit = $request->minimum_price_percentage;
         } else {
-            if (iszero($request->price_psc) && iszero($request->pirce_irr)) {
+            if (iszero($request->price_psc) && iszero($request->price_irr)) {
                 throw ValidationException::withMessages([
                     'error' => 'قیمت ملک را یا به ریال یا به psc مشخص کنید'
                 ]);

@@ -53,8 +53,8 @@ class TransactionNotification extends Notification implements ShouldQueue
     {
         return [
             'phone' => $notifiable->phone,
-            'token' => $this->order->amount,
-            'token2' => $this->order->transaction->amount,
+            'token10' => $this->order->amount. ' ' . AssetHelper::getAssetTitle($this->order->asset),
+            'token2' => $this->order->transaction->amount / 10,
             'template' => 'transaction'
         ];
     }
@@ -69,21 +69,21 @@ class TransactionNotification extends Notification implements ShouldQueue
     {
         if(in_array($this->order->asset, ['yellow', 'blue', 'red']))
         {
-            $messgae = sprintf('مقدار %s لیتر رنگ %s به حساب شما واریز گردید!', [
+            $message = sprintf('مقدار %s لیتر رنگ %s به حساب شما واریز گردید!',
                 $this->order->amount,
                 AssetHelper::getAssetTitle($this->order->asset)
-            ]);
+            );
         } else {
-            $messgae = sprintf('مقدار %s %s به حساب شما واریز گردید!', [
+            $message = sprintf('مقدار %s %s به حساب شما واریز گردید!',
                 $this->order->amount,
                 AssetHelper::getAssetTitle($this->order->asset)
-            ]);
+            );
         }
         return [
             'related-to' => 'transactions',
             'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
             'sender-name' => 'متارنگ',
-            'message' => $messgae,
+            'message' => $message,
         ];
     }
 }

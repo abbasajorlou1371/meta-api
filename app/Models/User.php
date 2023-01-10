@@ -476,6 +476,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Privacy::class);
     }
 
+    public function bankAccounts()
+    {
+        return $this->morphMany(BankAccount::class, 'bankable');
+    }
     /**
      * @return HasMany
      */

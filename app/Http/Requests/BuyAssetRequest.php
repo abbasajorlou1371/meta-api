@@ -24,7 +24,7 @@ class BuyAssetRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required|numeric|min:1|max:50000',
+            'amount' => 'required|numeric|min:1',
             'asset' => 'required|in:psc,red,blue,yellow,irr',
         ];
     }
@@ -36,8 +36,7 @@ class BuyAssetRequest extends FormRequest
             'asset.in' => 'دارایی باید یا psc, رنگ قرمز، آبی و زرد باشد',
             'amount.required' => 'وارد کردن مبلغ الزامیست',
             'amount.numeric' => 'مبلغ باید عدد باشد',
-            'amount.min' => 'کمترین مقدار قابل شارژ psc 1 میباشد',
-            'amount.max' => 'بیشترین مقدار قابل شارژ psc 50000 میباشد',
+            'amount.min' => 'کمترین مقدار قابل شارژ 1 میباشد',
         ];
     }
 }
