@@ -18,9 +18,9 @@ class IntroductionPrizeResource extends JsonResource
         return [
             "member" => FamilyMembersType::familyMembersTypeList()[$this->member],
             "satisfaction" => $this->satisfaction,
-            "introduction_profit_increase" => $this->introduction_profit_increase,
-            "accumulated_capital_reserve" => $this->accumulated_capital_reserve,
-            "data_storage" => $this->data_storage,
+            "introduction_profit_increase" => $this->introduction_profit_increase * 100,
+            "accumulated_capital_reserve" => $this->accumulated_capital_reserve * 100,
+            "data_storage" => $this->data_storage * 100,
             "psc" => $this->psc,
         ];
     }
