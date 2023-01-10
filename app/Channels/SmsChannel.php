@@ -14,7 +14,7 @@ class SmsChannel
 
         try {
             $receptor = $data['phone'];
-            $token = $data['token'] ?? '';
+            $token = $data['token'];
             $token2 = $data['token2'] ?? '';
             $token3 = $data['token3'] ?? '';
             $token10 = $data['token10'] ?? '';

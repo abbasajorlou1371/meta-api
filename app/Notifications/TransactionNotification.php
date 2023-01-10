@@ -53,8 +53,9 @@ class TransactionNotification extends Notification implements ShouldQueue
     {
         return [
             'phone' => $notifiable->phone,
-            'token10' => $this->order->amount. ' ' . AssetHelper::getAssetTitle($this->order->asset),
+            'token' => $this->order->amount,
             'token2' => $this->order->transaction->amount / 10,
+            'token10' => 'عدد ' .  AssetHelper::getAssetTitle($this->order->asset),
             'template' => 'transaction'
         ];
     }
