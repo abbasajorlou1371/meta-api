@@ -60,7 +60,7 @@ class RegisterController extends Controller
      */
     private function generateReferalLink($code): string
     {
-        return config('app.url') . '/citizen/' . $code;
+        return 'https://rgb.irpsc.com/citizen/' . $code;
     }
 
     /**
