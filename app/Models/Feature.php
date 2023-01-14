@@ -6,10 +6,8 @@
 
 namespace App\Models;
 
-use App\Helpers\FeatureIndicators;
 use App\Models\Dynasty\Dynasty;
 use App\Models\Feature\FeatureHourlyProfit;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Feature extends Model
@@ -100,5 +98,10 @@ class Feature extends Model
     public function hourlyProfit()
     {
         return $this->hasOne(FeatureHourlyProfit::class);
+    }
+
+    public static function query()
+    {
+        return parent::query();
     }
  }

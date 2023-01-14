@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-
 class HomeResource extends JsonResource
 {
     /**
@@ -15,14 +14,16 @@ class HomeResource extends JsonResource
     public function toArray($request)
     {
         return [
-            $this->mergeWhen(! empty($this->user), [
+            $this->mergeWhen(isset($this->user), [
                 'user' => new UserResource($this->user)
             ]),
-            $this->mergeWhen(! empty($this->top_players), [
-                'top_players' => UserResource::collection($this->top_players)
+            $this->mergeWhen(isset($this->top_players), [
+                'top_players' => $this->top_players,
             ]),
-            // 'features' => $this->features,
-            'packages' => new PackageResource($this->packages)
+            'features' => $this->featureRepository->getHomePageFeatures(),
+            $this->mergeWhen($this->user && $this->user->features->count() > 0, [
+                'feature_hourly_profit_info' => hourlyProfitInfo($this->user),
+            ])
         ];
     }
 }

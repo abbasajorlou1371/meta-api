@@ -54,12 +54,6 @@ use Illuminate\Support\Facades\Route;
 
 //, 'check.ip'
 Route::middleware(['api'])->group(function () {
-    Route::controller(HomeController::class)->group(function () {
-        Route::get('/home', 'index');
-        Route::get('/get-user-info/{user}', 'showUserDetails');
-        Route::get('/store', 'store');
-    });
-
     Route::controller(CalendarController::class)->prefix('calendar')->group(function () {
         Route::get('/', 'getEvents');
         Route::get('/{event}', 'getSingleEvent');
@@ -88,6 +82,15 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, '__
     ->middleware(['signed'])->name('verification.verify');
 
 Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity'])->group(function () {
+    Route::controller(HomeController::class)->group(function () {
+        Route::get('/home', 'index')->withoutMiddleware([
+            'verified', 'user.activity'
+        ])->name('home');
+        Route::get('/get-user-info/{user}', 'showUserDetails')->withoutMiddleware([
+            'verified', 'user.activity',
+        ])->name('top-player-details');
+        Route::get('/store', 'store');
+    });
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
         Route::get('/payments/latest', 'getUserLatestTransaction');
@@ -148,7 +151,6 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
             Route::post('/accept/{buyFeatureRequest}', 'acceptBuyRequest')->can('accept', 'buyFeatureRequest');
             Route::post('/reject/{buyFeatureRequest}', 'rejectBuyRequest')->can('reject', 'buyFeatureRequest');
         });
-
     });
 
     Route::controller(SettingController::class)->group(function () {
@@ -202,7 +204,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     Route::prefix('/dynasty')->group(function () {
         Route::controller(DynastyController::class)->group(function () {
             Route::get('/', 'index');
-            Route::middleware('account.security')->group(function() {
+            Route::middleware('account.security')->group(function () {
                 Route::post('/create/{feature}', 'store')->can('create', 'App\\Models\Dynasty\Dynasty');
                 Route::post('/{dynasty}/update/{feature}', 'updateDynastyFeature')
                     ->can('updateDynastyFeature', ['dynasty', 'feature']);
@@ -213,11 +215,11 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
             });
         });
 
-        Route::controller(FamilyController::class)->group(function() {
+        Route::controller(FamilyController::class)->group(function () {
             Route::get('/{dynasty}/family/{family}', 'index')
-            ->missing(function() {
-                return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
-            });
+                ->missing(function () {
+                    return response()->json(['error' => 'درخواست معتبر نمی باشد.'], 404);
+                });
         });
         Route::controller(SendJoinRequestController::class)->scopeBindings()->group(function () {
             Route::get('/requests/sent', 'index');
@@ -313,7 +315,7 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     });
 });
 
-Route::get('/ping', static fn() => null);
+Route::get('/ping', static fn () => null);
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
