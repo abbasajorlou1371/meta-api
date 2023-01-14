@@ -24,7 +24,7 @@ class BuyFeatureRequestValidate extends FormRequest
     public function rules()
     {
         return [
-            'note' => 'nullable',
+            'note' => 'nullable|string|max:500',
             'price_psc' => 'required|numeric|min:0|max:100000000',
             'price_irr' => 'required|numeric|min:0|max:10000000000',
         ];

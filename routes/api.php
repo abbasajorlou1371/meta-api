@@ -186,13 +186,13 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     });
     Route::post('/order', [OrderController::class, 'create']);
 
-    Route::prefix('reset')->middleware('account.security')->group(function () {
+    Route::prefix('reset')->as('reset.')->middleware('account.security')->group(function () {
         Route::controller(ResetPhoneController::class)->prefix('phone')->group(function () {
-            Route::post('/', 'sendVerifyCode');
+            Route::post('/', 'sendVerifyCode')->name('phone');
             Route::post('/verify', 'verify');
         });
         Route::controller(ResetEmailController::class)->prefix('email')->group(function () {
-            Route::post('/', 'sendVerifyCode');
+            Route::post('/', 'sendVerifyCode')->name('email');
             Route::post('/verify', 'verify');
         });
         Route::post('/password', ChangePasswordController::class);

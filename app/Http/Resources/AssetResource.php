@@ -15,12 +15,11 @@ class AssetResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'user_id' => $this->id,
-            'psc' => number_format($this->psc, 3, '.', ','),
-            'irr' => number_format($this->irr, 3, '.', ','),
-            'red' => number_format($this->red, 3, '.', ','),
-            'blue' => number_format($this->blue, 3, '.', ','),
-            'yellow' => number_format($this->yellow, 3, '.', ','),
+            'psc' => format_number($this->psc),
+            'irr' => format_number($this->irr),
+            'red' => format_number($this->red),
+            'blue' => format_number($this->blue),
+            'yellow' => format_number($this->yellow),
             'satisfaction' => number_format($this->satisfaction, 1),
             'effect' => $this->effect,
         ];

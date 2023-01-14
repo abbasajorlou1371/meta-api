@@ -15,10 +15,11 @@ class ResetInfoRequest extends FormRequest
      */
     public function authorize()
     {
-        $user = request()->user();
-        $type = request()->has('phone') ? 'phone' : 'email';
-        return Reset::resetInfo($user, $type)->count() >= 1 || !in_array($type, ['email', 'phone'])
-            ? abort(401, sprintf('تعداد دفعات تغییر %s 1 بار می باشد!', $type == 'phone' ? 'تلفن همراه' : 'ایمیل')) : true;
+        return Reset::resetInfo(
+            request()->user(),
+            request()->has('email') ? 'email' : 'phone'
+        )
+            ->count() < 1;
     }
 
     /**
@@ -30,13 +31,13 @@ class ResetInfoRequest extends FormRequest
     {
         return [
             'phone' =>
-            Rule::when(request()->has('phone'), [
+            Rule::when(request()->routeIs('reset.phone'), [
                 'required',
                 'ir_mobile',
                 'unique:users,phone'
             ]),
             'email' =>
-            Rule::when(request()->has('email'), [
+            Rule::when(request()->routeIs('reset.email'), [
                 'required',
                 'email',
                 'unique:users,email'

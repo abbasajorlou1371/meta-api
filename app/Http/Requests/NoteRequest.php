@@ -26,7 +26,7 @@ class NoteRequest extends FormRequest
         return [
             'title' => 'required|string|max:250',
             'content' => 'required|string|max:500',
-            'attachment' => 'nullable|file|mimes:png,jpg,pdf'
+            'attachment' => 'nullable|file|mimes:png,jpg,pdf|size:1024'
         ];
     }
 

@@ -276,25 +276,28 @@ function generate_captcha()
     );
 }
 
-function getTransactionTitle(Transaction $transaction) {
-    if($transaction->payable instanceof BuyFeatureRequest) {
+function getTransactionTitle(Transaction $transaction)
+{
+    if ($transaction->payable instanceof BuyFeatureRequest) {
         return 'پیشنهاد خرید ملک';
-    } elseif($transaction->payable instanceof Trade) {
+    } elseif ($transaction->payable instanceof Trade) {
         return 'معامله ملک';
-    } elseif($transaction->payable instanceof Order) {
+    } elseif ($transaction->payable instanceof Order) {
         return 'خرید دارایی';
     }
 }
 
-function getTransactionStatus(Transaction $transaction) {
-    return match($transaction->status) {
+function getTransactionStatus(Transaction $transaction)
+{
+    return match ($transaction->status) {
         1 => 'موفق',
         -1 => 'ناموفق',
         0 => 'معلق',
     };
 }
 
-function createUserPrivacy(User $user){
+function createUserPrivacy(User $user)
+{
 
     DB::table('privacies')->insert([
         [
@@ -682,4 +685,30 @@ function createUserPrivacy(User $user){
             'name' => 'code'
         ]
     ]);
+}
+
+function format_number($number): string
+{
+    if ($number >= 1000 && $number < 1000000) {
+        if (($number * 1000) % 1000 > 0) {
+            $number = number_format($number / 1000, 3);
+        } else {
+            $number = number_format($number / 1000);
+        }
+        return $number . 'K';
+    } elseif ($number >= 1000000 && $number < 1000000000) {
+        if (($number * 1000000) % 1000000 > 0) {
+            $number = number_format($number / 1000000, 3);
+        } else {
+            $number = number_format($number / 1000000);
+        }
+        return $number . 'M';
+    } elseif ($number < 1000) {
+        if (($number * 1000) % 1000 > 0) {
+            $number = number_format($number, 3);
+        } else {
+            $number = number_format($number);
+        }
+        return $number;
+    }
 }
