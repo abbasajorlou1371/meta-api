@@ -119,14 +119,14 @@ class OrderController extends Controller
 
                 $user->notify(new TransactionNotification($order));
                 $user->deposit();
-                return redirect()->to(env('FRONT_URL').'/metaverse/payment/verify');
+                return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');
             }
         } else {
             if($result['errors']['code'] == -51) {
                 $transaction->update(['status' => -1]);
                 $next_transaction->update(['status' => -1]);
                 $order->update(['status' => -1]);
-                return redirect()->to(env('FRONT_URL').'/metaverse/payment/verify');
+                return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');
             }
         }
     }
