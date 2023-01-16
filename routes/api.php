@@ -35,6 +35,7 @@ use App\Http\Controllers\ResetInfo\ResetEmailController;
 use App\Http\Controllers\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\Statistics\StatisticsController;
 use App\Http\Controllers\SystemVariableController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserEventsController;
@@ -318,10 +319,26 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     });
 });
 
-Route::get('/ping', static fn () => null);
+Route::get('/ping', static fn() => null);
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
 Route::controller(PublicProfileController::class)->withoutMiddleware('check.ip')->prefix('citizen')->group(function () {
     Route::get('/{code}', 'home');
+});
+
+
+Route::prefix('/statistics')->withoutMiddleware('check.ip')->group(function () {
+    Route::get('/user-followers', [StatisticsController::class, 'userFollowers']);
+    Route::post('/current-month-top-followers', [StatisticsController::class, 'currentMonthTopUserFollowers']);
+    Route::get('/top-active-users', [StatisticsController::class, 'topActiveUsers']);
+    Route::post('/current-month-top-active-users', [StatisticsController::class, 'currentMonthTopActiveUsers']);
+    Route::post('/most-buy-asset', [StatisticsController::class, 'assetBuyAmount']);
+    Route::post('/current-month-most-buy-asset', [StatisticsController::class, 'currentMonthAssetBuyAmount']);
+    Route::post('/traded-features', [StatisticsController::class, 'tradedFeatures']);
+    Route::post('/current-month-top-traded-features', [StatisticsController::class, 'currentMonthTopTradedFeatures']);
+    Route::get('/top-dynasty-family-referral', [StatisticsController::class, 'topDynastyFamilyReferral']);
+    Route::post('/current-month-top-dynasty-family-referral', [StatisticsController::class, 'currentMonthTopDynastyFamilyReferral']);
+    Route::get('/all-users-level-one-activated', [StatisticsController::class, 'allUsersLevelOneActivated']);
+    Route::post('/current-month-users-level-one-activated', [StatisticsController::class, 'currentMonthUsersLevelOneActivated']);
 });
