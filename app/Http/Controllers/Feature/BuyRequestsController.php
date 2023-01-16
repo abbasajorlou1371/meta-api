@@ -135,7 +135,7 @@ class BuyRequestsController extends Controller
             $buyFeatureRequest->seller->traded();
             $feature->sellRequests->each->update(['status' => 1]);
             broadcast(new FeatureStatusChanged([
-                'id' => $feature->properties->id,
+                'id'  => $feature->id,
                 'rgb' => $feature->properties->rgb,
 
             ]));

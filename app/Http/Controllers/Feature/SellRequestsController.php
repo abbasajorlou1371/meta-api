@@ -117,7 +117,7 @@ class SellRequestsController extends Controller
         ]);
 
         broadcast(new FeatureStatusChanged([
-            'id' => $feature->properties->id,
+            'id'  => $feature->id,
             'rgb' => $feature->properties->rgb,
         ]));
 
@@ -143,7 +143,7 @@ class SellRequestsController extends Controller
 
         $sellRequest->delete();
         broadcast(new FeatureStatusChanged([
-            'id' => $feature->properties->id,
+            'id'  => $feature->id,
             'rgb' => FeatureHelper::cancelSellRequest($feature)
         ]));
 
