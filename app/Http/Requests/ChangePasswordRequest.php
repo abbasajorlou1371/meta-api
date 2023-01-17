@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class ChangePasswordRequest extends FormRequest
 {
@@ -28,22 +28,8 @@ class ChangePasswordRequest extends FormRequest
             'old_password' => 'required|current_password',
             'password' => [
                 'required',
-                function ($attribute, $value, $fail) {
-                    $pass_pattern = "/^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,}$/";
-                    if (!preg_match($pass_pattern, $value)) {
-                        $fail('رمز عبور باید حداقل 8 کاراکتر شامل حداقل یک حرف کوچک، یک حرف بزرگ و عدد باشد');
-                    }
-                },
+                Password::min(8)->mixedCase()->symbols()->numbers()
             ],
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'old_password.required' => 'رمز عبور قبلی را وارد کنید',
-            'old_password.current_password' => 'رمز عبور قبلی صحیح نیست',
-            'password.required' => 'رمز عبور جدید را وارد کنید',
         ];
     }
 }

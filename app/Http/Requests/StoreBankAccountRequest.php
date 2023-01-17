@@ -24,7 +24,7 @@ class StoreBankAccountRequest extends FormRequest
     public function rules()
     {
         return [
-            'bank_name' => 'required|min:2',
+            'bank_name' => 'required|string|min:2',
             'shaba_num' => 'required|ir_sheba',
             'card_num'  => 'required|ir_bank_card_number'
         ];

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\FamilyRelationships;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class AddFamilyMemberRequest extends FormRequest
 {
@@ -24,23 +26,19 @@ class AddFamilyMemberRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => 'required|numeric|integer|min:1',
-            'relationship' => 'required|string|in:father,mother,brother,sister,offspring',
-            'permissions' => 'required_if:relationship,offspring|array|min:0',
-            'permissions.*' => 'numeric|min:0'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'user_id.required' => 'آیدی کاربر را وارد کنید',
-            'user_id.numeric' => 'آیدی کاربر صحیح نیست',
-            'user_id.integer' => 'آیدی کاربر صحیح نیست',
-            'user_id.min' => 'آیدی کاربر صحیح نیست',
-            'relationship.required' => 'نسبت خانوادگی را مشخص کنید',
-            'relationship.in' => 'نسبت خانوادگی معتبر نیست',
-            'relationship.string' => 'نسبت خانوادگی معتبر نیست',
+            'user' => 'required|numeric|integer|exists:users,id',
+            'relationship' => [
+                'required',
+                'string',
+                new Enum(FamilyRelationships::class)
+            ],
+            'permissions' => [
+                'required_if:relationship,offspring',
+                'array',
+                'min:10',
+                'required_array_keys:BFR,SF,W,JU,DM,PIUP,PITC,PIC,ESOO,COTB'
+            ],
+            'permissions.*' => 'integer|boolean'
         ];
     }
 }

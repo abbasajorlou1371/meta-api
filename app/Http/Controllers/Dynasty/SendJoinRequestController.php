@@ -21,13 +21,7 @@ class SendJoinRequestController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        $sentJoinRequests = $user->sentJoinRequests;
-        if (!$sentJoinRequests) {
-            return response()->json(['message' => 'درخواستی ثبت نشده است!'], 200);
-        }
-
-        return SentRequestsResource::collection($sentJoinRequests);
+        return SentRequestsResource::collection($request->user()->sentJoinRequests);
     }
 
     public function show(User $user, JoinRequest $sentJoinRequest)
@@ -40,15 +34,14 @@ class SendJoinRequestController extends Controller
         if ($request->has('relationship') && $request->relationship === 'offspring') {
             $permissions = DynastyPermission::first();
             return response()->json(['permissions' => $permissions], 200);
-        } else {
-            return response()->json(['error' => 'درخواست نا معتبر است.'], 404);
         }
+        return response()->json(['error' => 'درخواست نا معتبر است.'], 404);
     }
 
     public function store(AddFamilyMemberRequest $request)
     {
         $user = $request->user();
-        $user_to_add = User::findOrFail($request->user_id);
+        $user_to_add = User::findOrFail($request->user);
         if ($user->can('addFamilyMember', [$user_to_add, $request->relationship])) {
             $joinRequest = JoinRequest::create([
                 'from_user' => $user->id,
@@ -88,7 +81,7 @@ class SendJoinRequestController extends Controller
                 'relationship' => $joinRequest->relationship
             ], 200);
         }
-        return response()->json(['error' => 'عملیات با خطا مواجه شد!'], 200);
+        return response()->json(['error' => 'عملیات با خطا مواجه شد!'], 400);
     }
 
     public function verify(User $user, JoinRequest $sentJoinRequest, Request $request)
@@ -182,5 +175,6 @@ class SendJoinRequestController extends Controller
     public function cancel(User $user, JoinRequest $sentJoinRequest)
     {
         $sentJoinRequest->update(['status' => JoinRequestStatus::CANCELED]);
+        return response()->noContent();
     }
 }

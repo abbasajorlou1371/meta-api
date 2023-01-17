@@ -28,13 +28,4 @@ class LoginRequest extends FormRequest
             'password' => 'required'
         ];
     }
-
-    public function messages()
-    {
-        return [
-            'email.required' => 'آدرس ایمیل را وارد کنید',
-            'email.email' => 'آدرس ایمیل صحیح نیست',
-            'password.required' => 'رمز عبور را وارد کنید'
-        ];
-    }
 }

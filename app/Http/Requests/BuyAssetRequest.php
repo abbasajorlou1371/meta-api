@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AssetTypes;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class BuyAssetRequest extends FormRequest
 {
@@ -24,19 +26,11 @@ class BuyAssetRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required|numeric|min:1',
-            'asset' => 'required|in:psc,red,blue,yellow,irr',
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'asset.required' => 'نوع دارایی را مشخص کنید',
-            'asset.in' => 'دارایی باید یا psc, رنگ قرمز، آبی و زرد باشد',
-            'amount.required' => 'وارد کردن مبلغ الزامیست',
-            'amount.numeric' => 'مبلغ باید عدد باشد',
-            'amount.min' => 'کمترین مقدار قابل شارژ 1 میباشد',
+            'amount' => 'required|numeric|integer|min:1',
+            'asset' => [
+                'required',
+                new Enum(AssetTypes::class),
+            ],
         ];
     }
 }
