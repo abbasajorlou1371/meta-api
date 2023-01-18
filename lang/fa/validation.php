@@ -201,6 +201,7 @@ return [
         'permissions' => 'دسترسی ها',
         'asset' => 'دارایی',
         'amount' => 'تعداد',
+        'reciever' => 'دریافت کننده',
         'price_psc' => 'قیمت به psc',
         'price_irr' => 'قیمت به ریال',
         'old_password' => 'رمز عبور فعلی',

@@ -167,20 +167,20 @@ Route::middleware(['auth:sanctum', 'api', 'verified', 'check.ip', 'user.activity
     Route::controller(FollowController::class)->group(function () {
         Route::get('/followers', 'followers');
         Route::get('/following', 'followings');
-        Route::get('/follow/{user}', 'follow')->can('follow', 'user');
+        Route::get('/follow/{user}', 'follow');
         Route::get('/unfollow/{user}', 'unfollow');
         Route::get('/remove/{user}', 'remove');
     });
 
+    Route::apiResource('tickets', TicketController::class);
     Route::controller(TicketController::class)->prefix('tickets')->group(function () {
-        Route::get('/', 'index');
-        Route::post('/', 'store');
         Route::get('/recieved', 'recieved');
-        Route::get('/{ticket}', 'show');
-        Route::post('/response/{ticket}', 'response')->can('respond', 'ticket');
-        Route::delete('/{ticket}', 'destroy')->can('delete', 'ticket');
-        Route::get('/close/{ticket}', 'close')->can('close', 'ticket');
+        Route::get('/recieved/{ticket}', 'view');
+        Route::post('/response/{ticket}', 'response');
+        Route::get('/close/{ticket}', 'close');
     });
+
+
     Route::apiResource('notes', NoteController::class);
     Route::apiResource('kyc', KycController::class);
     Route::apiResource('bank-accounts', BankAccountController::class);

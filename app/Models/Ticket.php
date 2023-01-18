@@ -23,12 +23,17 @@ class Ticket extends Model
         'responser_name'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function sender() {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function reciever() {
-        return $this->belongsTo(User::class, 'reciever_id');
+        return $this->belongsTo(User::class, 'reciever_id', 'id');
     }
 
     public function responses() {

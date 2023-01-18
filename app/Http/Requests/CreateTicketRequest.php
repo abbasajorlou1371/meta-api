@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Departments;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class CreateTicketRequest extends FormRequest
 {
@@ -27,19 +30,17 @@ class CreateTicketRequest extends FormRequest
             'title' => 'required|string|max:250',
             'content' => 'required|string|max:500',
             'attachment' => 'nullable|file|mimes:png,jpg,bmp,pdf',
-            'reciever_id' => 'nullable|integer',
-            'department' => 'nullable|in:technical_support,citizens_safety,investment,inspection,protection,ztb',
+            'reciever' => [
+                'nullable',
+                'integer',
+                'exists:users,id',
+                Rule::prohibitedIf(fn() => request()->has('department'))
+            ],
+            'department' => [
+                'nullable',
+                new Enum(Departments::class),
+                Rule::prohibitedIf(fn() => request()->has('reciever'))
+            ],
         ];
     }
-
-    public function messages() {
-        return [
-            'title.required' => 'عنوان تیکت را وارد کنید',
-            'title.max' => 'تعداد کاراکترهای وارد شده بیش از حد مجاز می باشد',
-            'content.required' => 'متن تیکت را وارد کنید',
-            'attachment.mimes' => 'فرمت فایل انتخاب شده صحیح نیست',
-            'department.in' => 'بخش انتخاب شده صحیح نیست'
-        ];
-    }
-
 }

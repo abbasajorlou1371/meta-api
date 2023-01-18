@@ -154,30 +154,6 @@ function ticketDepartmentsTitle($department)
     }
 }
 
-function ticketStatusTitle($status)
-{
-    switch ($status) {
-        case TicketStatus::NEW:
-            return 'جدید';
-            break;
-        case TicketStatus::ANSWERED:
-            return 'پاسخ داده شده';
-            break;
-        case TicketStatus::TRACKING:
-            return 'درحال بررسی';
-            break;
-        case TicketStatus::CLOSED:
-            return 'بسته شده';
-            break;
-        case TicketStatus::RESOLVED:
-            return 'حل شده';
-            break;
-        case TicketStatus::UNRESOLVED:
-            return 'حل نشده';
-            break;
-    }
-}
-
 function getScorePercentageToNextLevel(?Level $level, int $score): int
 {
     if (!$level) {
