@@ -52,6 +52,7 @@ class LoginController extends Controller
                     RateLimiter::clear($this->throttle($user));
                     $user->update(['last_seen' => now()]);
                     $user->token = $user->createToken('token-' . $user->id)->plainTextToken;
+//                    dd($user->token);
                     $user->ip = $request->ip();
                     LogedIn::dispatch($user);
                     broadcast(new UserStatusChanged([
