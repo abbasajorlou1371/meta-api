@@ -36,6 +36,7 @@
         },
         "files": [
             "app/Helpers/functions.php",
+            "app/Helpers/getStaticsFields.php",
             "app/Constants/ChildrenPermissionConsts.php"
         ]
     },

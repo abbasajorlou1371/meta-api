@@ -35,6 +35,13 @@ use App\Http\Controllers\ResetInfo\ResetEmailController;
 use App\Http\Controllers\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\Statistics\AssetsStatistics;
+use App\Http\Controllers\Statistics\FamilyMembersStatisticsController;
+use App\Http\Controllers\Statistics\FollowersStatisticsController;
+use App\Http\Controllers\Statistics\LevelOneActivatedStatisticsController;
+use App\Http\Controllers\Statistics\StatisticsController;
+use App\Http\Controllers\Statistics\TradedFeaturesStatisticsController;
+use App\Http\Controllers\Statistics\UserActivityStatistics;
 use App\Http\Controllers\SystemVariableController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserEventsController;
@@ -63,7 +70,7 @@ Route::middleware(['api'])->group(function () {
 
     Route::post('/register', [RegisterController::class, 'register']);
     Route::controller(LoginController::class)->middleware('auth:sanctum')->group(function () {
-        Route::post('/login', 'login')->withoutMiddleware('auth:sanctum');
+        Route::post('/login', 'login')->withoutMiddleware(['auth:sanctum', 'check.ip']);
         Route::post('/logout', 'logout');
     });
 
@@ -269,5 +276,28 @@ Route::middleware(['api'])->group(function () {
 
     Route::controller(PublicProfileController::class)->withoutMiddleware('check.ip')->prefix('citizen')->group(function () {
         Route::get('/{code}', 'home');
+    });
+
+
+    //Statistics
+    Route::prefix('/statistics')->group(function () {
+        Route::get('/user-followers', [FollowersStatisticsController::class, 'index']);
+        Route::post('/update-followers-status', [FollowersStatisticsController::class, 'updateStatus']);
+        Route::post('/current-month-top-followers', [FollowersStatisticsController::class, 'currentMonthTopFollowers']);
+        Route::get('/top-active-users', [UserActivityStatistics::class, 'index']);
+        Route::post('/current-month-top-active-users', [UserActivityStatistics::class, 'currentMonthTopActiveUsers']);
+        Route::post('/update-user-activity-status', [UserActivityStatistics::class, 'updateStatus']);
+        Route::post('/most-buy-asset', [AssetsStatistics::class, 'index']);
+        Route::post('/current-month-most-buy-asset', [AssetsStatistics::class, 'currentMonthAssetBuyAmount']);
+        Route::post('/update-assets-statistics-status', [AssetsStatistics::class, 'updateStatus']);
+        Route::post('/traded-features', [TradedFeaturesStatisticsController::class, 'index']);
+        Route::post('/current-month-top-traded-features', [TradedFeaturesStatisticsController::class, 'currentMonthTopTradedFeatures']);
+        Route::post('/update-traded-features-status', [TradedFeaturesStatisticsController::class, 'updateStatus']);
+        Route::get('/top-dynasty-family-referral', [FamilyMembersStatisticsController::class, 'index']);
+        Route::post('/current-month-top-dynasty-family-referral', [FamilyMembersStatisticsController::class, 'currentMonthTopDynastyFamilyReferral']);
+        Route::post('/update-top-dynasty-status', [FamilyMembersStatisticsController::class, 'updateStatus']);
+        Route::get('/all-users-level-one-activated', [LevelOneActivatedStatisticsController::class, 'index']);
+        Route::post('/current-month-users-level-one-activated', [StatisticsController::class, 'currentMonthUsersLevelOneActivated']);
+
     });
 });
