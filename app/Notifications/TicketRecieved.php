@@ -18,13 +18,9 @@ class TicketRecieved extends Notification
      * @return void
      */
 
-     private $message, $sender, $image;
-
-    public function __construct($sender, $message, $image)
+    public function __construct(private Ticket $ticket)
     {
-        $this->message = $message;
-        $this->sender = $sender;
-        $this->image = $image;
+        //
     }
 
     /**
@@ -62,9 +58,9 @@ class TicketRecieved extends Notification
     {
         return [
             'related-to' => 'tickets',
-            'sender-image' => $this->image,
-            'sender-name' => $this->sender,
-            'message' => $this->message,
+            'sender-image' => $this->ticket->sender->profilePhotos->last()->url ?? 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-name' => $this->ticket->sender->name,
+            'message' => 'تیکتی از طرف ' . $this->ticket->sender->name . 'دریافت شده است',
         ];
     }
 }

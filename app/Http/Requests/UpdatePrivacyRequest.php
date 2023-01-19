@@ -126,7 +126,7 @@ class UpdatePrivacyRequest extends FormRequest
                     'code'
                 ),
             ],
-            'value' => 'required|numeric|min:0|max:1'
+            'value' => 'required|numeric|boolean'
 
         ];
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Morilog\Jalali\Jalalian;
 
 class TicketResponseResource extends JsonResource
 {
@@ -17,7 +18,11 @@ class TicketResponseResource extends JsonResource
         return [
             'ticket_id' => (string)$this->ticket->id,
             'response' => $this->response,
-            'attachment' => $this->attachment,
+            $this->mergeWhen($this->attachment, [
+                'attachment' => $this->attachment,
+            ]),
+            'responsed_date' => Jalalian::forge($this->created_at)->format('Y/m/d'),
+            'responsed_time' => Jalalian::forge($this->created_at)->format('H:m:s'),
         ];
     }
 }

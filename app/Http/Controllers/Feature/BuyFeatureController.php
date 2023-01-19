@@ -79,7 +79,7 @@ class BuyFeatureController extends Controller
             ]);
 
             broadcast(new FeatureStatusChanged([
-                'id' => $feature->properties->id,
+                'id' => $feature->id,
                 'rgb' => $feature->properties->rgb,
             ]));
 
@@ -234,7 +234,7 @@ class BuyFeatureController extends Controller
             $message = 'خرید با موفقیت انجام شد';
             $feature->message = $message;
             broadcast(new FeatureStatusChanged([
-                'id' => $feature->properties->id,
+                'id' => $feature->id,
                 'rgb' => FeatureHelper::getSoldAndNotPricedFeatureStatusColor($feature),
             ]));
 

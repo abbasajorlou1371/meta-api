@@ -77,10 +77,7 @@ function convertDateToCarbon($date)
 
 function isUnderEighteen(User $user)
 {
-    $birthdate = Carbon::parse($user->kyc->birthdate)->format('Y-m-d');
-    $birthdate = Carbon::createFromDate($birthdate);
-    if ($birthdate->diffInYears(now()) < 18) return true;
-    return false;
+    return $user->kyc->birthdate->diffInYears(now()) < 18;
 }
 
 function getFamilyRelationship($relationship)
@@ -150,30 +147,6 @@ function ticketDepartmentsTitle($department)
             break;
         case 'ztb':
             return 'مدیریت کل ز ت ب';
-            break;
-    }
-}
-
-function ticketStatusTitle($status)
-{
-    switch ($status) {
-        case TicketStatus::NEW:
-            return 'جدید';
-            break;
-        case TicketStatus::ANSWERED:
-            return 'پاسخ داده شده';
-            break;
-        case TicketStatus::TRACKING:
-            return 'درحال بررسی';
-            break;
-        case TicketStatus::CLOSED:
-            return 'بسته شده';
-            break;
-        case TicketStatus::RESOLVED:
-            return 'حل شده';
-            break;
-        case TicketStatus::UNRESOLVED:
-            return 'حل نشده';
             break;
     }
 }

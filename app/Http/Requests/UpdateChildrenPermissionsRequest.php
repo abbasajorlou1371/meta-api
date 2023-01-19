@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
-class ChangePasswordRequest extends FormRequest
+class UpdateChildrenPermissionsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +24,8 @@ class ChangePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'old_password' => 'required|current_password',
-            'password' => [
-                'required',
-                Password::min(8)->mixedCase()->symbols()->numbers()
-            ],
+            'permission' => 'required|string|in:BFR,SF,W,JU,DM,PIUP,PITC,PIC,ESOO,COTB',
+            'status'     => 'required_with:permission|boolean',
         ];
     }
 }

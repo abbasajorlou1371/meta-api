@@ -20,11 +20,9 @@ class FeatureStatusChanged implements ShouldBroadcast
      * @return void
      */
 
-    public $data;
-
-    public function __construct($data)
+    public function __construct(public array $data)
     {
-        $this->data = $data;
+        //
     }
 
     public function broadcastAs()

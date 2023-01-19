@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FollowResource;
-use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,17 +13,17 @@ class FollowController extends Controller
     /**
      * @return AnonymousResourceCollection
      */
-    public function followers(): AnonymousResourceCollection
+    public function followers(Request $request): AnonymousResourceCollection
     {
-        return FollowResource::collection(auth()->user()->followers);
+        return FollowResource::collection($request->user()->followers);
     }
 
     /**
      * @return AnonymousResourceCollection
      */
-    public function followings(): AnonymousResourceCollection
+    public function followings(Request $request): AnonymousResourceCollection
     {
-        return FollowResource::collection(auth()->user()->following);
+        return FollowResource::collection($request->user()->following);
     }
 
     /**
@@ -32,46 +31,32 @@ class FollowController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function follow(User $user, Request $request): JsonResponse
+    public function follow(User $user, Request $request)
     {
-        // $request->user->following()->attach($user);
-        Follow::create([
-            'follower_id' => $request->user()->id,
-            'following_id' => $user->id,
-        ]);
+        $this->authorize('follow', $user);
+        $request->user()->following()->attach($user);
         $user->followed();
-        return response()->json([
-            'success' => 'کاربر مورد نظر فالو شد'
-        ]);
+        return response()->noContent(200);
     }
 
 
     /**
      * @param User $user
      * @param Request $request
-     * @return JsonResponse
      */
-    public function unfollow(User $user, Request $request): JsonResponse
+    public function unfollow(User $user, Request $request)
     {
-        // $request->user->following()->detach($user);
-        Follow::where('follower_id', $request->user()->id)
-        ->where('following_id', $user->id)
-        ->delete();
-        return response()->json([
-            'success' => 'کاربر مورد نظر آنفالو شد'
-        ]);
+        $request->user()->following()->detach($user);
+        return response()->noContent(200);
     }
 
     /**
      * @param User $user
      * @param Request $request
-     * @return JsonResponse
      */
-    public function remove(User $user, Request $request): JsonResponse
+    public function remove(User $user, Request $request)
     {
-        $request->user->followers()->detach($user);
-        return response()->json([
-            'success' => 'کاربر مورد نظر از لیست فالورها حذف شد'
-        ]);
+        $request->user()->followers()->detach($user);
+        return response()->noContent(200);
     }
 }

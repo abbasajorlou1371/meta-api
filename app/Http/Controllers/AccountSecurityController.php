@@ -37,7 +37,7 @@ class AccountSecurityController extends Controller
             ['code' => Hash::make($code)]
         );
         $user->notify(new GetOtpNotification($code, $user->phone ?: $request->phone));
-        return response()->json(['success' => 'کد تایید ارسال گردید. جهت ادامه کد تایید را وارد کنید!'], 200);
+        return response()->json(['message' => 'کد تایید ارسال گردید. جهت ادامه کد تایید را وارد کنید!'], 200);
     }
 
     public function turnOffAccountSecurity(Request $request)

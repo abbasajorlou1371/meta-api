@@ -35,8 +35,8 @@ class Activity
             }
             $request->user()->update(['last_seen' => now()]);
             broadcast(new UserStatusChanged([
-                'code' => $request->user()->code,
-                'status' => 'online',
+                'id'     => $request->user()->id,
+                'online' => true,
             ]));
         }
         return $next($request);

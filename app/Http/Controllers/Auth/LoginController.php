@@ -56,8 +56,8 @@ class LoginController extends Controller
                     $user->ip = $request->ip();
                     LogedIn::dispatch($user);
                     broadcast(new UserStatusChanged([
-                        'code' => $user->code,
-                        'status' => 'online'
+                        'id'     => $user->id,
+                        'online' => true
                     ]));
 
                     $user->events()->create([
@@ -111,8 +111,8 @@ class LoginController extends Controller
         $request->user()->update(['last_seen' => now()->subMinutes(2)]);
         $request->user()->tokens()->delete();
         broadcast(new UserStatusChanged([
-            'code' => $request->user()->code,
-            'status' => 'offline'
+            'id'     => $request->user()->id,
+            'online' => false
         ]));
         return response('شما با موفقیت خارج شدید', 200);
     }

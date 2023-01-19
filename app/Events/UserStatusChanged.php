@@ -20,24 +20,14 @@ class UserStatusChanged implements ShouldBroadcast
      * @return void
      */
 
-    public $data;
-
-    public function __construct(array $data)
+    public function __construct(public array $data)
     {
-        $this->data = $data;
+        // 
     }
 
     public function broadcastAs()
     {
         return 'user-status-changed';
-    }
-
-    public function broadcastWith()
-    {
-        return [
-            'code' => $this->data['code'],
-            'status' => $this->data['status'],
-        ];
     }
 
     /**

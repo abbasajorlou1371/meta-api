@@ -23,6 +23,7 @@ class TicketController extends Controller
     public function __construct()
     {
         $this->user = Auth::guard('sanctum')->user();
+        $this->authorizeResource(Ticket::class);
     }
 
     /**
@@ -30,8 +31,7 @@ class TicketController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $tickets = $this->user->tickets;
-        return TicketResource::collection($this->user->tickets);
+        return TicketResource::collection(Ticket::whereBelongsTo($this->user)->simplePaginate(10));
     }
 
     /**
@@ -47,7 +47,12 @@ class TicketController extends Controller
      * @param Ticket $ticket
      * @return TicketResource
      */
-    public function show(User $user, Ticket $ticket): TicketResource
+    public function show(Ticket $ticket): TicketResource
+    {
+        return new TicketResource($ticket);
+    }
+
+    public function view(Ticket $ticket): TicketResource
     {
         return new TicketResource($ticket);
     }
@@ -59,35 +64,43 @@ class TicketController extends Controller
      */
     public function store(CreateTicketRequest $request): TicketResource
     {
-        if ($request->reciever_id && $request->department) {
-            abort(403, 'عملیات با خطا مواجه شد');
-        }
-
-        $path = "";
-        if ($request->hasFile('attachment')) {
-            $path = env('FTP_ENDPOINT') .
-                $request->file('attachment')->store('/tickets/' . $this->user->id);
-        }
+        $attachment = $request->hasFile('attachment')
+            ? $request->file('attachment')->store('https://dl.qzparadise.ir/user/tickets/' . $this->user->id)
+            : '';
 
         $ticket = Ticket::create([
             'title' => $request->title,
             'content' => $request->content,
-            'attachment' => $path,
+            'attachment' => $attachment,
             'user_id' => $this->user->id,
-            'reciever_id' => isset($request->reciever_id) ? $request->reciever_id : null,
+            'reciever_id' => isset($request->reciever) ? $request->reciever : null,
             'department' => $request->department,
             'code' => random_int(100000, 999999),
         ]);
 
         if (isset($ticket->reciever)) {
-            $message = 'تیکتی از طرف ' . $this->user->name . 'دریافت شده است';
-            $image = $request->user()->profilePhotos->first();
-            $image = $image->url ?? "https://dl.qzparadise.ir/public/metarang/noimage.jpeg";
-            $ticket->reciever->notify(new TicketRecieved($ticket->sender->name, $message, $image));
+            $ticket->reciever->notify(new TicketRecieved($ticket));
         }
+        return new TicketResource($ticket);
+    }
 
-        $ticket->message = 'تیکت با موفقیت ارسال گردید';
+    /**
+     * @param CreateTicketRequest $request
+     * @param User $user
+     * @return TicketResource
+     */
+    public function update(CreateTicketRequest $request, Ticket $ticket): TicketResource
+    {
+        $attachment = $request->hasFile('attachment')
+            ? $request->file('attachment')->store('https://dl.qzparadise.ir/user/tickets/' . $this->user->id)
+            : '';
 
+        $ticket->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'attachment' => $attachment,
+            'status' => TicketStatus::NEW,
+        ]);
         return new TicketResource($ticket);
     }
 
@@ -98,20 +111,15 @@ class TicketController extends Controller
      */
     public function response(TicketResponseRequest $request, Ticket $ticket): TicketResource|JsonResponse
     {
-        if ($ticket->isClosed()) {
-            return response()->json([
-                'error' => 'این تیکت بسته شده است'
-            ]);
-        }
-        if ($request->hasFile('attachment')) {
-            $path = env('FTP_ENDPOINT') . $request->file('attachment')->store('/tickets/ticketResponses/' . $ticket->id);
-        } else {
-            $path = "";
-        }
+        $this->authorize('respond', $ticket);
+        $attachment = $request->hasFile('attachment')
+        ? $request->file('attachment')->store('https://dl.qzparadise.ir/user/tickets/'.$this->user->id)
+        : '';
+
         TicketResponse::create([
             'ticket_id' => $ticket->id,
             'response' => $request->response,
-            'attachment' => $path,
+            'attachment' => $attachment,
         ]);
 
         $ticket->update([
@@ -119,14 +127,7 @@ class TicketController extends Controller
             'responser_name' => $request->user()->name,
         ]);
 
-        $message = 'به تیکت شما با شماره ' . $ticket->code . 'پاسخی ارسال شده است';
-
-        $image = $request->user()->profilePhotos->first();
-        $image = $image->url ?? "https://dl.qzparadise.ir/public/metarang/noimage.jpeg";
-
-        $ticket->sender->notify(new TicketRecieved($ticket->reciever->name, $message, $image));
-
-        $ticket->message = 'پاسخ تیکت با موفقیت ارسال گردید';
+        $ticket->sender->notify(new TicketRecieved($ticket));
 
         return new TicketResource($ticket);
     }
@@ -135,24 +136,10 @@ class TicketController extends Controller
      * @param Ticket $ticket
      * @return JsonResponse
      */
-    public function close(Ticket $ticket): JsonResponse
+    public function close(Ticket $ticket)
     {
+        $this->authorize('close', $ticket);
         $ticket->update(['status' => TicketStatus::CLOSED]);
-        return response()->json([
-            'success' => 'تیکت بسته شد'
-        ]);
-    }
-
-    /**
-     * @param Ticket $ticket
-     * @return JsonResponse
-     */
-    public function destroy(Ticket $ticket): JsonResponse
-    {
-        $ticket->delete();
-        File::delete(public_path('/uploads/' . $ticket->attachment));
-        return Response::json([
-            'success' => 'تیکیت با موفقیت حذف شد'
-        ]);
+        return response()->noContent();
     }
 }
