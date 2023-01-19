@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dynasty;
 
 use App\Constants\FamilyMembersType;
 use App\Constants\JoinRequestStatus;
+use App\Exceptions\KycVerificationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddFamilyMemberRequest;
 use App\Http\Resources\Dynasty\SentRequestsResource;
@@ -13,6 +14,7 @@ use App\Models\DynastyPermission;
 use App\Models\User;
 use App\Notifications\GetOtpNotification;
 use App\Notifications\JoinDynastyNotification;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
@@ -173,5 +175,25 @@ class SendJoinRequestController extends Controller
     {
         $sentJoinRequest->update(['status' => JoinRequestStatus::CANCELED]);
         return response()->noContent();
+    }
+
+    public function search(Request $request)
+    {
+        $request->validate(['searchTerm' => 'required|string']);
+
+        $user = User::select(['id', 'code'])
+            ->where('name', 'like', '%' . $request->searchTerm . '%')
+            ->orWhere('code', 'like', '%' . $request->searchTerm . '%')
+            ->with(['kyc', 'profilePhotos'])
+            ->first();
+
+        if (is_null($user)) throw new ModelNotFoundException();
+        if (!$user->verified()) throw new KycVerificationException();
+        return response()->json([
+            'id' => $user->id,
+            'code' => $user->code,
+            'name' => $user->kyc->fname . ' ' . $user->kyc->lname,
+            'image' => $user->profilePhotos->last()?->url,
+        ]);
     }
 }

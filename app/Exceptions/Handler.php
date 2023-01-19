@@ -62,19 +62,19 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (KycVerificationException $exception, Request $request) {
             return $request->expectsJson() ?
-                abort(412, 'جهت ادامه فرایند لطفا احراز هویت خود را تکمیل نمایید') :
+                abort(412, 'Kyc is not completed yet!') :
                 redirect('/kyc');
         });
 
         $this->renderable(function (AccountSecurityException $exception, Request $request) {
             return $request->expectsJson() ?
-                abort(410, 'جهت ادامه امنیت حساب کاربری خود را خاموش کنید') :
+                abort(410, 'Wallet lock is on!') :
                 redirect('/account-security');
         });
 
         $this->renderable(function (EmailVerificationException $exception, Request $request) {
             return $request->expectsJson() ?
-                abort(411, 'جهت ادامه ایمیل خود را تایید نمایید') :
+                abort(411, 'Email is not verified!') :
                 to_route('verification.notice');
         });
     }
