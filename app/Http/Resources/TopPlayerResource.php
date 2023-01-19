@@ -16,7 +16,7 @@ class TopPlayerResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'user_id' => $this->id,
             'online' => $this->last_seen->diffInMinutes(now()) < 2,
 
             $this->mergeWhen($this->privacy->where('name', 'name')->pluck('display')->first(), [
