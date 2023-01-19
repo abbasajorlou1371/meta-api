@@ -11,6 +11,6 @@ class PrizePolicy
 
     public function recievePrize(User $user, Prize $prize)
     {
-        return $user->recievedPrizes->where('prize_id', $prize->id)->exists() ? false : true;
+        return $user->recievedPrizes->where('prize_id', $prize->id)->first() ? false : true;
     }
 }
