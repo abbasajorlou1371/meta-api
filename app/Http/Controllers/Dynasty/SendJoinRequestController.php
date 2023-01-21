@@ -194,6 +194,7 @@ class SendJoinRequestController extends Controller
             'code' => $user->code,
             'name' => $user->kyc->fname . ' ' . $user->kyc->lname,
             'image' => $user->profilePhotos->last()?->url,
+            'age' => $user->kyc?->birthdate->diffInYears(now()),
         ]);
     }
 }
