@@ -18,7 +18,7 @@ class RegisterController extends Controller
      * @return JsonResponse
      * @throws ValidationException
      */
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(RegisterRequest $request)
     {
         $user = User::create([
             'name' => $request->name,
@@ -42,8 +42,6 @@ class RegisterController extends Controller
 
         event(new Registered($user));
 
-        return response()->json([
-            'success' => 'ایمیلی جهت تایید حساب کاربری برایتان ارسال گردید'
-        ]);
+        return response()->noContent(200);
     }
 }
