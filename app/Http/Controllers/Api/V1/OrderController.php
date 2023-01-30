@@ -36,8 +36,8 @@ class OrderController extends Controller
             'status' => 0
         ]);
 
-        $response = Http::post(config('rgb.curl.post'), [
-            "merchant_id" => 'de84d0d6-d7b1-4a68-9ac6-125156d6a35d',
+        $response = Http::post(config('zarinpal.curl.post'), [
+            "merchant_id" => config('zarinpal.merchant_id'),
             "amount" => $order->amount * $rate,
             "callback_url" => route('order.callback', $order->id),
             "description" => "خرید تست",
@@ -71,8 +71,8 @@ class OrderController extends Controller
         $transaction = $order->transaction;
         $amount = $order->amount * Variable::getRate($order->asset);
 
-        $response = Http::post(config('rgb.curl.verify'), [
-            "merchant_id" => 'de84d0d6-d7b1-4a68-9ac6-125156d6a35d',
+        $response = Http::post(config('zarinpal.curl.verify'), [
+            "merchant_id" => config('zarinpal.merchant_id'),
             "authority" => $_GET['Authority'],
             "amount" => $amount,
         ]);
