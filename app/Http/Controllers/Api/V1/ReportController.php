@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
+use App\Http\Resources\ReportResource;
 use App\Models\Report;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-
 class ReportController extends Controller
 {
     /**
@@ -15,11 +13,9 @@ class ReportController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json([
-            'reports' => Auth::user()->reports
-        ]);
+        return ReportResource::collection(request()->user()->reports);
     }
 
 
@@ -29,7 +25,7 @@ class ReportController extends Controller
      * @param ReportRequest $request
      * @return JsonResponse
      */
-    public function store(ReportRequest $request): JsonResponse
+    public function store(ReportRequest $request)
     {
         $report = $request->user()->reports()->create([
             'subject' => $request->subject,
@@ -37,10 +33,7 @@ class ReportController extends Controller
             'content' => $request->content,
             'url'     => $request->url
         ]);
-        return response()->json([
-            'success' => 'گزارش شما ثبت شد و در حال بررسی می باشد',
-            'report' => $report,
-        ]);
+        return new ReportResource($report);
     }
 
     /**
@@ -49,11 +42,9 @@ class ReportController extends Controller
      * @param Report $report
      * @return JsonResponse
      */
-    public function show(Report $report): JsonResponse
+    public function show(Report $report)
     {
-        return response()->json([
-            'report' => $report,
-        ]);
+        return new ReportResource($report);
     }
 
 
@@ -64,7 +55,7 @@ class ReportController extends Controller
      * @param Report $report
      * @return JsonResponse
      */
-    public function update(ReportRequest $request, Report $report): JsonResponse
+    public function update(ReportRequest $request, Report $report)
     {
         $report->update([
             'subject' => $request->subject,
@@ -72,10 +63,7 @@ class ReportController extends Controller
             'content' => $request->content,
             'url'     => $request->url
         ]);
-        return response()->json([
-            'success' => 'گزارش بروزرسانی شد',
-            'report' => $report,
-        ]);
+        return new ReportResource($report->fresh());
     }
 
     /**
@@ -84,11 +72,9 @@ class ReportController extends Controller
      * @param Report $report
      * @return JsonResponse
      */
-    public function destroy(Report $report): JsonResponse
+    public function destroy(Report $report)
     {
         $report->delete();
-        return response()->json([
-            'success' => 'گزارش حذف شد'
-        ]);
+        return response()->noContent();
     }
 }
