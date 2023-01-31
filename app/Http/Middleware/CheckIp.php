@@ -17,15 +17,9 @@ class CheckIp
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = Http::post(env('ADMIN_PANEL_URL') . 'api/check/ip', ['ip' => $request->ip()]);
-
-        if ($response->successful()) {
-            $response = $response->json();
-            if ($response['code'] == '200') {
-                return $next($request);
-            }
-            abort(403, 'Access Denied');
-        }
-        abort(403, 'Access Denied');
+        $response = Http::post(config('rgb.admin_panel_url') . 'api/check/ip', ['ip' => $request->ip()]);
+        return $response->ok()
+            ? $next($request)
+            : abort(401, 'UnAuthorized');
     }
 }
