@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Carbon\Carbon;
 class Kyc extends Model
 {
     use HasFactory;
@@ -44,5 +45,12 @@ class Kyc extends Model
     public function errors()
     {
         return $this->morphMany(KycError::class, 'errorable');
+    }
+
+    protected function birthdate(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => Carbon::parse(\Morilog\Jalali\CalendarUtils::convertNumbers($value, true))->format('Y/m/d')
+        );
     }
 }

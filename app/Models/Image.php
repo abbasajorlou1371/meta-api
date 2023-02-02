@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,5 +16,12 @@ class Image extends Model
     public function imageable()
     {
         return $this->morphTo();
+    }
+
+    protected function url():Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => config('rgb.uploads-path').$value,
+        );
     }
 }

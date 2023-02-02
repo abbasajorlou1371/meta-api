@@ -53,8 +53,8 @@ class SettingController extends Controller
 
     public function uploadProfilePhoto(Request $request)
     {
-        $this->validate($request, ['image' => 'required|image|mimes:png,jpg,jpeg|max:1024']);
-        $url = $request->file('image')->store('/user/profile/' . $request->user()->id);
+        $request->validate(['image' => 'required|image|mimes:png,jpg,jpeg|max:1024']);
+        $url = $request->file('image')->store('user/profile', 'public');
         $request->user()->profilePhotos()->create(['url' => $url]);
         return response()->noContent(200);
     }
