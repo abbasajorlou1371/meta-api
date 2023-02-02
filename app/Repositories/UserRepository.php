@@ -9,7 +9,7 @@ class UserRepository extends Repository {
     public function getTopPlayers(): LazyCollection
     {
         return User::orderBy('score', 'DESC')
-        ->limit(10)
+        ->take(10)
         ->lazyById()
         ->map(function($user) {
             return [
