@@ -21,7 +21,7 @@ class Image extends Model
     protected function url():Attribute
     {
         return Attribute::make(
-            set: fn($value) => config('rgb.uploads-path').$value,
+            set: fn($value) => config('rgb.ftp-endpoint').$value,
         );
     }
 }
