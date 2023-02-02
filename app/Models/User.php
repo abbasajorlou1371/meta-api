@@ -368,10 +368,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function verified(): bool
     {
-        if (!empty($this->kyc))
-            if ($this->kyc->status == 1)
-                return true;
-        return false;
+        return $this->kyc?->status === 1;
     }
 
     /**
@@ -495,7 +492,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isUnderEighteen()
     {
-        return $this->kyc->birthdate->diffInYears(now()) < 18;
+        return $this->verified() && $this->kyc?->birthdate->diffInYears(now()) < 18;
     }
 
     public function registered()

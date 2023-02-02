@@ -13,6 +13,8 @@ class FeaturePolicy
 
     private $notAllowedToBeSoldFeatures = [];
     private $soldAndNotPriced = [];
+    private $limitedFeatures = [];
+    private $sellLimitedFeatures = [];
 
     public function __construct()
     {
@@ -26,6 +28,12 @@ class FeaturePolicy
             FeatureIndicators::Behdashti,
         ];
 
+        $this->sellLimitedFeatures = [
+            FeatureIndicators::MaskoniNotAllowedToBeSold,
+            FeatureIndicators::TejariNotAllowedToBeSold,
+            FeatureIndicators::AmoozeshiNotAllowedToBeSold,
+        ];
+
         $this->soldAndNotPriced = [
             FeatureIndicators::MaskoniSoldAndNotPriced,
             FeatureIndicators::TejariSoldAndNotPriced,
@@ -34,10 +42,18 @@ class FeaturePolicy
             FeatureIndicators::TejariNotPriced,
             FeatureIndicators::AmozeshiNotPriced,
         ];
+
+        $this->limitedFeatures = [
+            FeatureIndicators::MaskoniTradingLimited,
+            FeatureIndicators::TejariTradingLimited,
+            FeatureIndicators::AmoozeshiTradingLimited,
+        ];
     }
 
     public function buy(User $user, Feature $feature)
     {
+        if(in_array($feature->properties->rgb, $this->limitedFeatures)) return false;
+
         return !in_array($feature->properties->karbari, $this->notAllowedToBeSoldFeatures)
             && !in_array($feature->properties->rgb, $this->soldAndNotPriced)
             && $feature->owner->isNot($user);
@@ -50,6 +66,7 @@ class FeaturePolicy
             $hasUnderEighteenPermissions = $user->permissions?->verified && $user->permissions?->SF;
         }
         return $feature->owner->is($user)
+            && !in_array($feature->properties->rgb, $this->sellLimitedFeatures)
             && $user->verified()
             && !$feature->hasPendingRequests()
             && !$feature->locked()

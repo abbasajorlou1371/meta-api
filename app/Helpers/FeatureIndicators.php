@@ -32,9 +32,9 @@ class FeatureIndicators {
     public const TejariSoldAndNotPriced = 'i';
     public const TejariNotPriced = 'j';
     public const TejariPriced = 'k';
-    public const TejariPreBought = 'L';
-    public const TejariNotAllowedToBeSold = 'M';
-    public const TejariTradingLimited = 'N';
+    public const TejariPreBought = 'l';
+    public const TejariNotAllowedToBeSold = 'm';
+    public const TejariTradingLimited = 'n';
     public const TejariInConstruction = 'hh';
     public const TejariHasBuilding = 'ii';
     public const TejariHasUnion = 'jj';
