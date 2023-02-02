@@ -16,7 +16,7 @@ use Morilog\Jalali\Jalalian;
 
 class OrderController extends Controller
 {
-    public function create(BuyAssetRequest $request): JsonResponse
+    public function store(BuyAssetRequest $request): JsonResponse
     {
         $rate = Variable::getRate($request->asset);
 

@@ -42,7 +42,7 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\CheckIp::class,
+            \Illuminate\Session\Middleware\StartSession::class,
         ],
     ];
 
@@ -77,8 +77,6 @@ class Kernel extends HttpKernel
      * @var string[]
      */
     protected $middlewarePriority = [
-        \App\Http\Middleware\CheckIp::class,
-        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        \App\Http\Middleware\AccountSecurity::class,
+        //
     ];
 }

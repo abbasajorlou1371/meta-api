@@ -20,7 +20,7 @@ class SettingController extends Controller
         if ($request->has('checkout_days_count')) {
             $request->validate([
                 'checkout_days_count' => 'required|numeric|min:3',
-                'automatic_logout' => 'required|min:5',
+                'automatic_logout' => 'required|integer|min:5',
             ]);
 
             $settings->update([
