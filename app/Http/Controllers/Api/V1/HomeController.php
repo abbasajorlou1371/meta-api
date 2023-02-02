@@ -8,8 +8,10 @@ use App\Models\Option;
 use App\Models\User;
 use App\Http\Resources\PackageResource;
 use App\Http\Resources\TopPlayerResource;
+use App\Models\Video;
 use App\Repositories\FeatureRepository;
 use App\Repositories\UserRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -47,5 +49,19 @@ class HomeController extends Controller
     public function store(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return PackageResource::collection(Option::lazy());
+    }
+
+    public function getTutorials(Request $request)
+    {
+        $request->validate(['url' => 'required|string']);
+        $tutorial = Video::select(['title', 'description', 'fileName', 'image', 'creator_code'])
+            ->where('fileName', 'like', $request->url . '%')->first();
+        return response()->json([
+            'title' => $tutorial->title,
+            'description' => $tutorial->description,
+            'creator' => $tutorial->creator_code,
+            'video' => $tutorial->fileName,
+            'image' => $tutorial->image,
+        ]);
     }
 }

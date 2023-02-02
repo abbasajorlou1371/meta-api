@@ -255,6 +255,8 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 });
 
+Route::post('video-tutorials', [HomeController::class, 'getTutorials']);
+
 Route::get('ping', static fn () => null);
 
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])
