@@ -16,18 +16,14 @@ class FeatureResource extends JsonResource
     public function toArray($request)
     {
         return [
-            $this->whenNotNull($this->message),
             $this->mergeUnless(request()->routeIs('home.features'), [
                 'id' => $this->id,
-                'map_id' => $this->map_id,
                 'owner_id' => $this->owner_id,
-                'type' => $this->type,
                 'properties' => [
                     'id' => $this->properties->id,
                     'address' => $this->properties->address,
                     'feature_id' => $this->properties->feature_id,
                     'density' => $this->properties->density,
-                    'date' => Jalalian::forge($this->properties->date)->format('Y/m/d'),
                     'stability' => $this->properties->stability,
                     'label' => $this->properties->label,
                     'area' => $this->properties->area,

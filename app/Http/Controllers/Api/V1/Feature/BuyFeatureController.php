@@ -15,7 +15,9 @@ use App\Models\Comission;
 use App\Models\User;
 use App\Models\SellFeatureRequest;
 use App\Notifications\sellFeature;
-
+use App\Helpers\FeatureIndicators;
+use App\Models\LimitedFeaturePurchase;
+use App\Models\Feature\FeatureLimit;
 class BuyFeatureController extends Controller
 {
 
@@ -30,15 +32,36 @@ class BuyFeatureController extends Controller
      */
     public function buy(Feature $feature): FeatureResource|\Illuminate\Http\JsonResponse
     {
-        if ($feature->owner->code == 'hm-2000000') {
+        if ($feature->owner->code === 'hm-2000000') {
             $color = FeatureHelper::getFeatureColor($feature);
             $seller = $feature->owner;
             $featureProperties = $feature->properties;
             $buyer = request()->user();
             $price = $featureProperties->stability;
 
-            if (AssetHelper::checkColorBalance($buyer, $feature)) {
-                return response()->json(['error' => "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!"]);
+
+            if($price > 0) {
+                if (AssetHelper::checkColorBalance($buyer, $feature)) {
+                    return response()->json(['error' => "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!"]);
+                }
+            }
+
+            $limitedFeatures = [
+                FeatureIndicators::MaskoniTradingLimited,
+                FeatureIndicators::TejariTradingLimited,
+                FeatureIndicators::AmoozeshiTradingLimited,
+            ];
+
+            if (in_array($featureProperties->rgb, $limitedFeatures)) {
+                $featureLimit = FeatureLimit::where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+                ->where('start_id', '<=', $featureProperties->id)
+                ->where('end_id', '>=', $featureProperties->id)
+                ->first();
+                LimitedFeaturePurchase::create([
+                    'user_id' => $buyer->id,
+                    'feature_limit_id' => $featureLimit->id
+                ]);
             }
 
             $buyer->assets->decrement(AssetHelper::getAssetColor($feature), $price);
@@ -49,10 +72,8 @@ class BuyFeatureController extends Controller
             $featureProperties->update([
                 'rgb' => FeatureHelper::getSoldAndNotPricedFeatureStatusColor($feature),
                 'owner' => $buyer->name,
+                'stability' => $featureProperties->area * $featureProperties->density
             ]);
-
-            $message = 'خرید با موفقیت انجام شد';
-            $feature->message = $message;
 
             $trade = Trade::create([
                 'feature_id' => $feature->id,
@@ -65,7 +86,7 @@ class BuyFeatureController extends Controller
             $trade->transactions()->create([
                 'user_id' => $buyer->id,
                 'asset' => AssetHelper::getAssetColor($feature),
-                'amount' => $feature->properties->stability,
+                'amount' => $price,
                 'action' => 'withdraw',
                 'status' => 1
             ]);
@@ -231,8 +252,6 @@ class BuyFeatureController extends Controller
                 'dead_line' => now()->addSeconds($buyer->variables->withdraw_profit * 86400),
             ]);
 
-            $message = 'خرید با موفقیت انجام شد';
-            $feature->message = $message;
             broadcast(new FeatureStatusChanged([
                 'id' => $feature->id,
                 'rgb' => FeatureHelper::getSoldAndNotPricedFeatureStatusColor($feature),

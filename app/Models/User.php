@@ -44,7 +44,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_seen'         => 'datetime'
+        'last_seen'         => 'datetime',
+        'code'              => 'string',
     ];
 
     protected $hidden = [
@@ -509,5 +510,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->fireModelEvent('logedOut');
     }
-
 }
