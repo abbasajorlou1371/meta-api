@@ -8,10 +8,6 @@ use App\Http\Requests\UpdateKycRequest;
 use App\Http\Resources\KycResource;
 use App\Models\Kyc;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\URL;
-
 class KycController extends Controller
 {
     private $user;
@@ -43,31 +39,13 @@ class KycController extends Controller
         $melliCardFile = $request->file('melli_card');
         $provePictureFile = $request->file('prove_picture');
 
-        $melliCardNameToStore = Str::random() . '.' . $melliCardFile->extension();
-        $melliCardFile->storeAs('kyc/'.$request->user()->id, $melliCardNameToStore, 'public');
+        $melliCardNameToStore = $melliCardFile->store('user/ kyc');
 
-        $provePictureNameToStore = Str::random() . '.' . $provePictureFile->extension();
-        $provePictureFile->storeAs('kyc/'.$request->user()->id, $provePictureNameToStore, 'public');
-
-        $melliCardNameToStore = URL::signedRoute('uploads.download', [
-            'user' => $request->user()->id,
-            'file' => $melliCardNameToStore
-        ]);
-
-        $provePictureNameToStore = URL::signedRoute('uploads.download', [
-            'user' => $request->user()->id,
-            'file' => $provePictureNameToStore
-        ]);
+        $provePictureNameToStore = $provePictureFile->store('user/kyc');
 
         if ($request->hasFile('resume')) {
             $resumeFile = $request->file('resume');
-            $resumeNameToStore = Str::random() . '.' . $resumeFile->extension();
-            $resumeFile->storeAs('kyc/'.$request->user()->id, $resumeNameToStore, 'public');
-
-            $resumeNameToStore = URL::signedRoute('uploads.download', [
-                'user' => $request->user()->id,
-                'file' => $provePictureNameToStore
-            ]);
+            $resumeNameToStore = $resumeFile->store('user/kyc');
         }
 
         $kyc = $request->user()->kyc()->create([
@@ -98,36 +76,15 @@ class KycController extends Controller
     public function update(UpdateKycRequest $request, Kyc $kyc): KycResource
     {
         if ($request->hasFile('melli_card')) {
-            $melliCardFile = $request->file('melli_card');
-            $melliCardNameToStore = Str::random() . '.' . $melliCardFile->extension();
-            $melliCardFile->storeAs('kyc/'.$request->user()->id, $melliCardNameToStore, 'public');
-            $melliCardNameToStore = URL::signedRoute('uploads.download', [
-                'user' => $request->user()->id,
-                'file' => $melliCardNameToStore
-            ]);
-            $kyc->melli_card = $melliCardNameToStore;
+            $kyc->melli_card = $request->file('melli_card')->store('user/kyc');
         }
 
         if ($request->hasFile('prove_picture')) {
-            $provePictureFile = $request->file('melli_card');
-            $provePictureNameToStore = Str::random() . '.' . $provePictureFile->extension();
-            $provePictureFile->storeAs('kyc/' . $this->user->id, $provePictureNameToStore, 'public');
-            $provePictureNameToStore = URL::signedRoute('uploads.download', [
-                'user' => $request->user()->id,
-                'file' => $provePictureNameToStore
-            ]);
-            $kyc->prove_picture = $provePictureNameToStore;
+            $kyc->prove_picture = $request->file('prove_picture')->store('user/kyc');
         }
 
         if ($request->hasFile('resume')) {
-            $resumeFile = $request->file('melli_card');
-            $resumeNameToStore = Str::random() . '.' . $resumeFile->extension();
-            $resumeFile->store('kyc/' . $this->user->id, $resumeNameToStore, 'public');
-            $resumeNameToStore = URL::signedRoute('uploads.download', [
-                'user' => $request->user()->id,
-                'file' => $provePictureNameToStore
-            ]);
-            $kyc->resume = $resumeNameToStore;
+            $kyc->resume = $request->file('resume')->store('user/kyc');
         }
 
         $kyc->update([
