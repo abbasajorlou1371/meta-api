@@ -58,32 +58,11 @@ class FeaturePolicy
         $notLimited = true;
         $properties = $feature->properties;
 
-        if (in_array($feature->properties->rgb, $this->limitedFeatures)) {
-
-            $featureLimit = FeatureLimit::where('start_date', '<=', now())
-                ->where('end_date', '>=', now())
-                ->where('start_id', '<=', $properties->id)
-                ->where('end_id', '>=', $properties->id)
-                ->first();
-
-            if ($featureLimit->verified_kyc_limit) {
-                $notLimited = $user->verified();
-            }
-
-            if ($featureLimit->more_than_18_limit) {
-                $notLimited = !$user->isUnderEighteen();
-            }
-
-            if ($featureLimit->under_18_limit) {
-                $notLimited = $user->isUnderEighteen();
-            }
-
-            if ($featureLimit->individual_buy_limit) {
-                $limitedFeaturesBuyCount = LimitedFeaturePurchase::where('user_id', $user->id)
-                ->where('feature_limit_id', $featureLimit->id)
-                ->count();
-                $notLimited = $limitedFeaturesBuyCount < $featureLimit->individual_buy_limit;
-            }
+        if (in_array($properties->rgb, $this->limitedFeatures)) {
+            $notLimited = $user->verified();
+            $notLimited = !$user->isUnderEighteen();
+            $limitedFeaturesBuyCount = LimitedFeaturePurchase::where('user_id', $user->id)->count();
+            $notLimited = $limitedFeaturesBuyCount < 1;
         }
 
         return !in_array($properties->rgb, $this->sellLimitedFeatures)

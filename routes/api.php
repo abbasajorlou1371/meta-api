@@ -95,7 +95,9 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
             ->withoutMiddleware(['auth:sanctum', 'verified'])
             ->middleware(['signed'])
             ->name('verification.verify');
-        Route::get('/verification-notification', 'resend')
+        Route::get('/verification-notification', function(Request $request) {
+            $request->user()->sendEmailVerificationNotification();
+        })
             ->withoutMiddleware('verified')
             ->middleware('throttle:6,1')
             ->name('verification.send');
@@ -121,7 +123,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         });
         Route::controller(BuyFeatureController::class)->prefix('features')->group(function () {
             Route::get('/{feature}', 'show')->withoutMiddleware(['account.security', 'auth:sanctum', 'verified']);
-            Route::post('/buy/{feature}', 'buy')->middleware('can:buy,feature');
+            Route::post('/buy/{feature}', 'buy')->can('buy', 'feature');
         });
 
         Route::controller(SellRequestsController::class)->prefix('sell-requests')->group(function () {

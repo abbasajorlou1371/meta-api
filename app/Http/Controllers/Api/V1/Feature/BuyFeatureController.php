@@ -18,6 +18,8 @@ use App\Notifications\sellFeature;
 use App\Helpers\FeatureIndicators;
 use App\Models\LimitedFeaturePurchase;
 use App\Models\Feature\FeatureLimit;
+use Illuminate\Validation\ValidationException;
+
 class BuyFeatureController extends Controller
 {
 
@@ -39,10 +41,11 @@ class BuyFeatureController extends Controller
             $buyer = request()->user();
             $price = $featureProperties->stability;
 
-
-            if($price > 0) {
+            if ($price > 0) {
                 if (AssetHelper::checkColorBalance($buyer, $feature)) {
-                    return response()->json(['error' => "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!"]);
+                    throw ValidationException::withMessages([
+                        'error' => "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!"
+                    ]);
                 }
             }
 
@@ -54,10 +57,10 @@ class BuyFeatureController extends Controller
 
             if (in_array($featureProperties->rgb, $limitedFeatures)) {
                 $featureLimit = FeatureLimit::where('start_date', '<=', now())
-                ->where('end_date', '>=', now())
-                ->where('start_id', '<=', $featureProperties->id)
-                ->where('end_id', '>=', $featureProperties->id)
-                ->first();
+                    ->where('end_date', '>=', now())
+                    ->where('start_id', '<=', $featureProperties->id)
+                    ->where('end_id', '>=', $featureProperties->id)
+                    ->first();
                 LimitedFeaturePurchase::create([
                     'user_id' => $buyer->id,
                     'feature_limit_id' => $featureLimit->id
