@@ -19,8 +19,11 @@ class HomeController extends Controller
 
     public function __construct(
         private FeatureRepository $featureRepository,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private $user,
     ) {
+
+        $this->user = Auth::user('sanctum');
     }
 
     /**
@@ -28,11 +31,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (Auth::check()) {
-            $data['user'] = new UserResource(Auth::user());
+        if ($this->user) {
+            $data['user'] = new UserResource($this->user);
             $data['feature_hourly_profit_info'] =
-                Auth::user()->features->count() > 0
-                ? hourlyProfitInfo(Auth::user())
+                $this->user->features->count() > 0
+                ? hourlyProfitInfo($this->user)
                 : [];
         } else {
             $data['top_players'] = $this->userRepository->getTopPlayers();
