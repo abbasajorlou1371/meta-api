@@ -40,6 +40,7 @@ class FeatureResource extends JsonResource
                         'id' => $this->latestTraded->seller->id ?? "",
                         'name' => $this->latestTraded->seller->name ?? "",
                         'code' => $this->latestTraded->seller->code ?? "",
+                        'date' => Jalalian::forge($this->latestTraded->created_at)->format('Y/m/d'),
                     ],
                 ]),
                 $this->mergeWhen($this->hourlyProfit, [
