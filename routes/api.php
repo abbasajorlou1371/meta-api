@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\V1\Auth\SendResetPasswordLinkEmailController;
 use App\Http\Controllers\Api\V1\BankAccountController;
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\CustomController;
@@ -58,13 +59,10 @@ Route::middleware('guest')->group(function () {
 
 Route::post('logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::controller(ResetPasswordController::class)
-    ->prefix('forgot-password')
-    ->middleware('guest')
-    ->group(function () {
-        Route::post('/', 'sendResetPasswordLink');
-        Route::post('reset/password', 'resetPassword');
-    });
+Route::middleware('guest')->group(function() {
+    Route::post('/forgot-password', [SendResetPasswordLinkEmailController::class, 'sendResetLinkEmail']);
+    Route::post('/forgot-password/reset/password', [ResetPasswordController::class, 'reset']);
+});
 
 Route::controller(CalendarController::class)->prefix('calendar')->group(function () {
     Route::get('/', 'getEvents');
