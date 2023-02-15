@@ -15,13 +15,25 @@ use App\Models\Comission;
 use App\Models\User;
 use App\Models\SellFeatureRequest;
 use App\Notifications\sellFeature;
-use App\Helpers\FeatureIndicators;
-use App\Models\LimitedFeaturePurchase;
-use App\Models\Feature\FeatureLimit;
+use App\Repositories\FeatureRepository;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class BuyFeatureController extends Controller
 {
+    public function __construct(
+        private FeatureRepository $featureRepository
+    ) {
+    }
+
+    public function index(Request $request)
+    {
+        $request->validate([
+            'points' => 'required|array|min:4',
+            'points.*' => 'required|regex:/^([0-9]+(\.[0-9]+)?,[0-9]+(\.[0-9]+)?)$/'
+        ]);
+        return response()->json(['date' => $this->featureRepository->getFeaturesByCoordinates($request)]);
+    }
 
     public function show(Feature $feature)
     {

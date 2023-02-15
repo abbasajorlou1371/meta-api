@@ -27,7 +27,7 @@ class EventResource extends JsonResource
             'views' => $this->views,
             'likes' => $this->likes?->count(),
             'dislikes' => $this->dislikes?->count(),
-            'already_like' => true,
+            'already_liked' => true,
             'already_disliked' => false,
         ];
     }

@@ -23,7 +23,7 @@ class HomeController extends Controller
         private UserRepository $userRepository,
     ) {
 
-        $this->user = Auth::user('sanctum');
+        $this->user = Auth::guard('sanctum')->user();
     }
 
     /**
