@@ -20,9 +20,7 @@ class KycController extends Controller
 
     public function index()
     {
-        return Kyc::where('user_id', $this->user->id)->exists()
-            ? new KycResource($this->user->kyc)
-            : [];
+        return KycResource::make($this->user->kyc);
     }
 
     /**

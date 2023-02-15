@@ -16,12 +16,12 @@ class PackageResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
+            'code' => $this->code,
             'asset' => $this->asset,
             'amount' => $this->amount,
             'unitPrice' => Variable::getRate($this->asset),
-            $this->mergeWhen($this->image, [
-                'image' => $this->image?->url
-            ]),
+            'image' => $this->image?->url
         ];
     }
 }

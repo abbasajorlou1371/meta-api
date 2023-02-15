@@ -38,7 +38,6 @@ class UserResource extends JsonResource
             'notifications' => $this->unreadNotifications,
             'referral_link' => $this->referal_link,
             'code' => $this->code,
-            'referals' => $this->referals,
             'follows' => [
                 'followers' => FollowResource::collection($this->followers()->orderBy('score', 'DESC')->lazy()),
                 'following' => FollowResource::collection($this->following),

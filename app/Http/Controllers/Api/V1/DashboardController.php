@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePrivacyRequest;
+use App\Http\Resources\AssetResource;
 use App\Http\Resources\LatestTransactionResource;
 use App\Http\Resources\PrivacyResource;
 use App\Http\Resources\TransactionResource;
@@ -52,6 +53,11 @@ class DashboardController extends Controller
                 'display' => $request->value
             ]
         );
-        return response()->noContent(200);
+        return response()->noContent();
+    }
+
+    public function showWallet(Request $request)
+    {
+        return new AssetResource($request->user()->assets);
     }
 }

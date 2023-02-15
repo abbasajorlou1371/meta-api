@@ -54,6 +54,16 @@ class HomeController extends Controller
         return PackageResource::collection(Option::lazy());
     }
 
+    public function filterByTypeAndCount(Request $request) {
+        $request->validate([
+            'type' => 'required|array',
+            'amount' => 'required|integer'
+        ]);
+        $packages = Option::whereIn('asset', $request->type)
+        ->whereAmount($request->amount)->get();
+        return PackageResource::collection($packages);
+    }
+
     public function getTutorials(Request $request)
     {
         $request->validate(['url' => 'required|string']);

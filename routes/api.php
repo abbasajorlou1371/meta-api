@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\KycController;
 use App\Http\Controllers\Api\V1\NoteController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PlayerController;
+use App\Http\Controllers\Api\V1\ProfilePhotoController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\ResetInfo\ResetEmailController;
@@ -78,7 +79,11 @@ Route::get('/get-user-info/{user}', [HomeController::class, 'showUserDetails'])-
 
 Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function () {
 
-    Route::get('/store', [HomeController::class, 'store'])->name('store');
+    Route::controller(HomeController::class)->group(function() {
+        Route::get('/store', 'store')->name('store');
+        Route::post('/store', 'filterByTypeAndCount');
+    });
+
 
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
@@ -86,6 +91,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::get('/transactions', 'transactions');
         Route::get('/privacy', 'getPrivacySettings');
         Route::post('/privacy', 'updatePrivacySettings');
+        Route::get('/wallet', 'showWallet');
     });
 
     Route::controller(EmailVerificationController::class)->prefix('email')->group(function () {
@@ -143,10 +149,14 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 
     Route::controller(SettingController::class)->group(function () {
+        Route::get('/settings', 'showSettings');
         Route::post('/settings', 'update');
+        Route::get('/general-settings', 'showGeneralSettings');
         Route::post('/general-settings', 'generalSettingsUpdate');
         Route::post('/settings/upload-profile-photo', 'uploadProfilePhoto');
     });
+
+    Route::apiResource('profilePhotos', ProfilePhotoController::class);
 
     Route::apiResource('reports', ReportController::class);
 

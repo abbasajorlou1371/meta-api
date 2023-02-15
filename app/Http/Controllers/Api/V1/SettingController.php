@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateGeneralSettingsRequest;
+use App\Http\Resources\GeneralSettingsResource;
+use App\Http\Resources\SettingResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+    public function showSettings()
+    {
+        return new SettingResource(request()->user()->settings);
+    }
+
     /**
      * @param Request $request
      * @return JsonResponse
@@ -39,7 +46,12 @@ class SettingController extends Controller
             ]);
         }
 
-        return response()->noContent(200);
+        return response()->noContent();
+    }
+
+    public function showGeneralSettings()
+    {
+        return new GeneralSettingsResource(request()->user()->generalSettings);
     }
 
     public function generalSettingsUpdate(UpdateGeneralSettingsRequest $request)
@@ -47,9 +59,8 @@ class SettingController extends Controller
         $request->user()->generalSettings->update([
             $request->input('setting') => $request->input('status'),
         ]);
-        return response()->noContent(200);
+        return response()->noContent();
     }
-
 
     public function uploadProfilePhoto(Request $request)
     {
