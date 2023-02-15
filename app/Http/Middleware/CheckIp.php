@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Pipeline\Pipeline;
 
 class CheckIp
 {
@@ -17,8 +17,14 @@ class CheckIp
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = Http::post(config('rgb.admin_panel_url') . 'api/check/ip', ['ip' => $request->ip()]);
-        return $response->ok()
+        $ipAllowed = app(Pipeline::class)
+            ->send($request)
+            ->through([
+                \App\Services\FilterIpRangeService::class,
+                \App\Services\FilterIpService::class
+            ])
+            ->thenReturn();
+        return $ipAllowed
             ? $next($request)
             : abort(401, 'UnAuthorized');
     }
