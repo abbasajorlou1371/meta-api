@@ -56,11 +56,10 @@ class HomeController extends Controller
 
     public function filterByTypeAndCount(Request $request) {
         $request->validate([
-            'type' => 'required|array',
-            'amount' => 'required|integer'
+            'codes' => 'required|array|min:3',
+            'codes.*' => 'required|string|min:2'
         ]);
-        $packages = Option::whereIn('asset', $request->type)
-        ->whereAmount($request->amount)->get();
+        $packages = Option::whereIn('code', $request->codes)->get();
         return PackageResource::collection($packages);
     }
 
