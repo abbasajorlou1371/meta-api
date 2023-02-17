@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\TicketStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -57,6 +58,12 @@ class Ticket extends Model
     public function markAsUnresolved()
     {
         $this->update(['status' => TicketStatus::UNRESOLVED]);
+    }
+
+    protected function attachment(): Attribute {
+        return Attribute::make(
+            set: fn($value) => config('rgb.ftp-endpoint').$value
+        );
     }
 
 }

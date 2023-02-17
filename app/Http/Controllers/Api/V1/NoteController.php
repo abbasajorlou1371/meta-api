@@ -40,21 +40,12 @@ class NoteController extends Controller
      */
     public function store(NoteRequest $request): JsonResponse
     {
-        if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('/notes/' . $this->user->id);
-        } else {
-            $path = "";
-        }
-
-        $this->user->notes()->create([
+        $note = Note::create([
+            'user_id' => $this->user->id,
             'title' => $request->title,
             'content' => $request->content,
-            'attachment' => $path,
         ]);
-        return response()->json([
-            'success' => 'یادداشت با موفقیت ثبت شد',
-            'notes' => $this->user->notes
-        ]);
+        return response()->json(['data' => $note]);
     }
 
     /**
@@ -65,9 +56,7 @@ class NoteController extends Controller
      */
     public function show(Note $note): JsonResponse
     {
-        return response()->json([
-            'note' => $note
-        ]);
+        return response()->json(['data' => $note]);
     }
 
     /**
@@ -79,22 +68,12 @@ class NoteController extends Controller
      */
     public function update(NoteRequest $request, Note $note): JsonResponse
     {
-        if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('/notes/' . $this->user->id);
-        } else {
-            $path = "";
-        }
-
         $note->update([
             'title' => $request->title,
             'content' => $request->content,
-            'attachment' => $path,
         ]);
 
-        return response()->json([
-            'success' => 'یادداشت ویرایش شد',
-            'notes' => $this->user->notes
-        ]);
+        return response()->json(['note' => $note]);
     }
 
     /**
@@ -103,11 +82,9 @@ class NoteController extends Controller
      * @param Note $note
      * @return JsonResponse
      */
-    public function destroy(Note $note): JsonResponse
+    public function destroy(Note $note)
     {
         $note->delete();
-        return response()->json([
-            'success' => 'یادداشت حذف شد'
-        ]);
+        return response()->noContent();
     }
 }
