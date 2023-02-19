@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Channels\SmsChannel;
 use App\Mail\EmailOtp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,7 +35,7 @@ class GetOtpNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return $this->type == 'sms' ? [SmsChannel::class] : ['mail'];
+        return $this->type == 'sms' ? 'sms' : ['mail'];
     }
 
     /**

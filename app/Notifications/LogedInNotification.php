@@ -6,7 +6,6 @@ use App\Mail\logedInMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use App\Services\NotificationService;
 
 class LogedInNotification extends Notification implements ShouldQueue
 {
@@ -18,6 +17,7 @@ class LogedInNotification extends Notification implements ShouldQueue
      * @return void
      */
     protected $ip;
+
     public function __construct($ip)
     {
         $this->ip = $ip;
@@ -31,7 +31,9 @@ class LogedInNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return NotificationService::getChannels($notifiable, 'login');
+        return array_keys(array_filter($notifiable->getNotificationSettings('login_verification'), function ($key) {
+            return $key;
+        }));
     }
 
     /**
@@ -43,8 +45,8 @@ class LogedInNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new logedInMail($notifiable, $this->ip))
-                ->to($notifiable->email)
-                ->subject('ورود به حساب کاربری');
+            ->to($notifiable->email)
+            ->subject('ورود به حساب کاربری');
     }
 
     public function toSms($notifiable)

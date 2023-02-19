@@ -33,7 +33,7 @@ class SendVerificationCode extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return [SmsChannel::class];
+        return ['sms'];
     }
 
     /**

@@ -23,7 +23,6 @@ class FeatureBoughtMail extends Mailable
     public function __construct(Feature $feature)
     {
         $this->feature = $feature;
-        $this->afterCommit();
     }
 
     /**

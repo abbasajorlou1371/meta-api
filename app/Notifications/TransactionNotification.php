@@ -33,7 +33,9 @@ class TransactionNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return NotificationService::getChannels($notifiable, 'transactions');
+        return array_keys(array_filter($notifiable->getNotificationSettings('transactions'), function ($key) {
+            return $key;
+        }));
     }
 
     /**

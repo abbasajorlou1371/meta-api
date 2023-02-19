@@ -15,6 +15,7 @@ class GeneralSettingsResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'announcements_sms'           => $this->announcements_sms,
             'announcements_email'           => $this->announcements_email,
             'reports_sms'                 => $this->reports_sms,

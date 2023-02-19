@@ -533,4 +533,9 @@ class User extends Authenticatable implements MustVerifyEmail
             throw new InsufficientBalanceException('موجودی ریال شما کافی نمی باشد.');
         }
     }
+
+    public function getNotificationSettings(string $notificationType)
+    {
+        return GeneralSetting::getChannels($this, $notificationType);
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Helpers\FeatureHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -26,6 +25,7 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
     {
         $this->data = $data;
         $this->trade = $trade;
+        $this->afterCommit();
     }
 
     /**
@@ -36,7 +36,9 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return NotificationService::getChannels($notifiable, 'trades');
+        return array_keys(array_filter($notifiable->getNotificationSettings('trades'), function ($key) {
+            return $key;
+        }));
     }
 
     /**

@@ -151,6 +151,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::post('/settings', 'update');
         Route::get('/general-settings', 'showGeneralSettings');
         Route::post('/general-settings', 'generalSettingsUpdate');
+        Route::put('/general-settings/{GeneralSetting}', 'generalSettingsUpdatePut');
         Route::post('/settings/upload-profile-photo', 'uploadProfilePhoto');
     });
 

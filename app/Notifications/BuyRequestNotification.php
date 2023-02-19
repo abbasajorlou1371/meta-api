@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Channels\SmsChannel;
 use App\Mail\BuyRequestRecievedMail;
 use App\Mail\BuyRequestSentMail;
 use Illuminate\Bus\Queueable;
@@ -34,7 +33,7 @@ class BuyRequestNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return [SmsChannel::class, 'database', 'mail'];
+        return ['sms', 'database', 'mail'];
     }
 
     public function toMail($notifiable)

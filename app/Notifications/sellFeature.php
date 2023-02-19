@@ -34,7 +34,9 @@ class sellFeature extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return NotificationService::getChannels($notifiable, 'trades');
+        return array_keys(array_filter($notifiable->getNotificationSettings('trades'), function ($key) {
+            return $key;
+        }));
     }
 
     /**
