@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Helpers\AssetHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -60,10 +59,10 @@ class FeatureHourlyProfitDeposit extends Notification implements ShouldQueue
             'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
             'related-to' => 'transactions',
             'message'  => sprintf(
-                'تعداد %s %s به حساب شما بابت سود ساعت شمار حاصل از ملک به شناسه %s واریز گردید.',
+                'مقدار %s %s به حساب شما بابت سود ساعت شمار حاصل از ملک به شناسه %s واریز گردید.',
                 number_format($this->data['amount'], 3),
-                AssetHelper::getAssetTitle($this->data['asset']),
-                $this->data['feature_properties_id'],
+                $this->data['asset'],
+                $this->data['id'],
             )
         ];
     }

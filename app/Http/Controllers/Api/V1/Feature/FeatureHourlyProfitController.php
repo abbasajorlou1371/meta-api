@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api\V1\Feature;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\HourlyProfitResource;
-use App\Models\Feature;
 use App\Models\Feature\FeatureHourlyProfit;
-use App\Models\User;
 use App\Notifications\FeatureHourlyProfitDeposit;
 
 class FeatureHourlyProfitController extends Controller
@@ -17,52 +15,53 @@ class FeatureHourlyProfitController extends Controller
         return HourlyProfitResource::collection(FeatureHourlyProfit::whereBelongsTo(request()->user())->get());
     }
 
-    public function getProfits(Request $request)
+    public function getProfitsByApplication(Request $request)
     {
         $request->validate(['karbari' => 'required|in:m,t,a']);
 
         $user = $request->user();
-        if($user->features->isEmpty()) abort(404, 'کاربر ملکی ندارد');
+
         $time = $user->variables->withdraw_profit * 86400;
 
-        FeatureHourlyProfit::whereBelongsTo($user)->with('feature')
-        ->chunkById(100, function($profits)use($request, $user, $time) {
-                foreach($profits as $profit) {
-                    $feature = $profit->feature;
-                    if ($profit->feature->properties->karbari == $request->karbari) {
-                        $user->assets->increment($profit->asset, $profit->amount);
-                        $user->notify(new FeatureHourlyProfitDeposit([
-                            'asset' => $profit->asset,
-                            'amount' => $profit->amount,
-                            'feature_properties_id' => $feature->properties->id,
-                        ]));
-                        $profit->update([
-                            'amount' => 0,
-                            'dead_line' => now()->addSeconds($time)
-                        ]);
-                    }
+        FeatureHourlyProfit::whereBelongsTo($user)->with('feature', 'feature.properties')
+        ->chunkById(100, function ($profits) use ($request, $user, $time) {
+            foreach ($profits as $profit) {
+                if ($profit->feature->properties->karbari == $request->karbari) {
+                    $user->assets->increment($profit->asset, $profit->amount);
+                    $user->notify(new FeatureHourlyProfitDeposit([
+                        'asset' => $profit->asset,
+                        'amount' => $profit->amount,
+                        'id' => $profit->feature->properties->id,
+                    ]));
+                    $profit->update([
+                        'amount' => 0,
+                        'dead_line' => now()->addSeconds($time)
+                    ]);
                 }
-            });
+            }
+        });
         return HourlyProfitResource::collection(FeatureHourlyProfit::whereBelongsTo(request()->user())->get());
     }
 
-    public function getProfit(User $user, Feature $feature)
+    public function getSingleProfit(FeatureHourlyProfit $featureHourlyProfit)
     {
-        $profit = $feature->hourlyProfit;
-        if (!$profit) {
-            abort(404, 'سودی برای این ملک یافت نشد');
-        }
-        $user->assets->increment($profit->asset, $profit->amount);
+        $feature = $featureHourlyProfit->feature;
+        $user = request()->user();
+
+        $user->assets->increment($featureHourlyProfit->asset, $featureHourlyProfit->amount);
         $time = $user->variables->withdraw_profit * 86400;
+
         $user->notify(new FeatureHourlyProfitDeposit([
-            'asset' => $profit->asset,
-            'amount' => $profit->amount,
-            'feature_properties_id' => $feature->properties->id,
+            'asset' => $feature->getFeatureColor(),
+            'amount' => $featureHourlyProfit->amount,
+            'id' => $feature->properties->id,
         ]));
-        $profit->update([
+
+        $featureHourlyProfit->update([
             'amount' => 0,
             'dead_line' => now()->addSeconds($time)
         ]);
-        return new HourlyProfitResource($profit);
+
+        return new HourlyProfitResource($featureHourlyProfit);
     }
 }

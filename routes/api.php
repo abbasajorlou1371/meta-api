@@ -243,14 +243,11 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::post('/children/{user}', ChildernPermissionsController::class);
     });
 
-    Route::controller(FeatureHourlyProfitController::class)
-        ->scopeBindings()
-        ->prefix('hourly-profits')
-        ->group(function () {
-            Route::get('/', 'index');
-            Route::post('/', 'getProfits');
-            Route::get('/{user}/features/{feature}', 'getProfit');
-        });
+    Route::controller(FeatureHourlyProfitController::class)->prefix('hourly-profits')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'getProfitsByApplication');
+        Route::post('/{featureHourlyProfit}', 'getSingleProfit');
+    });
 
     Route::apiResource('customs', CustomController::class);
 
@@ -277,25 +274,3 @@ Route::controller(PublicProfileController::class)
     ->prefix('citizen')->group(function () {
         Route::get('/{code}', 'home');
     });
-
-Route::post('/send-mail', function (Request $request) {
-    $request->validate([
-        'fname' => 'required',
-        'lname' => 'required',
-        'email' => 'required|email',
-        'phone' => 'required|ir_mobile',
-        'code' => 'required|string',
-        'description' => 'required|string|max:1500',
-    ]);
-
-    ContestParticipants::create($request->only([
-        'fname',
-        'lname',
-        'email',
-        'phone',
-        'code',
-        'description'
-    ]));
-
-    return response()->noContent(201);
-});
