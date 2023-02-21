@@ -10,4 +10,9 @@ class Notification extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function markAsRead()
+    {
+        $this->update(['read_at' => now()]);
+    }
 }

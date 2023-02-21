@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\UserEventsController;
+use App\Http\Controllers\NotificationController;
 use App\Models\ContestParticipants;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -258,9 +259,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::get('/report/close/{userEvent}', 'closeEventReport');
     });
 
-    Route::get('/notification-read/{notification}', function (Notification $notification) {
-        $notification->update(['read_at' => now()]);
-    });
+    Route::apiResource('notifications', NotificationController::class)->only(['index', 'show']);
 });
 
 Route::post('video-tutorials', [HomeController::class, 'getTutorials']);

@@ -23,6 +23,7 @@ class UserResource extends JsonResource
             $this->mergeWhen($this->token, [
                 'token' => $this->token,
             ]),
+            'unread_notifications' => $this->unreadNotifications->count(),
             'score' => $this->score,
             'phone' => $this->phone,
             'automatic_logout' => $this->settings->automatic_logout,
