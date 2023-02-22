@@ -63,7 +63,7 @@ class SettingController extends Controller
         return response()->noContent();
     }
 
-    public function generalSettingsUpdatePut(GeneralSetting $settings, Request $request)
+    public function generalSettingsUpdatePut(GeneralSetting $GeneralSetting, Request $request)
     {
         $request->validate([
             'announcements_sms' => 'required|boolean',
@@ -77,7 +77,7 @@ class SettingController extends Controller
             'trades_sms' => 'required|boolean',
             'trades_email' => 'required|boolean',
         ]);
-        $settings->update([
+        $GeneralSetting->update([
             'announcements_sms' => $request->announcements_sms,
             'announcements_email' => $request->announcements_email,
             'reports_sms' => $request->reports_sms,
@@ -89,7 +89,7 @@ class SettingController extends Controller
             'trades_sms' => $request->trades_sms,
             'trades_email' => $request->trades_email,
         ]);
-        return new GeneralSettingsResource($settings->refresh());
+        return response()->noContent();
     }
 
     public function uploadProfilePhoto(Request $request)
