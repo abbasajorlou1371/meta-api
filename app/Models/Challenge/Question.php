@@ -2,15 +2,10 @@
 
 namespace App\Models\Challenge;
 
-use App\Models\CorrectAnswer;
-use App\Models\Image;
-use App\Models\QuestionAnswer;
-use App\Models\UserQuestionAnswer;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Question extends Model
 {
@@ -21,38 +16,22 @@ class Question extends Model
      */
     public function answers(): HasMany
     {
-        return $this->hasMany(QuestionAnswer::class);
+        return $this->hasMany(Answer::class);
     }
 
-    /**
-     * @return HasOne
-     */
-    public function correctAnswer(): HasOne
+    public function correctAnswer()
     {
-        return $this->hasOne(CorrectAnswer::class);
+        return $this->answers->where('is_correct', true)->first();
     }
 
-    /**
-     * @return HasMany
-     */
-    public function userQuestionAnswers(): HasMany
+    public function image(): Attribute
     {
-        return $this->hasMany(UserQuestionAnswer::class);
+        return Attribute::make(
+            get: fn($value) => config('rgb.ftp-endpoint').'public/challenge/'.$value.'.png'
+        );
     }
 
-    /**
-     * @return HasMany
-     */
-    public function questionPrize(): HasMany
-    {
-        return $this->hasMany(QuestionPrize::class);
-    }
-
-    /**
-     * @return MorphOne
-     */
-    public function image(): MorphOne
-    {
-        return $this->morphOne(Image::class,'imageable');
+    public function scopeNotAnswered($query, $user) {
+        return $query->where('');
     }
 }

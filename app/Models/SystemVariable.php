@@ -14,6 +14,10 @@ class SystemVariable extends Model
         'value' => 'int'
     ];
 
+    protected $attributes = [
+        'value' => 15
+    ];
+
     public function scopeGetByKey($query, $key):int
     {
         return $query->where('slug', $key)->pluck('value')->first();

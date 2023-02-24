@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Morilog\Jalali\Jalalian;
 
 /**
  * @property mixed $updated_at
@@ -24,13 +25,14 @@ class QuestionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'admin_id' => $this->admin_id,
             'code' => $this->code,
             'title' => $this->title,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'image' => $this->image->url,
-            'answers' => $this->answers,
+            'image' => $this->image,
+            'prize' => $this->prize,
+            'participants' => $this->participants,
+            'views' => $this->views,
+            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d'),
+            'answers' => AnswerResource::collection($this->answers),
         ];
     }
 }

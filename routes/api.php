@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\V1\Auth\SendResetPasswordLinkEmailController;
 use App\Http\Controllers\Api\V1\BankAccountController;
 use App\Http\Controllers\Api\V1\CalendarController;
+use App\Http\Controllers\Api\V1\ChallengeController;
 use App\Http\Controllers\Api\V1\CustomController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\Dynasty\AcceptJoinRequestController;
@@ -260,6 +261,12 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'show']);
+
+    Route::controller(ChallengeController::class)->as('challenge.')->prefix('challenge')->group(function() {
+        Route::get('timings', 'getTimings')->name('timing');
+        Route::post('question', 'getQuestion')->name('question');
+        Route::post('answer', 'answerResult')->name('answer');
+    });
 });
 
 Route::post('video-tutorials', [HomeController::class, 'getTutorials']);

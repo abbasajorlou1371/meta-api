@@ -25,7 +25,7 @@ class FeatureImageRequest extends FormRequest
     {
         return      [
             'images' => 'required|array|min:1',
-            'images.*' => 'required|file|mimes:png,jpg,bmp|distinct|min:1|size:1024'
+            'images.*' => 'required|file|mimes:png,jpg,bmp|distinct|min:1|max:1024'
         ];
     }
 
