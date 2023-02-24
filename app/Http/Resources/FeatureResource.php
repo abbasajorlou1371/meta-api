@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
 
 class FeatureResource extends JsonResource
 {
@@ -22,18 +21,15 @@ class FeatureResource extends JsonResource
                 'properties' => [
                     'id' => $this->properties->id,
                     'address' => $this->properties->address,
-                    'feature_id' => $this->properties->feature_id,
                     'density' => $this->properties->density,
-                    'stability' => $this->properties->stability,
                     'label' => $this->properties->label,
                     'area' => $this->properties->area,
                     'region' => $this->properties->region,
-                    'karbari' => $this->properties->karbari,
                     'owner' => $this->properties->owner,
                     'rgb' => $this->properties->rgb,
                     'price_psc' => $this->properties->price_psc,
                     'price_irr' => $this->properties->price_irr,
-                    'date' => $this->latestTraded->created_at ?? null,
+                    'date' => $this->latestTraded?->created_at,
                 ],
                 'images' => $this->images,
                 $this->mergeWhen($this->latestTraded, [
@@ -42,14 +38,6 @@ class FeatureResource extends JsonResource
                         'name' => $this->latestTraded->seller->name ?? "",
                         'code' => $this->latestTraded->seller->code ?? "",
                     ],
-                ]),
-                $this->mergeWhen($this->hourlyProfit, [
-                    'hourly_profit' => [
-                        'asset' => $this->hourlyProfit?->asset,
-                        'amount' => $this->hourlyProfit?->amount,
-                        'deadline_date' => Jalalian::forge($this->hourlyProfit?->dead_line)->format('Y/m/d'),
-                        'deadline_time' => Jalalian::forge($this->hourlyProfit?->dead_line)->format('H:m:s'),
-                    ]
                 ]),
             ]),
             $this->mergeWhen(request()->routeIs('home.features'), [

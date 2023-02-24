@@ -45,8 +45,8 @@ class BuyRequestsController extends Controller
      */
     public function store(BuyFeatureRequestValidate $request, Feature $feature): JsonResponse|BuyRequestResource
     {
-        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit');
-        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit');
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
 
         $buyer = request()->user();
         $seller = $feature->owner;

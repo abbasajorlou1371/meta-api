@@ -6,8 +6,6 @@ use App\Models\Feature;
 use App\Models\User;
 use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
-use App\Models\Feature\FeatureLimit;
-use App\Models\LimitedFeaturePurchase;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FeaturePolicy
