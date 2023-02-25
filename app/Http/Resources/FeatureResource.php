@@ -23,6 +23,7 @@ class FeatureResource extends JsonResource
                     'address' => $this->properties->address,
                     'density' => $this->properties->density,
                     'label' => $this->properties->label,
+                    'karbari' => $this->properties->karbari,
                     'area' => $this->properties->area,
                     'region' => $this->properties->region,
                     'owner' => $this->properties->owner,
