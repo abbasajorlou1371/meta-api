@@ -18,9 +18,6 @@ class TicketResource extends JsonResource
         return [
             'id' => (string)$this->id,
             'title' => $this->title,
-            'content' => $this->content,
-            'attachment' => $this->attachment,
-            'sender' => $this->sender->name ?? 'سیستم',
             $this->mergeWhen($this->reciever, [
                 'reciever' => $this->reciever->name ?? "",
             ]),
@@ -29,6 +26,8 @@ class TicketResource extends JsonResource
             ]),
             'code' => $this->code,
             $this->mergeWhen($this->responses && request()->routeIs('tickets.show'), [
+                'content' => $this->content,
+                'attachment' => $this->attachment,
                 'responser_name' => $this->responser_name,
                 'responses' => TicketResponseResource::collection($this->responses),
             ]),

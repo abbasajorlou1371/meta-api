@@ -24,7 +24,7 @@ class TicketResponseRequest extends FormRequest
     public function rules()
     {
         return [
-            'response' => 'required|string',
+            'response' => 'required|string|max:500',
             'attachment' => 'nullable|file|mimes:png,jpg,pdf'
         ];
     }
