@@ -45,24 +45,18 @@ class BuyRequestsController extends Controller
      */
     public function store(BuyFeatureRequestValidate $request, Feature $feature): JsonResponse|BuyRequestResource
     {
-        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
-        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
-
         $buyer = request()->user();
         $seller = $feature->owner;
         $price_psc = $request->price_psc;
         $price_irr = $request->price_irr;
 
+        $floor_price_percentage = $feature->properties->minimum_price_percentage;
+
         $totalRequestedPrice = $price_irr + $price_psc * Variable::getRate('psc');
         $totalFeaturePrice = $feature->properties->stability * Variable::getRate($feature->getColor());
 
-        if (
-            $feature->owner->isUnderEighteen()
-            && $totalRequestedPrice / $totalFeaturePrice * 100 < $under18PricingLimit
-        ) {
-            abort(403, sprintf("شما مجاز به ارسال درخواست خرید به کمتر از %s قیمت ملک نمی باشید!", $under18PricingLimit));
-        } elseif ($totalRequestedPrice / $totalFeaturePrice * 100 < $publicPricingLimit) {
-            abort(403, sprintf("شما به مجاز به ارسال درخواست خرید به کمتر از %s قیمت ملک نمی باشید!", $publicPricingLimit));
+        if ($totalRequestedPrice / $totalFeaturePrice * 100 < $floor_price_percentage) {
+            abort(403, sprintf("شما به مجاز به ارسال درخواست خرید به کمتر از %s قیمت ملک نمی باشید!", $floor_price_percentage));
         }
 
         if ($buyer->assets->psc < $price_psc + $price_psc * config('rgb.fee')) {
@@ -163,12 +157,16 @@ class BuyRequestsController extends Controller
 
         $feature->update(['owner_id' => $buyer->id]);
 
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
         $properties->update([
             'rgb'       => $feature->changeStatusToSoldAndNotPriced(),
             'owner'     => $buyer->name,
             'price_psc' => $buyFeatureRequest->price_psc,
             'price_irr' => $buyFeatureRequest->price_irr,
-            'label' => ''
+            'label' => '',
+            'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 
         $profit = $feature->hourlyProfit->where('user_id', $seller->id)->first();

@@ -16,6 +16,7 @@ use App\Models\SellFeatureRequest;
 use App\Notifications\sellFeature;
 use App\Repositories\FeatureRepository;
 use Illuminate\Http\Request;
+use App\Models\SystemVariable;
 
 class BuyFeatureController extends Controller
 {
@@ -55,6 +56,9 @@ class BuyFeatureController extends Controller
 
     protected function buyFromRGB(Feature $feature)
     {
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
         $color = $feature->getFeatureColor();
         $seller = $feature->owner;
         $featureProperties = $feature->properties;
@@ -73,7 +77,8 @@ class BuyFeatureController extends Controller
         $featureProperties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
-            'label' => ''
+            'label' => '',
+            'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 
         $trade = Trade::create([
@@ -191,10 +196,14 @@ class BuyFeatureController extends Controller
 
         $feature->update(['owner_id' => $buyer->id]);
 
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
         $feature->properties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
-            'label' => ''
+            'label' => '',
+            'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 
         $feature->sellRequests->where('status', 0)

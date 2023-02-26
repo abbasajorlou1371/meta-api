@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Feature;
 use App\Models\Image;
 use App\Models\User;
+use App\Models\Variable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
@@ -73,22 +74,22 @@ class FeatureController extends Controller
 
     public function updateFeature(User $user, Feature $feature, Request $request)
     {
-        $this->validate(
-            $request,
-            ['minimum_price_percentage' => 'required|integer|min:80'],
-            [
-                'minimum_price_percentage.required' => 'کف قیمت را به درصد مشخص کنید',
-                'minimum_price_percentage.min' => 'کمترین مقدار ۸۰ میباشد'
+        $request->validate([
+            'minimum_price_percentage' => [
+                'required',
+                'integer',
+                'min:80',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->user()->isUnderEighteen() && $value < 110) {
+                        $fail($attribute . ' must be greater than 110');
+                    }
+                }
             ]
-        );
+        ]);
 
-        if ($request->minimum_price_percentage < 80) {
-            abort(403, 'شما مجاز به قیمت گذاری  ملک خود کمتر از ۸۰ درصد نمی باشید');
-        }
-
-        $color = AssetHelper::getAssetColor($feature);
-        $totalPrice = $feature->properties->stability * currentColorPrice($color) * ($request->minimum_price_percentage / 100);
-        $price_psc = ($totalPrice * 0.5) / currentPscPrice();
+        $color = $feature->getColor();
+        $totalPrice = $feature->properties->stability * Variable::getRate($color) * $request->minimum_price_percentage / 100;
+        $price_psc = $totalPrice * 0.5 / Variable::getRate('psc');
         $price_irr = $totalPrice * 0.5;
         $feature->properties->update([
             'price_psc' => $price_psc,
@@ -96,6 +97,6 @@ class FeatureController extends Controller
             'minimum_price_percentage' => $request->minimum_price_percentage
         ]);
 
-        return response()->json(['success' => 'کف قیمت تعیین شد']);
+        return response()->noContent();
     }
 }
