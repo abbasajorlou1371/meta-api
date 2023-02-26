@@ -21,6 +21,7 @@ class TicketResponseResource extends JsonResource
             $this->mergeWhen($this->attachment, [
                 'attachment' => $this->attachment,
             ]),
+            'responser_name' => $this->ticket->responser_name,
             'responsed_date' => Jalalian::forge($this->created_at)->format('Y/m/d'),
             'responsed_time' => Jalalian::forge($this->created_at)->format('H:m:s'),
         ];

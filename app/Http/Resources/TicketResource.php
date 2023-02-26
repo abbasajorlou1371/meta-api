@@ -29,7 +29,6 @@ class TicketResource extends JsonResource
             $this->mergeWhen($this->responses && request()->routeIs('tickets.show'), [
                 'content' => $this->content,
                 'attachment' => $this->attachment,
-                'responser_name' => $this->responser_name,
                 'responses' => TicketResponseResource::collection($this->responses),
             ]),
             'status' => $this->status,
