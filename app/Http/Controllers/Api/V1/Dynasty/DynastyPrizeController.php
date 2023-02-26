@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Dynasty\DynastyPrizeResource;
 use App\Models\Dynasty\RecievedPrize;
 use App\Models\User;
+use App\Models\Variable;
 use Illuminate\Http\Request;
 
 class DynastyPrizeController extends Controller
@@ -30,7 +31,7 @@ class DynastyPrizeController extends Controller
     public function getPrize(User $user, RecievedPrize $recievedDynastyPrize)
     {
         $prize = $recievedDynastyPrize->prize;
-        $user->assets->increment('psc', $prize->psc / currentPscPrice());
+        $user->assets->increment('psc', $prize->psc / Variable::getRate('psc'));
         $user->assets->increment('satisfaction', $prize->satisfaction);
         $variables = $user->variables;
         $variables->update([

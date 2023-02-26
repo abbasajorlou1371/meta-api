@@ -20,10 +20,10 @@ class TicketResource extends JsonResource
             'title' => $this->title,
             'sender' => $this->sender->name,
             $this->mergeWhen($this->reciever, [
-                'reciever' => $this->reciever->name ?? "",
+                'reciever' => $this->reciever?->name,
             ]),
             $this->mergeWhen($this->department, [
-                'reciever' => ticketDepartmentsTitle($this->department)
+                'reciever' => $this->department
             ]),
             'code' => $this->code,
             $this->mergeWhen($this->responses && request()->routeIs('tickets.show'), [

@@ -33,15 +33,18 @@ class Ticket extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function sender() {
+    public function sender()
+    {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function reciever() {
+    public function reciever()
+    {
         return $this->belongsTo(User::class, 'reciever_id', 'id');
     }
 
-    public function responses() {
+    public function responses()
+    {
         return $this->hasMany(TicketResponse::class);
     }
 
@@ -64,10 +67,26 @@ class Ticket extends Model
         $this->update(['status' => TicketStatus::UNRESOLVED]);
     }
 
-    protected function attachment(): Attribute {
+    protected function attachment(): Attribute
+    {
         return Attribute::make(
-            set: fn($value) => config('rgb.ftp-endpoint').$value
+            set: fn ($value) => config('rgb.ftp-endpoint') . $value
         );
     }
 
+    protected function department(): Attribute
+    {
+        return Attribute::make(
+            get: function($value) {
+                return match ($value) {
+                    'technical_support' => 'پشتیبانی فنی',
+                    'citizens_safety' => 'امنیت شهروندان',
+                    'investment' => 'سرمایه گذاری',
+                    'inspection' => 'بازرسی',
+                    'protection' => 'حراست',
+                    'ztb' => 'مدیریت کل ز ت ب',
+                };
+            }
+        );
+    }
 }

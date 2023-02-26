@@ -18,12 +18,12 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d H:m:s'),
-            'type'   => getTransactionTitle($this->resource),
-            'asset'  => AssetHelper::getAssetTitle($this->asset),
+            'type'   => $this->getTitle(),
+            'asset'  => $this->asset,
             'amount' => $this->amount,
-            'action' => $this->action === 'withdraw' ? 'برداشت' : 'واریز',
-            'status' => getTransactionStatus($this->resource)
+            'action' => $this->action,
+            'status' => $this->status,
+            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d H:m:s'),
         ];
     }
 }
