@@ -18,6 +18,7 @@ class TicketResource extends JsonResource
         return [
             'id' => (string)$this->id,
             'title' => $this->title,
+            'sender' => $this->sender->name,
             $this->mergeWhen($this->reciever, [
                 'reciever' => $this->reciever->name ?? "",
             ]),
