@@ -525,7 +525,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function checkBalance(Feature $feature)
     {
         $psc_price = $feature->properties->price_psc;
-        $irr_price = $feature->properties->price_psc;
+        $irr_price = $feature->properties->price_irr;
 
         if ($this->assets->psc < $psc_price + $psc_price * config('rgb.fee')) {
             throw new InsufficientBalanceException('موجودی psc شما کافی نمی باشد.');
