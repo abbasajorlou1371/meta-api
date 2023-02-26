@@ -168,6 +168,7 @@ class BuyRequestsController extends Controller
             'owner'     => $buyer->name,
             'price_psc' => $buyFeatureRequest->price_psc,
             'price_irr' => $buyFeatureRequest->price_irr,
+            'label' => ''
         ]);
 
         $profit = $feature->hourlyProfit->where('user_id', $seller->id)->first();
@@ -252,8 +253,8 @@ class BuyRequestsController extends Controller
 
     private function releaseAsset(BuyFeatureRequest $buyFeatureRequest)
     {
-        $psc_amount = $buyFeatureRequest->lockedAsset->psc;
-        $irr_amount = $buyFeatureRequest->lockedAsset->irr;
+        $psc_amount = $buyFeatureRequest->psc_amount;
+        $irr_amount = $buyFeatureRequest->irr_amount;
 
         $buyer = $buyFeatureRequest->buyer;
         $seller = $buyFeatureRequest->seller;

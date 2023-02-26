@@ -73,6 +73,7 @@ class BuyFeatureController extends Controller
         $featureProperties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
+            'label' => ''
         ]);
 
         $trade = Trade::create([
@@ -193,6 +194,7 @@ class BuyFeatureController extends Controller
         $feature->properties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
+            'label' => ''
         ]);
 
         $feature->sellRequests->where('status', 0)
