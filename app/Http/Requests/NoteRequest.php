@@ -24,9 +24,8 @@ class NoteRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|string|max:250',
+            'title' => 'required|string|max:130',
             'content' => 'required|string|max:500',
-            'attachment' => 'nullable|file|mimes:png,jpg,pdf|size:1024'
         ];
     }
 
@@ -35,7 +34,6 @@ class NoteRequest extends FormRequest
         return [
             'title.required' => 'عنوان یادداشت را وارد کنید',
             'content.required' => 'متن یادداشت را وارد کنید',
-            'attachment.mimes' => 'فایل باید با یکی از فرمت های png, jpb و pdf باشد'
         ];
     }
 }

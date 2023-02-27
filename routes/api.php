@@ -159,7 +159,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
     Route::apiResource('profilePhotos', ProfilePhotoController::class);
 
-    Route::apiResource('reports', ReportController::class);
+    Route::apiResource('reports', ReportController::class)->only(['index', 'show', 'store']);
 
     Route::controller(FollowController::class)->group(function () {
         Route::get('/followers', 'followers');

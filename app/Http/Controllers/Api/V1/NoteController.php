@@ -38,14 +38,14 @@ class NoteController extends Controller
      * @param NoteRequest $request
      * @return JsonResponse
      */
-    public function store(NoteRequest $request): JsonResponse
+    public function store(NoteRequest $request)
     {
         $note = Note::create([
             'user_id' => $this->user->id,
             'title' => $request->title,
             'content' => $request->content,
         ]);
-        return response()->json(['data' => $note]);
+        return response()->noContent(201);
     }
 
     /**

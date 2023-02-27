@@ -30,7 +30,11 @@ class TicketController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        return TicketResource::collection(Ticket::whereBelongsTo($this->user)->simplePaginate(10));
+        return TicketResource::collection(
+            Ticket::whereBelongsTo($this->user)
+                ->orderByDesc('updated_at')
+                ->simplePaginate(10)
+        );
     }
 
     /**
@@ -38,7 +42,9 @@ class TicketController extends Controller
      */
     public function recieved(): AnonymousResourceCollection
     {
-        return TicketResource::collection($this->user->recievedTickets);
+        return TicketResource::collection(
+            Ticket::whereRecieverId($this->user->id)->orderByDesc('updated_at')->simplePaginate(10)
+        );
     }
 
     /**
@@ -112,8 +118,8 @@ class TicketController extends Controller
     {
         $this->authorize('respond', $ticket);
         $attachment = $request->hasFile('attachment')
-        ? $request->file('attachment')->store('user/tickets/'.$this->user->id)
-        : '';
+            ? $request->file('attachment')->store('user/tickets/' . $this->user->id)
+            : '';
 
         TicketResponse::create([
             'ticket_id' => $ticket->id,

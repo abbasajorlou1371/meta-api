@@ -18,11 +18,8 @@ class FollowResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
-            'score' => $this->score,
             'code' => $this->code,
-            'profile_photos' => $this->profilePhotos,
-            'followed_at' => Jalalian::forge($this->created_at)->format('Y/m/d')
+            'profile_photos' => $this->profilePhotos->last()?->url,
         ];
     }
 }

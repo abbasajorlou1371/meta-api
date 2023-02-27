@@ -32,7 +32,8 @@ class TicketResource extends JsonResource
                 'responses' => TicketResponseResource::collection($this->responses),
             ]),
             'status' => $this->status,
-            'created_at' => \Morilog\Jalali\Jalalian::forge($this->created_at)->format('Y/m/d'),
+            'date' => \Morilog\Jalali\Jalalian::forge($this->updated_at)->format('Y/m/d'),
+            'time' => \Morilog\Jalali\Jalalian::forge($this->updated_at)->format('H:m:s'),
         ];
     }
 }

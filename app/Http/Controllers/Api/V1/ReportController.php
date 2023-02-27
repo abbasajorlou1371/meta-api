@@ -18,6 +18,16 @@ class ReportController extends Controller
         return ReportResource::collection(request()->user()->reports);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param Report $report
+     * @return JsonResponse
+     */
+    public function show(Report $report)
+    {
+        return new ReportResource($report);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -33,48 +43,16 @@ class ReportController extends Controller
             'content' => $request->content,
             'url'     => $request->url
         ]);
+
+        if($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $url = $file->store('public/reports');
+            $report->image()->create([
+                'url' => $url
+            ]);
+        }
+
         return new ReportResource($report);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param Report $report
-     * @return JsonResponse
-     */
-    public function show(Report $report)
-    {
-        return new ReportResource($report);
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param ReportRequest $request
-     * @param Report $report
-     * @return JsonResponse
-     */
-    public function update(ReportRequest $request, Report $report)
-    {
-        $report->update([
-            'subject' => $request->subject,
-            'title'   => $request->title,
-            'content' => $request->content,
-            'url'     => $request->url
-        ]);
-        return new ReportResource($report->fresh());
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Report $report
-     * @return JsonResponse
-     */
-    public function destroy(Report $report)
-    {
-        $report->delete();
-        return response()->noContent();
-    }
 }
