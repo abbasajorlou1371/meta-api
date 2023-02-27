@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Dynasty;
 
-use App\Constants\FamilyMembersType;
-use App\Constants\JoinRequestStatus;
-use App\Exceptions\KycVerificationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddFamilyMemberRequest;
 use App\Http\Resources\Dynasty\SentRequestsResource;
@@ -12,45 +9,92 @@ use App\Models\Dynasty\DynastyMessage;
 use App\Models\Dynasty\JoinRequest;
 use App\Models\DynastyPermission;
 use App\Models\User;
-use App\Notifications\GetOtpNotification;
 use App\Notifications\JoinDynastyNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 
 class SendJoinRequestController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('account.security')->only(['store', 'destroy']);
+    }
+
     public function index(Request $request)
     {
         return SentRequestsResource::collection($request->user()->sentJoinRequests);
     }
 
-    public function show(User $user, JoinRequest $sentJoinRequest)
+    public function show(JoinRequest $joinRequest)
     {
-        return new SentRequestsResource($sentJoinRequest);
-    }
-
-    public function getPermissions(Request $request)
-    {
-        if ($request->has('relationship') && $request->relationship === 'offspring') {
-            $permissions = DynastyPermission::first();
-            return response()->json(['permissions' => $permissions]);
-        }
+        $this->authorize('view', $joinRequest);
+        return new SentRequestsResource($joinRequest);
     }
 
     public function store(AddFamilyMemberRequest $request)
     {
         $user = $request->user();
-        $user_to_add = User::findOrFail($request->user);
-        $this->authorize('addFamilyMember', [$user_to_add, $request->relationship]);
+        $userToAdd = User::findOrFail($request->user);
+
+        $this->authorize('addFamilyMember', [$userToAdd, $request->relationship]);
+
+        $senderConfirmationMessage = DynastyMessage::where('type', 'requester_confirmation_message')->pluck('message')->first();
+        $recieverMessage = DynastyMessage::where('type', 'reciever_message')->pluck('message')->first();
+
+        $senderConfirmationMessage = str_replace(
+            [
+                '[sender-code]',
+                '[relationship]',
+                '[reciever-code]',
+                '[created_at]',
+                '[sender-name]',
+                '[reciever-name]',
+            ],
+            [
+                $user->code,
+                $this->getRelationshipTitle($request->relationship),
+                $userToAdd->code,
+                Jalalian::forge(now())->format('Y/m/d'),
+                $user->name,
+                $userToAdd->name,
+            ],
+            $senderConfirmationMessage
+        );
+        $recieverMessage = str_replace(
+            [
+                '[reciever-code]',
+                '[sender-code]',
+                '[relationship]',
+                '[relationship]',
+                '[sender-code]',
+                '[created_at]',
+                '[sender-name]',
+                '[reciever-name]',
+            ],
+            [
+                $userToAdd->code,
+                $user->code,
+                $this->getRelationshipTitle($request->relationship),
+                $this->getRelationshipTitle($request->relationship),
+                $user->code,
+                Jalalian::forge(now())->format('Y/m/d'),
+                $user->name,
+                $user->name,
+            ],
+            $recieverMessage
+        );
+
         $joinRequest = JoinRequest::create([
             'from_user' => $user->id,
-            'to_user' => $user_to_add->id,
-            'status' => JoinRequestStatus::PENDING,
+            'to_user' => $userToAdd->id,
+            'status' => 0,
             'relationship' => $request->relationship,
+            'message' => $recieverMessage
         ]);
-        if ($request->relationship === 'offspring' && isUnderEighteen($joinRequest->toUser)) {
+
+        if ($request->relationship === 'offspring' && $userToAdd->isUnderEighteen()) {
             $permissions = $request->permissions;
             $joinRequest->toUser->permissions()->create([
                 'verified' => false,
@@ -67,114 +111,33 @@ class SendJoinRequestController extends Controller
             ]);
         }
 
-        $code = random_int(100000, 999999);
-        $joinRequest->otp()->create([
-            'user_id' => $user->id,
-            'code' => Hash::make($code)
-        ]);
-        $user->notify(new GetOtpNotification($code));
-        return response()->json([
-            'message' => 'کد تاییدی به شماره تلفن همراه شما ارسال گردید.',
-            'id' => $joinRequest->id,
-            'from_user' => $joinRequest->from_user,
-            'to_user' => $joinRequest->to_user,
-            'status' => $joinRequest->status,
-            'relationship' => $joinRequest->relationship
-        ]);
+        $user->notify(new JoinDynastyNotification([
+            'type' => 'requester_confirmation_message',
+            'request' => $joinRequest,
+            'message' => $senderConfirmationMessage
+        ]));
+
+        $userToAdd->notify(new JoinDynastyNotification([
+            'type' => 'reciever_message',
+            'request' => $joinRequest,
+            'message' => $recieverMessage
+        ]));
+
+        return new SentRequestsResource($joinRequest);
     }
 
-    public function verify(User $user, JoinRequest $sentJoinRequest, Request $request)
+    public function destrory(JoinRequest $joinRequest)
     {
-        $this->validate(
-            $request,
-            ['code' => 'required|numeric|min:6'],
-            ['code.required' => 'کد تایید را وارد کنید']
-        );
-        $otp = $sentJoinRequest->otp->where('user_id', $user->id)->first();
-        if (Hash::check($request->code, $otp->code)) {
-            $sentJoinRequest->update(['status' => 1]);
-            $senderConfirmationMessage = DynastyMessage::where('type', 'requester_confirmation_message')->first();
-            $senderConfirmationMessage = $senderConfirmationMessage->message;
-            $recieverMessage = DynastyMessage::where('type', 'reciever_message')->first();
-            $recieverMessage = $recieverMessage->message;
-
-            $senderConfirmationMessage = str_replace(
-                [
-                    '[sender-code]',
-                    '[relationship]',
-                    '[reciever-code]',
-                    '[created_at]',
-                    '[sender-name]',
-                    '[reciever-name]',
-                ],
-                [
-                    $request->user()->code,
-                    FamilyMembersType::familyMembersTypeList()[$sentJoinRequest->relationship],
-                    $sentJoinRequest->toUser->code,
-                    Jalalian::forge($sentJoinRequest->created_at)->format('Y/m/d'),
-                    $sentJoinRequest->fromUser->name,
-                    $sentJoinRequest->toUser->name,
-                ],
-                $senderConfirmationMessage
-            );
-            $recieverMessage = str_replace(
-                [
-                    '[reciever-code]',
-                    '[sender-code]',
-                    '[relationship]',
-                    '[relationship]',
-                    '[sender-code]',
-                    '[created_at]',
-                    '[sender-name]',
-                    '[reciever-name]',
-                ],
-                [
-                    $sentJoinRequest->toUser->code,
-                    $sentJoinRequest->fromUser->code,
-                    FamilyMembersType::familyMembersTypeList()[$sentJoinRequest->relationship],
-                    FamilyMembersType::familyMembersTypeList()[$sentJoinRequest->relationship],
-                    $sentJoinRequest->fromUser->code,
-                    Jalalian::forge($sentJoinRequest->created_at)->format('Y/m/d'),
-                    $sentJoinRequest->fromUser->name,
-                    $sentJoinRequest->toUser->name,
-                ],
-                $recieverMessage
-            );
-            $user->notify(new JoinDynastyNotification([
-                'type' => 'requester_confirmation_message',
-                'title' => 'پیام تایید ارسال درخواست پیوستن به سلسله',
-                'request' => $sentJoinRequest,
-                'message' => $senderConfirmationMessage
-            ]));
-            $sentJoinRequest->toUser->notify(new JoinDynastyNotification([
-                'type' => 'reciever_message',
-                'title' => 'پیام دریافتی درخواست پیوستن به سلسله',
-                'request' => $sentJoinRequest,
-                'message' => $recieverMessage
-            ]));
-
-            $sentJoinRequest->update(['message' => $recieverMessage]);
-            $sentJoinRequest->otp->delete();
-            return response()->json(['success' => 'درخواست پیوستن به سلسله با موفقیت ارسال گردید.'], 200);
-        }
-        return response()->json(['error' => 'کد تایید صحیح نمی باشد یا منقضی شده است!'], 404);
-    }
-
-    public function resendOtp(User $user, JoinRequest $sentJoinRequest)
-    {
-        $code = random_int(100000, 999999);
-        $sentJoinRequest->otp()->updateOrCreate(
-            ['user_id' => $user->id],
-            ['code' => Hash::make($code)]
-        );
-        $user->notify(new GetOtpNotification($code));
-        return response()->json(['success' => 'کد تایید مجددا ارسال گردید.'], 200);
-    }
-
-    public function cancel(User $user, JoinRequest $sentJoinRequest)
-    {
-        $sentJoinRequest->update(['status' => JoinRequestStatus::CANCELED]);
+        $this->authorize('delete', $joinRequest);
+        $joinRequest->delete();
         return response()->noContent();
+    }
+
+    public function getPermissions(Request $request)
+    {
+        $request->validate(['relationship' => 'required|string|in:offspring']);
+        $permissions = DynastyPermission::first();
+        return response()->json(['permissions' => $permissions]);
     }
 
     public function search(Request $request)
@@ -188,13 +151,27 @@ class SendJoinRequestController extends Controller
             ->first();
 
         if (is_null($user)) throw new ModelNotFoundException();
-        if (!$user->verified()) throw new KycVerificationException();
+
         return response()->json([
             'id' => $user->id,
             'code' => $user->code,
-            'name' => $user->kyc->fname . ' ' . $user->kyc->lname,
+            'name' => $user->kyc?->fname . ' ' . $user->kyc?->lname,
             'image' => $user->profilePhotos->last()?->url,
+            'verified' => $user->verified(),
             'age' => $user->kyc?->birthdate->diffInYears(now()),
         ]);
+    }
+
+    private function getRelationshipTitle(string $relationsip)
+    {
+        return match ($relationsip) {
+            'brother' => 'برادر',
+            'sister' => 'خواهر',
+            'offspring' => 'فرزند',
+            'father' => 'پدر',
+            'mother' => 'مادر',
+            'husband' => 'شوهر',
+            'wife' => 'زن',
+        };
     }
 }

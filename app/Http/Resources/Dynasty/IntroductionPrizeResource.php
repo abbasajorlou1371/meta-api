@@ -16,11 +16,11 @@ class IntroductionPrizeResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "member" => FamilyMembersType::familyMembersTypeList()[$this->member],
+            "member" => $this->getMemberTitle(),
             "satisfaction" => $this->satisfaction,
-            "introduction_profit_increase" => $this->introduction_profit_increase * 100,
-            "accumulated_capital_reserve" => $this->accumulated_capital_reserve * 100,
-            "data_storage" => $this->data_storage * 100,
+            "introduction_profit_increase" => (int)($this->introduction_profit_increase * 100),
+            "accumulated_capital_reserve" => (int)($this->accumulated_capital_reserve * 100),
+            "data_storage" => (int)($this->data_storage * 100),
             "psc" => $this->psc,
         ];
     }

@@ -3,7 +3,6 @@
 namespace App\Models\Dynasty;
 
 use App\Models\Feature;
-use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,10 +13,7 @@ class Dynasty extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'feature_id',
-    ];
+    protected $guarded = [];
 
     /**
      * @return BelongsTo
@@ -41,10 +37,5 @@ class Dynasty extends Model
     public function feature(): HasOne
     {
         return $this->hasOne(Feature::class,'id','feature_id');
-    }
-
-    public function otp()
-    {
-        return $this->morphOne(Otp::class, 'verifiable');
     }
 }

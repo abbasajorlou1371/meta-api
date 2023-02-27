@@ -4,8 +4,6 @@ namespace App\Http\Resources\Dynasty;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use Morilog\Jalali\Jalalian;
-use App\Http\Resources\Dynasty\FamilyMemberResource;
-use App\Http\Resources\FeatureResource;
 
 class DynastyResource extends JsonResource
 {

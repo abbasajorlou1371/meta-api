@@ -202,44 +202,35 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 
     //    DYNASTY SECTION
-    Route::prefix('/dynasty')->group(function () {
+    Route::prefix('dynasty')->group(function () {
         Route::controller(DynastyController::class)->group(function () {
             Route::get('/', 'index');
-            Route::middleware('account.security')->group(function () {
-                Route::post('/create/{feature}', 'store');
-                Route::post('/{dynasty}/update/{feature}', 'updateDynastyFeature');
-                Route::post('/{dynasty}/update/{feature}/verify', 'verifyUpdateDynastyFeature');
-                Route::post('/{dynasty}/update/{feature}/resend/otp', 'resendOtp');
-            });
+            Route::post('create/{feature}', 'store');
+            Route::post('/{dynasty}/update/{feature}', 'update');
         });
 
         Route::get('/{dynasty}/family/{family}', [FamilyController::class, 'index']);
 
-        Route::controller(SendJoinRequestController::class)->scopeBindings()->group(function () {
+        Route::controller(SendJoinRequestController::class)->group(function () {
             Route::get('/requests/sent', 'index');
-            Route::get('/requests/sent/{user}/show/{sentJoinRequest}', 'show');
+            Route::get('/requests/sent/{joinRequest}', 'show');
             Route::post('/add/member/get/permissions', 'getPermissions');
             Route::post('/add/member', 'store');
-            Route::post('/add/member/{user}/verify/{sentJoinRequest}', 'verify');
-            Route::get('/add/member/{user}/verify/{sentJoinRequest}/resend/otp', 'resendOtp');
+            Route::delete('/requests/sent/{joinRequest}', 'destroy');
             Route::post('/search', 'search');
         });
 
-        Route::controller(AcceptJoinRequestController::class)->scopeBindings()
-            ->prefix('requests')
-            ->group(function () {
-                Route::get('/recieved', 'index');
-                Route::get('/recieved/{user}/show/{recievedJoinRequest}', 'show');
-                Route::post('/recieved/{user}/accept/{recievedJoinRequest}', 'accept');
-                Route::post('/recieved/{user}/verify/{recievedJoinRequest}', 'verify');
-                Route::post('/recieved/{user}/verify/{recievedJoinRequest}/resend/otp', 'resendOtp');
-                Route::post('/recieved/{user}/reject/{recievedJoinRequest}', 'reject');
-            });
+        Route::controller(AcceptJoinRequestController::class)->as('joinRequests.')->prefix('requests/recieved')->group(function () {
+            Route::get('/', 'index')->name('recieved.index');
+            Route::get('/{joinRequest}', 'show')->name('recieved.show');
+            Route::post('/{joinRequest}', 'accept');
+            Route::delete('/{joinRequest}', 'reject');
+        });
 
-        Route::controller(DynastyPrizeController::class)->scopeBindings()->group(function () {
-            Route::get('/prizes', 'index');
-            Route::get('/prizes/{recievedDynastyPrize}', 'show');
-            Route::get('/prizes/{user}/get/{recievedDynastyPrize}', 'getPrize');
+        Route::controller(DynastyPrizeController::class)->as('prizes.')->prefix('prizes')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{recievedPrize}', 'show')->name('show');
+            Route::post('/{recievedPrize}', 'store');
         });
 
         Route::post('/children/{user}', ChildernPermissionsController::class);
@@ -262,7 +253,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'show']);
 
-    Route::controller(ChallengeController::class)->as('challenge.')->prefix('challenge')->group(function() {
+    Route::controller(ChallengeController::class)->as('challenge.')->prefix('challenge')->group(function () {
         Route::get('timings', 'getTimings')->name('timing');
         Route::post('question', 'getQuestion')->name('question');
         Route::post('answer', 'answerResult')->name('answer');

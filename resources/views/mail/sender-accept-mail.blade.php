@@ -9,7 +9,7 @@
     <!--[if !mso]><!-->
     <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
     <!--<![endif]-->
-    <title>پیشنهاد دریافتی جهت ورود به سلسله خانوادگی در متارنگ</title>
+    <title>پیشنهاد پیوست به سلسله خانوادگی پذیرفته شد.</title>
     <!--[if !mso]><!-->
     <!--<![endif]-->
     <style type="text/css">
@@ -348,14 +348,14 @@
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: iranyekan"><![endif]-->
                                     <div style="color:#fd7e14;font-family:iranyekan;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px;">
                                         <div style="line-height: 1.2; font-size: 12px; color: #fd7e14; font-family: iranyekan; mso-line-height-alt: 14px;">
-                                            <p style="font-size: 14px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 17px; margin: 0;"><strong><span style="font-size: 40px;"> سلام </span><br><span style="font-size: 30px"><a href="https://rgb.irpsc.com/citizen/{{ \Illuminate\Support\Str::upper($joinRequest->toUser->code) }}"style="color:#fd7e14">{{ \Illuminate\Support\Str::upper($joinRequest->toUser->code) }}</a></span></strong></p>
+                                            <p style="font-size: 14px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 17px; margin: 0;"><strong><span style="font-size: 40px;"> سلام </span><br><span style="font-size: 30px"><a href="https://rgb.irpsc.com/citizen/{{ \Illuminate\Support\Str::upper($joinRequest->fromUser->code) }}"style="color:#fd7e14">{{ \Illuminate\Support\Str::upper($joinRequest->fromUser->code) }}</a></span></strong></p>
                                         </div>
                                     </div>
                                     <!--[if mso]></td></tr></table><![endif]-->
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 50px; padding-left: 50px; padding-top: 10px; padding-bottom: 10px; font-family: iranyekan"><![endif]-->
                                     <div style="color:#ffffff;font-family:iranyekan;line-height:1.2;padding-top:10px;padding-right:50px;padding-bottom:10px;padding-left:50px;">
                                         <div style="line-height: 1.2; font-size: 12px; color: #ffffff; font-family: iranyekan; mso-line-height-alt: 14px;">
-                                            <p style="font-size: 28px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 34px; margin: 0;"><span style="font-size: 24px;">پیشنهادی برای ورود به سلسله خانوادگی در متارنگ دریافت کرده اید</span></p>
+                                            <p style="font-size: 28px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 34px; margin: 0;"><span style="font-size: 24px;">پیشنهاد شما برای پیوستن به سلسله پذیرفته شد.</span></p>
                                         </div>
                                     </div>
                                     <!--[if mso]></td></tr></table><![endif]-->

@@ -19,12 +19,11 @@ class RecieverConfirmationMail extends Mailable
      * @return void
      */
 
-    public $title, $request;
+    public $joinRequest;
 
-    public function __construct($title, $request)
+    public function __construct($joinRequest)
     {
-        $this->request = $request;
-        $this->title = $title;
+        $this->joinRequest = $joinRequest;
     }
 
     /**
@@ -35,7 +34,7 @@ class RecieverConfirmationMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: $this->title,
+            subject: 'دریافت درخواست پیوستن به سلسله',
         );
     }
 

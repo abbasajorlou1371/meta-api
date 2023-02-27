@@ -3,8 +3,6 @@
 namespace App\Http\Resources\Dynasty;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Constants\FamilyMembersType;
-use App\Constants\JoinRequestStatus;
 
 class SentRequestsResource extends JsonResource
 {
@@ -28,9 +26,8 @@ class SentRequestsResource extends JsonResource
                 'code' => $this->toUser->code,
                 'name' => $this->toUser->name,
             ],
-            'status' => JoinRequestStatus::requestStatus($this->status),
-            'relationship' => FamilyMembersType::familyMembersTypeList()[$this->relationship],
-            'message' => $this->message,
+            'status' => $this->status,
+            'relationship' => $this->getRelationShipTitle(),
         ];
     }
 }
