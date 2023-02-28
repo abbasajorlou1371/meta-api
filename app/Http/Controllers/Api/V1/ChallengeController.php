@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\SystemVariable;
 use App\Models\Challenge\Question;
 use App\Models\Challenge\UserQuestionAnswer;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -21,21 +22,27 @@ class ChallengeController extends Controller
                 'display_ad_interval' => SystemVariable::getByKey('challenge_display_ad_interval') ?? 15,
                 'display_question_interval' => SystemVariable::getByKey('challenge_display_question_interval') ?? 15,
                 'display_answer_interval' => SystemVariable::getByKey('challenge_display_answer_interval') ?? 15,
-                // 'participants' =>
+                'participants' => UserQuestionAnswer::distinct()->count('user_id'),
+                'correct_answers' => $this->getCorrectAnswers(),
+                'wrong_answers' => $this->getWrongAnswers(),
             ]
         ]);
     }
 
-    public function getQuestion(Request $request) {
+    public function getQuestion(Request $request)
+    {
         $question = Question::with('answers')->inRandomOrder()->first();
-        while(UserQuestionAnswer::where('user_id', $request->user()->id)->where('question_id', $question->id)->exists()) {
+        while (
+            UserQuestionAnswer::where('user_id', $request->user()->id)->where('question_id', $question->id)->exists()
+        ) {
             $question = Question::with('answers')->inRandomOrder()->first();
         }
         $question->increment('views');
         return response()->json(['data' => new QuestionResource($question)]);
     }
 
-    public function answerResult(Request $request) {
+    public function answerResult(Request $request)
+    {
         $request->validate([
             'question_id' => 'required|integer|exists:questions,id',
             'answer_id' => 'required|integer|exists:answers,id',
@@ -44,11 +51,11 @@ class ChallengeController extends Controller
         $question = Question::findOrFail($request->question_id);
         $answer = Answer::findOrFail($request->answer_id);
 
-        if(! Gate::allows('answer-question', $question)) {
+        if (!Gate::allows('answer-question', $question)) {
             abort(403, 'Not Allowed!');
         }
 
-        if($answer->question->isNot($question)) {
+        if ($answer->question->isNot($question)) {
             throw ValidationException::withMessages([
                 'answer_id' => 'Answer is not valid!'
             ]);
@@ -61,10 +68,34 @@ class ChallengeController extends Controller
 
             $question->increment('participants');
 
-            if($answer->isCorrect()) {
+            if ($answer->isCorrect()) {
                 $request->user()->assets->increment('psc', $question->prize);
             }
             return new QuestionResource($question);
         }
+    }
+
+    private function getCorrectAnswers()
+    {
+        return UserQuestionAnswer::whereUserId(request()->user()->id)
+            ->where(function (Builder $query) {
+                $query->select('is_correct')
+                    ->from('answers')
+                    ->whereColumn('user_question_answers.answer_id', 'answers.id')
+                    ->limit(1);
+            }, 1)
+            ->count();
+    }
+
+    private function getWrongAnswers()
+    {
+        return UserQuestionAnswer::whereUserId(request()->user()->id)
+            ->where(function (Builder $query) {
+                $query->select('is_correct')
+                    ->from('answers')
+                    ->whereColumn('user_question_answers.answer_id', 'answers.id')
+                    ->limit(1);
+            }, 0)
+            ->count();
     }
 }
