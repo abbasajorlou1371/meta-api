@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePrivacyRequest;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\LatestTransactionResource;
 use App\Http\Resources\PrivacyResource;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\TransactionResource;
 use App\Http\Resources\UserResource;
 use App\Models\Privacy;
@@ -19,8 +20,8 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $user->token = $request->bearerToken();
         return new UserResource($request->user());
+        // return new ProfileResource($user);
     }
 
     public function getUserLatestTransaction(Request $request)
