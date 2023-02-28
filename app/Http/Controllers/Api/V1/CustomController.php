@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class CustomController extends Controller
 {
 
-        /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -30,7 +30,7 @@ class CustomController extends Controller
      */
     public function store(CreateCustomRequest $request)
     {
-        $this->authorize('addCustom', Custom::class);
+        $this->authorize('create', Custom::class);
         $custom = Custom::create([
             'user_id' => $request->user()->id,
             'occupation' => $request->occupation,
@@ -44,8 +44,8 @@ class CustomController extends Controller
             'about' => $request->about,
         ]);
 
-        if($request->has('passions')) {
-            $passions = Passion::create([
+        if ($request->has('passions')) {
+            Passion::create([
                 'custom_id' => $custom->id,
                 'music' => $request->passions['music'],
                 'sport_health' => $request->passions['sport_health'],
@@ -76,7 +76,7 @@ class CustomController extends Controller
      */
     public function update(Request $request, Custom $custom)
     {
-        $this->authorize('updateCustom', $custom);
+        $this->authorize('update', $custom);
         $custom->update([
             'user_id' => $request->user()->id,
             'profile_code' => $request->profile_code,
@@ -91,8 +91,8 @@ class CustomController extends Controller
             'about' => $request->about,
         ]);
 
-        if($request->has('passions')) {
-            $passions = $custom->passions->update([
+        if ($request->has('passions')) {
+            $custom->passions->update([
                 'custom_id' => $custom->id,
                 'music' => $request->passions['music'],
                 'sport_health' => $request->passions['sport_health'],
@@ -111,6 +111,5 @@ class CustomController extends Controller
             ]);
         }
         return new CustomsResource($custom);
-
     }
 }

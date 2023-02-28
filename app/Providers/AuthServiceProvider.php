@@ -50,7 +50,6 @@ class AuthServiceProvider extends ServiceProvider
         Prize::class => PrizePolicy::class,
         Dynasty::class => DynastyPolicy::class,
         User::class => UserPolicy::class,
-        Custom::class => UserPolicy::class,
         JoinRequest::class => JoinRequestPolicy::class,
     ];
 

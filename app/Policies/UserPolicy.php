@@ -7,7 +7,6 @@ use App\Constants\JoinRequestStatus;
 use App\Models\Dynasty\FamilyMember;
 use App\Models\Follow;
 use App\Models\User;
-use App\Models\User\Custom;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\DB;
@@ -76,16 +75,6 @@ class UserPolicy
     {
         return $user->id !== $user_to_follow->id
             && Follow::where('follower_id', $user->id)->where('following_id', $user_to_follow->id)->doesntExist();
-    }
-
-    public function addCustom(User $user)
-    {
-        return is_null($user->customs);
-    }
-
-    public function updateCustom(User $user, Custom $custom)
-    {
-        return $custom->user->is($user) && $user->customs->updated_at < now()->subMonth();
     }
 
     public function controlPermissions(User $user, User $child)
