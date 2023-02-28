@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Feature;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeatureImageRequest;
-use App\Http\Resources\FeatureResource;
+use App\Http\Resources\UserFeatureResource;
 use Illuminate\Http\JsonResponse;
 use App\Models\Feature;
 use App\Models\Image;
@@ -24,17 +24,19 @@ class FeatureController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        return FeatureResource::collection(auth()->user()->features);
+        return UserFeatureResource::collection(
+            Feature::whereBelongsTo(request()->user(), 'owner')->simplePaginate(5)
+        );
     }
 
     /**
      * @param User $user
      * @param Feature $feature
-     * @return FeatureResource
+     * @return UserFeatureResource
      */
-    public function show(User $user, Feature $feature): FeatureResource
+    public function show(User $user, Feature $feature): UserFeatureResource
     {
-        return new FeatureResource($feature);
+        return new UserFeatureResource($feature);
     }
 
     /**

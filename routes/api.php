@@ -115,12 +115,11 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         });
 
     Route::scopeBindings()->group(function () {
-        Route::controller(FeatureController::class)->prefix('my-features')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/{user}/features/{feature}', 'show');
+        Route::controller(FeatureController::class)->as('my-features.')->prefix('my-features')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{user}/features/{feature}', 'show')->name('show');
             Route::post('/{user}/add-image/{feature}', 'addFeatureImages');
             Route::post('/{user}/remove-image/{feature}/image/{image}', 'removeّFeatureImage');
-
             Route::post('/{user}/features/{feature}', 'updateFeature');
         });
 
