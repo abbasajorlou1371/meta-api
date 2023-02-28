@@ -11,6 +11,10 @@ class Setting extends Model
 
     protected $guarded = [];
 
+    protected $attributes = [
+        
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

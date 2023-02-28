@@ -39,8 +39,6 @@ use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\UserEventsController;
 use App\Http\Controllers\NotificationController;
-use App\Models\ContestParticipants;
-use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

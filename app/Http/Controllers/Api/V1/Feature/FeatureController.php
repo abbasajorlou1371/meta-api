@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Feature;
 
-use App\Helpers\AssetHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeatureImageRequest;
 use App\Http\Resources\FeatureResource;
@@ -13,7 +12,6 @@ use App\Models\User;
 use App\Models\Variable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 
 class FeatureController extends Controller
 {
@@ -45,17 +43,13 @@ class FeatureController extends Controller
      * @param FeatureImageRequest $request
      * @return JsonResponse
      */
-    public function addFeatureImages(User $user, Feature $feature, FeatureImageRequest $request): \Illuminate\Http\JsonResponse
+    public function addFeatureImages(User $user, Feature $feature, FeatureImageRequest $request)
     {
         foreach ($request->file('images') as $image) {
-            $path = env('FTP_ENDPOINT') . $image->store('public/feature-images/' . $feature->id);
-            $feature->images()->create([
-                'url' => $path
-            ]);
+            $url = $image->store('public/feature-images/' . $feature->id);
+            $feature->images()->create(['url' => $url]);
         }
-        return response()->json([
-            'success' => 'تصاویر به ملک اضافه شدند'
-        ]);
+        return response()->noContent();
     }
 
     /**
@@ -63,13 +57,10 @@ class FeatureController extends Controller
      * @param Image $image
      * @return JsonResponse
      */
-    public function removeّFeatureImage(User $user, Feature $feature, Image $image): JsonResponse
+    public function removeّFeatureImage(User $user, Feature $feature, Image $image)
     {
-        Storage::disk('ftp')->delete($image->url);
         $image->delete();
-        return response()->json([
-            'status' => 'تصویر حذف شد'
-        ], 200);
+        return response()->noContent();
     }
 
     public function updateFeature(User $user, Feature $feature, Request $request)

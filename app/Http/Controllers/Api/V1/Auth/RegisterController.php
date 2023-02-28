@@ -30,11 +30,11 @@ class RegisterController extends Controller
         return Validator::make(
             $data,
             [
-                'name' => 'required|string|min:2',
+                'name' => 'required|string|min:2|max:50|not_regex:/hm-/i',
                 'email' => 'required|email|unique:users,email',
                 'password' => [
                     'required',
-                    Password::defaults(),
+                    Password::min(8)->mixedCase()->symbols(),
                 ],
                 'referral' => 'nullable|exists:users,code'
             ],
