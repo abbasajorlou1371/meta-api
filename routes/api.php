@@ -251,11 +251,12 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
     Route::apiResource('customs', CustomController::class);
 
-    Route::controller(UserEventsController::class)->prefix('events')->group(function () {
-        Route::get('/', 'index');
+    Route::controller(UserEventsController::class)->as('user-events.')->prefix('events')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{userEvent}', 'show')->name('show');
         Route::post('/report/{userEvent}', 'store');
         Route::post('/report/response/{userEvent}', 'sendResponse');
-        Route::get('/report/close/{userEvent}', 'closeEventReport');
+        Route::post('/report/close/{userEvent}', 'closeEventReport');
     });
 
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'show']);
