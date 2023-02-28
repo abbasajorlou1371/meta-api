@@ -12,7 +12,7 @@ class Setting extends Model
     protected $guarded = [];
 
     protected $attributes = [
-        
+        'automatic_logout' => 60
     ];
 
     public function user()
