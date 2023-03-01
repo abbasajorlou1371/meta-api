@@ -25,8 +25,8 @@ class StoreBankAccountRequest extends FormRequest
     {
         return [
             'bank_name' => 'required|string|min:2',
-            'shaba_num' => 'required|ir_sheba',
-            'card_num'  => 'required|ir_bank_card_number'
+            'shaba_num' => 'required|ir_sheba|unique:bank_accounts,shaba_num',
+            'card_num'  => 'required|ir_bank_card_number|unique:bank_accounts,card_num'
         ];
     }
 

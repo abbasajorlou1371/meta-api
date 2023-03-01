@@ -48,15 +48,16 @@ class ChallengeController extends Controller
         $question = Question::findOrFail($request->question_id);
         $answer = Answer::findOrFail($request->answer_id);
 
-        if (!Gate::allows('answer-question', $question)) {
-            abort(403, 'Not Allowed!');
-        }
-
         if ($answer->question->isNot($question)) {
             throw ValidationException::withMessages([
                 'answer_id' => 'Answer is not valid!'
             ]);
         } else {
+
+            if (!Gate::allows('answer-question', [$question, $answer])) {
+                abort(403, 'Not Allowed!');
+            }
+
             UserQuestionAnswer::create([
                 'user_id' => $request->user()->id,
                 'question_id' => $question->id,

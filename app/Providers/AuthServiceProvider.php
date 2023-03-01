@@ -9,6 +9,7 @@ use App\Models\SellFeatureRequest;
 use App\Policies\BuyFeatureRequestPolicy;
 use App\Policies\SellRequestPolicy;
 use App\Mail\VerifyEmail as Mail;
+use App\Models\Challenge\Answer;
 use App\Models\Challenge\Question;
 use App\Models\Challenge\UserQuestionAnswer;
 use App\Models\Dynasty\Dynasty;
@@ -18,7 +19,6 @@ use App\Models\Kyc;
 use App\Models\Level\Prize;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Models\User\Custom;
 use App\Policies\DynastyPolicy;
 use App\Policies\FeaturePolicy;
 use App\Policies\JoinRequestPolicy;
@@ -69,11 +69,14 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         ResetPassword::createUrlUsing(function ($user, string $token) {
-            return 'https://rgb.irpsc.com/metaverse/reset-password?token='.$token;
+            return 'https://rgb.irpsc.com/metaverse/reset-password?token=' . $token;
         });
 
-        Gate::define('answer-question', function(User $user, Question $question) {
-            return UserQuestionAnswer::where('user_id', $user->id)->where('question_id', $question->id)->doesntExist();
+        Gate::define('answer-question', function (User $user, Question $question, Answer $answer) {
+            $userAnswer = UserQuestionAnswer::whereUserId($user->id)->whereQuestionId($question->id)->first();
+            return $userAnswer
+                ? !Answer::whereId($answer->id)->first()->isCorrect()
+                : true;
         });
     }
 }
