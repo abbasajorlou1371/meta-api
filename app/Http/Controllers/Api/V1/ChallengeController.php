@@ -29,16 +29,10 @@ class ChallengeController extends Controller
         ]);
     }
 
-    public function getQuestion(Request $request)
+    public function getQuestion()
     {
-        $question = Question::with('answers')->inRandomOrder()->first();
-
-        if($question) {
-            while (
-                UserQuestionAnswer::where('user_id', $request->user()->id)->where('question_id', $question->id)->exists()
-            ) {
-                $question = Question::with('answers')->inRandomOrder()->first();
-            }
+        $question = $this->selectQuestion();
+        if ($question) {
             $question->increment('views');
         }
         return $question ? new QuestionResource($question) : null;
@@ -100,5 +94,38 @@ class ChallengeController extends Controller
                     ->limit(1);
             }, 0)
             ->count();
+    }
+
+    private function selectQuestion(): Question|null
+    {
+        while (true) {
+            $question = Question::inRandomOrder()->first();
+            if (!$question) {
+                break;
+            } else {
+                $userAnswer = $this->getUserAnswer($question);
+                if (!$userAnswer) {
+                    break;
+                } else {
+                    if ($this->checkUserAnswer($userAnswer)) {
+                        continue;
+                    } else {
+                        $question->load('answers');
+                        break;
+                    }
+                }
+            }
+        }
+        return $question;
+    }
+
+    private function getUserAnswer(Question $question): UserQuestionAnswer|null
+    {
+        return UserQuestionAnswer::whereUserId(request()->user()->id)->whereQuestionId($question->id)->first();
+    }
+
+    private function checkUserAnswer(UserQuestionAnswer $userAnswer): bool
+    {
+        return Answer::whereId($userAnswer->answer_id)->first()->isCorrect();
     }
 }

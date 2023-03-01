@@ -27,7 +27,7 @@ class Answer extends Model
         );
     }
 
-    public function isCorrect()
+    public function isCorrect(): bool
     {
         return $this->is_correct;
     }

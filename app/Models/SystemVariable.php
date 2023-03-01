@@ -18,7 +18,7 @@ class SystemVariable extends Model
         'value' => 15
     ];
 
-    public function scopeGetByKey($query, $key):int
+    public function scopeGetByKey($query, $key): int|null
     {
         return $query->where('slug', $key)->pluck('value')->first();
     }

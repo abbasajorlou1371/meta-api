@@ -30,8 +30,4 @@ class Question extends Model
             get: fn($value) => config('rgb.ftp-endpoint').'public/challenge/'.$value.'.png'
         );
     }
-
-    public function scopeNotAnswered($query, $user) {
-        return $query->where('');
-    }
 }
