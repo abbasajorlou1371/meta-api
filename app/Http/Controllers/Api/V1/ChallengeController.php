@@ -32,12 +32,15 @@ class ChallengeController extends Controller
     public function getQuestion(Request $request)
     {
         $question = Question::with('answers')->inRandomOrder()->first();
-        while (
-            UserQuestionAnswer::where('user_id', $request->user()->id)->where('question_id', $question->id)->exists()
-        ) {
-            $question = Question::with('answers')->inRandomOrder()->first();
+
+        if($question) {
+            while (
+                UserQuestionAnswer::where('user_id', $request->user()->id)->where('question_id', $question->id)->exists()
+            ) {
+                $question = Question::with('answers')->inRandomOrder()->first();
+            }
+            $question->increment('views');
         }
-        $question->increment('views');
         return $question ? new QuestionResource($question) : null;
     }
 
