@@ -45,7 +45,7 @@ class NoteController extends Controller
             'title' => $request->title,
             'content' => $request->content,
         ]);
-        return response()->noContent(201);
+        return response()->json(['note' => $note]);
     }
 
     /**
