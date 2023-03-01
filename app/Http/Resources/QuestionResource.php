@@ -25,13 +25,12 @@ class QuestionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'code' => $this->code,
             'title' => $this->title,
             'image' => $this->image,
             'prize' => $this->prize,
             'participants' => $this->participants,
             'views' => $this->views,
-            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d'),
+            'creator_code' => $this->creator_code,
             'answers' => AnswerResource::collection($this->answers),
         ];
     }
