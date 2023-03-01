@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
 use App\Http\Requests\StoreBankAccountRequest;
-use App\Http\Requests\UpdateBankAccountRequest;
 use App\Http\Resources\BankAccountResource;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class BankAccountController extends Controller
 {
@@ -21,18 +22,7 @@ class BankAccountController extends Controller
      */
     public function index()
     {
-        return request()->user()->bankAccounts->count() > 0 ?
-        BankAccountResource::collection(request()->user()->bankAccounts) : [];
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return BankAccountResource::collection(request()->user()->bankAccounts);
     }
 
     /**
@@ -64,31 +54,35 @@ class BankAccountController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\BankAccount  $bankAccount
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(BankAccount $bankAccount)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateBankAccountRequest  $request
      * @param  \App\Models\BankAccount  $bankAccount
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateBankAccountRequest $request, BankAccount $bankAccount)
+    public function update(Request $request, BankAccount $bankAccount)
     {
+        $request->validate([
+            'bank_name' => 'required|min:2',
+            'shaba_num' => [
+                'required',
+                'ir_sheba',
+                Rule::unique('bank_accounts')->ignore($bankAccount),
+            ],
+            'card_num'  => [
+                'required',
+                'ir_bank_card_number',
+                Rule::unique('bank_accounts')->ignore($bankAccount),
+            ]
+        ]);
+
         $bankAccount->update([
             'bank_name' => $request->bank_name,
             'shaba_num' => $request->shaba_num,
             'card_num' => $request->card_num,
             'status' => 2,
         ]);
+
         $bankAccount->errors()->delete();
         return new BankAccountResource($bankAccount);
     }
