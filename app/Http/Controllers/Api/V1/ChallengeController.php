@@ -53,11 +53,7 @@ class ChallengeController extends Controller
                 'answer_id' => 'Answer is not valid!'
             ]);
         } else {
-
-            if (!Gate::allows('answer-question', [$question, $answer])) {
-                abort(403, 'Not Allowed!');
-            }
-
+            $this->authorize('answer', $question);
             UserQuestionAnswer::create([
                 'user_id' => $request->user()->id,
                 'question_id' => $question->id,
@@ -69,8 +65,8 @@ class ChallengeController extends Controller
             if ($answer->isCorrect()) {
                 $request->user()->assets->increment('psc', $question->prize);
             }
-            return new QuestionResource($question);
         }
+        return new QuestionResource($question);
     }
 
     private function getCorrectAnswers()
