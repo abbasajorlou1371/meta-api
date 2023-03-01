@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1\Dynasty;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Dynasty\DynastyPrizeResource;
 use App\Models\Dynasty\RecievedPrize;
-use App\Models\User;
 use App\Models\Variable;
 use Illuminate\Http\Request;
 
@@ -13,33 +12,31 @@ class DynastyPrizeController extends Controller
 {
     public function index()
     {
-        $user = request()->user();
-        $prizes = $user->recievedDynastyPrizes;
-        if(!count($prizes))
-        {
-            return response()->json(['error' => 'جوایزی دریافت نشده است!'], 404);
-        }
-
-        return DynastyPrizeResource::collection($prizes);
+        return DynastyPrizeResource::collection(request()->user()->recievedDynastyPrizes);
     }
 
-    public function show(RecievedPrize $recievedDynastyPrize)
+    public function show(RecievedPrize $recievedPrize)
     {
-        return new DynastyPrizeResource($recievedDynastyPrize);
+        return new DynastyPrizeResource($recievedPrize);
     }
 
-    public function getPrize(User $user, RecievedPrize $recievedDynastyPrize)
+    public function store(Request $request, RecievedPrize $recievedPrize)
     {
-        $prize = $recievedDynastyPrize->prize;
+        $user = $request->user();
+        $prize = $recievedPrize->prize;
+
         $user->assets->increment('psc', $prize->psc / Variable::getRate('psc'));
         $user->assets->increment('satisfaction', $prize->satisfaction);
+
         $variables = $user->variables;
+
         $variables->update([
             'referral_profit' => $variables->referral_profit + ($variables->referral_profit * $prize->introduction_profit_increase),
             'data_storage' => $variables->data_storage + ($variables->data_storage * $prize->data_storage),
             'withdraw_profit' => $variables->withdraw_profit + ($variables->withdraw_profit * $prize->accumulated_capital_reserve),
         ]);
-        $recievedDynastyPrize->delete();
-        return response()->json(['message' => 'جوایز دریافت شد!'], 200);
+
+        $recievedPrize->delete();
+        return response()->noContent();
     }
 }

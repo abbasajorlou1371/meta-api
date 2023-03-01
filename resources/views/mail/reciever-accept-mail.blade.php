@@ -9,7 +9,7 @@
     <!--[if !mso]><!-->
     <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
     <!--<![endif]-->
-    <title>پیشنهاد دریافتی جهت ورود به سلسله خانوادگی در متارنگ</title>
+    <title>قبول پیشنهاد پیوستن به سلسله</title>
     <!--[if !mso]><!-->
     <!--<![endif]-->
     <style type="text/css">
@@ -355,7 +355,7 @@
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 50px; padding-left: 50px; padding-top: 10px; padding-bottom: 10px; font-family: iranyekan"><![endif]-->
                                     <div style="color:#ffffff;font-family:iranyekan;line-height:1.2;padding-top:10px;padding-right:50px;padding-bottom:10px;padding-left:50px;">
                                         <div style="line-height: 1.2; font-size: 12px; color: #ffffff; font-family: iranyekan; mso-line-height-alt: 14px;">
-                                            <p style="font-size: 28px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 34px; margin: 0;"><span style="font-size: 24px;">پیشنهادی برای ورود به سلسله خانوادگی در متارنگ دریافت کرده اید</span></p>
+                                            <p style="font-size: 28px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 34px; margin: 0;"><span style="font-size: 24px;">شما پیشنهاد پیوستن به سلسله خانوادگی را پذیرفتید.</span></p>
                                         </div>
                                     </div>
                                     <!--[if mso]></td></tr></table><![endif]-->

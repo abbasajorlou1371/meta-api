@@ -28,22 +28,24 @@ class RecievedJoinRequest extends JsonResource
                 'code' => $this->toUser->code,
                 'name' => $this->toUser->name,
             ],
-            'status' => JoinRequestStatus::requestStatus($this->status),
-            'relationship' => FamilyMembersType::familyMembersTypeList()[$this->relationship],
-            'message' => $this->message,
-            $this->mergeWhen($this->relationship === FamilyMembersType::OFFSPRING, [
-                'permissions' => [
-                    'BFR' => $this->toUser->permissions?->BFR,
-                    'SF' => $this->toUser->permissions?->SF,
-                    'W' => $this->toUser->permissions?->W,
-                    'JU' => $this->toUser->permissions?->JU,
-                    'DM' => $this->toUser->permissions?->DM,
-                    'PIUP' => $this->toUser->permissions?->PIUP,
-                    'PITC' => $this->toUser->permissions?->PITC,
-                    'PIC' => $this->toUser->permissions?->PIC,
-                    'ESOO' => $this->toUser->permissions?->ESOO,
-                    'COTB' => $this->toUser->permissions?->COTB,
-                ]
+            'status' => $this->status,
+            'relationship' => $this->getRelationShipTitle(),
+            $this->mergeWhen(request()->routeIs('joinRequests.recieved.show'), [
+                'message' => $this->message,
+                $this->mergeWhen($this->relationship === 'offspring', [
+                    'permissions' => [
+                        'BFR' => $this->toUser->permissions?->BFR,
+                        'SF' => $this->toUser->permissions?->SF,
+                        'W' => $this->toUser->permissions?->W,
+                        'JU' => $this->toUser->permissions?->JU,
+                        'DM' => $this->toUser->permissions?->DM,
+                        'PIUP' => $this->toUser->permissions?->PIUP,
+                        'PITC' => $this->toUser->permissions?->PITC,
+                        'PIC' => $this->toUser->permissions?->PIC,
+                        'ESOO' => $this->toUser->permissions?->ESOO,
+                        'COTB' => $this->toUser->permissions?->COTB,
+                    ]
+                ])
             ])
         ];
     }

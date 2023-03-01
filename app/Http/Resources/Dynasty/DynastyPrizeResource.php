@@ -21,7 +21,9 @@ class DynastyPrizeResource extends JsonResource
             'introducation_profit_increase' => number_format($this->prize->introduction_profit_increase * 100),
             'accumulated_capital_reserve' => number_format($this->prize->accumulated_capital_reserve * 100),
             'data_storage' => number_format($this->prize->data_storage * 100),
-            'message' => $this->message,
+            $this->mergeWhen(request()->routeIs('prizes.show'), [
+                'message' => $this->message,
+            ])
         ];
     }
 }

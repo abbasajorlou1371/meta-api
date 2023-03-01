@@ -13,4 +13,17 @@ class DynastyPrize extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function getMemberTitle()
+    {
+        return match ($this->member) {
+            'brother' => 'برادر',
+            'sister' => 'خواهر',
+            'offspring' => 'فرزند',
+            'father' => 'پدر',
+            'mother' => 'مادر',
+            'husband' => 'شوهر',
+            'wife' => 'زن',
+        };
+    }
 }

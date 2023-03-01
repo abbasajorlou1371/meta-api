@@ -20,11 +20,11 @@ class DynastyPolicy
             && !$feature->hasPendingRequests();
     }
 
-    public function updateDynastyFeature(User $user, Dynasty $dynasty, Feature $feature)
+    public function update(User $user, Dynasty $dynasty, Feature $feature)
     {
         return !$feature->hasPendingRequests()
             && $feature->owner->is($user)
             && $dynasty->feature->isNot($feature)
-            && $user->dynasty->is($dynasty);
+            && $dynasty->user->is($user);
     }
 }

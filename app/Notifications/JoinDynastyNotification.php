@@ -4,6 +4,8 @@ namespace App\Notifications;
 
 use App\Mail\Dynasty\RecieverConfirmationMail;
 use App\Mail\Dynasty\SenderConfirmationMail;
+use App\Mail\RecieverAcceptMail;
+use App\Mail\SenderAcceptMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -18,11 +20,10 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
      * @return void
      */
 
-    public $data;
+    protected $data;
 
     public function __construct(array $data)
     {
-        $this->afterCommit();
         $this->data = $data;
     }
 
@@ -45,26 +46,12 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        switch ($this->data['type']) {
-            case 'requester_confirmation_message':
-                return (new SenderConfirmationMail($this->data['title'], $this->data['request']))
-                    ->to($notifiable->email);
-                break;
-            case 'reciever_message':
-                return (new RecieverConfirmationMail($this->data['title'], $this->data['request']))
-                    ->to($notifiable->email);
-                break;
-            case 'requester_accept_message':
-                return (new SenderConfirmationMail($this->data['title'], $this->data['request']))
-                    ->to($notifiable->email);
-                break;
-            case 'reciever_accept_message':
-                return (new RecieverConfirmationMail($this->data['title'], $this->data['request']))
-                    ->to($notifiable->email);
-                break;
-            default:
-                return [];
-        }
+        return match ($this->data['type']) {
+            'requester_confirmation_message' => (new SenderConfirmationMail($this->data['request']))->to($notifiable->email),
+            'reciever_message' => (new RecieverConfirmationMail($this->data['request']))->to($notifiable->email),
+            'requester_accept_message' => (new SenderAcceptMail($this->data['request']))->to($notifiable->email),
+            'reciever_accept_message' => (new RecieverAcceptMail($this->data['request']))->to($notifiable->email),
+        };
     }
 
     /**

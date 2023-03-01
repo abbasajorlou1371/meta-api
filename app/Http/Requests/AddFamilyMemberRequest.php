@@ -26,7 +26,7 @@ class AddFamilyMemberRequest extends FormRequest
     public function rules()
     {
         return [
-            'user' => 'required|numeric|integer|exists:users,id',
+            'user' => 'required|integer|exists:users,id',
             'relationship' => [
                 'required',
                 'string',

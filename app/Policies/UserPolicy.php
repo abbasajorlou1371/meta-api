@@ -23,47 +23,45 @@ class UserPolicy
      * @param string $relationship
      * @return Response|bool
      */
-    public function addFamilyMember(User $user, User $user_to_add, string $relationship)
+    public function addFamilyMember(User $user, User $userToAdd, string $relationship)
     {
+        if ($user->id == $userToAdd->id) return false;
+
         $dynasty = $user->dynasty;
 
         if (is_null($dynasty)) return false;
 
         $family = $dynasty->family;
 
-        if (FamilyMember::where('user_id', $user_to_add->id)->whereNot('family_id', $family->id)->exists()) return false;
+        if (FamilyMember::where('user_id', $userToAdd->id)->exists()) return false;
 
         $members = $family->familyMembers;
 
         if ($members->count() >= 11) return false;
 
-        if (!$user_to_add->verified()) return false;
-        if ($user->id == $user_to_add->id) return false;
-        if (
-            DB::table('join_requests')
-            ->where('from_user', $user->id)
-            ->where('to_user', $user_to_add->id)
-            ->where('status', JoinRequestStatus::REJECTED)
-            ->exists()
-        ) return false;
+        if (!$userToAdd->verified())
+        {
+            return Response::deny(sprintf('کاربر %s احراز هویت نکرده است.', $userToAdd->code), 403);
+        }
 
         $members->each(function ($member) use ($relationship, $members) {
 
-            if ($relationship === FamilyMembersType::FATHER && $member->relationship === $relationship) return false;
+            if ($relationship === 'father' && $member->relationship === $relationship) return false;
 
-            if ($relationship === FamilyMembersType::MOTHER && $member->relationship === $relationship) return false;
+            if ($relationship === 'mother' && $member->relationship === $relationship) return false;
 
-            if ($relationship === FamilyMembersType::HUSBAND && $member->relationship === $relationship) return false;
+            if ($relationship === 'husband' && $member->relationship === $relationship) return false;
 
-            if ($relationship === FamilyMembersType::WIFE && $member->relationship === $relationship) return false;
-            if ($relationship === FamilyMembersType::BROTHER || $relationship === FamilyMembersType::SISTER) {
+            if ($relationship === 'wife' && $member->relationship === $relationship) return false;
+
+            if ($relationship === 'brother' || $relationship === 'sister') {
                 $sisters = $members->where('relationship', 'brother')->count();
                 $brothers = $members->where('relationship', 'brother')->count();
 
                 if (array_sum([$sisters, $brothers]) >= 4) return false;
             }
 
-            if ($relationship === FamilyMembersType::OFFSPRING) {
+            if ($relationship === 'offspring') {
                 if ($members->where('relationship', 'offspring')->count() >= 4) return false;
             }
         });
@@ -79,7 +77,7 @@ class UserPolicy
 
     public function controlPermissions(User $user, User $child)
     {
-        if ($user->id == $child->id) return false;
+        if ($child->user->is($user)) return false;
         if (!$child->isUnderEighteen()) return false;
         $dynasty = $user->dynasty;
         $family = $dynasty->family;
