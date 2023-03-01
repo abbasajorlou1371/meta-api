@@ -38,7 +38,7 @@ class ChallengeController extends Controller
             $question = Question::with('answers')->inRandomOrder()->first();
         }
         $question->increment('views');
-        return response()->json(['data' => new QuestionResource($question)]);
+        return $question ? new QuestionResource($question) : null;
     }
 
     public function answerResult(Request $request)
