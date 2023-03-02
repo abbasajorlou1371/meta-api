@@ -17,9 +17,9 @@ class KycResource extends JsonResource
     {
         return [
             'id' => (string)$this->id,
-            'melli_card' => $this->melli_card,
-            'prove_picture' => $this->prove_picture,
-            'resume' => $this->resume,
+            'melli_card' => config('rgb.ftp-endpoint').$this->melli_card,
+            'prove_picture' => config('rgb.ftp-endpoint').$this->prove_picture,
+            'resume' => config('rgb.ftp-endpoint').$this->resume,
             'fname' => $this->fname,
             'lname' => $this->lname,
             'father_name' => $this->father_name,
