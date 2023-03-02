@@ -193,7 +193,7 @@ class BuyRequestsController extends Controller
             'id' => $feature->properties->id,
             'buyer' => $buyFeatureRequest->buyer->name,
             'seller' => $buyFeatureRequest->seller->name,
-            'template' => 'buy-land-user',
+            'template' => 'sell-land',
         ], $feature->latestTraded));
 
         $buyFeatureRequest->seller->notify(new sellFeature([
