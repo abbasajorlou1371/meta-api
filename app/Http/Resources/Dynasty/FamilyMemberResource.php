@@ -22,7 +22,7 @@ class FamilyMemberResource extends JsonResource
             'online' => Carbon::parse($this->user->last_seen)->diffInMinutes(now()) > 2 ? false : true,
             'relationship' => $this->relationship,
             'level' => $this->user->level?->slug,
-            $this->mergeWhen(isUnderEighteen($this->user), [
+            $this->mergeWhen($this->user->isUnderEighteen(), [
                 'permissions' => [
                     'BFR' => $this->user->permissions?->BFR,
                     'SF' => $this->user->permissions?->SF,
