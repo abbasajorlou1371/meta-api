@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Morilog\Jalali\Jalalian;
 
 class KycResource extends JsonResource
 {
@@ -23,7 +24,7 @@ class KycResource extends JsonResource
             'lname' => $this->lname,
             'father_name' => $this->father_name,
             'melli_code' => $this->melli_code,
-            'birthdate' => $this->birthdate,
+            'birthdate' => Jalalian::forge($this->birthdate)->format('Y/m/d'),
             'province' => $this->province,
             'city' => $this->city,
             'number' => $this->number,
