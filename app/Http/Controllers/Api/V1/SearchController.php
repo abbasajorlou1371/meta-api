@@ -24,6 +24,7 @@ class SearchController extends Controller
     {
         $users = User::where('name', 'like', '%' . $request->searchTerm . '%')
             ->orWhere('code', 'like', '%' . $request->searchTerm . '%')
+            ->whereNot('name', 'rgb')
             ->with(['profilePhotos'])
             ->take(5)
             ->get();
