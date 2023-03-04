@@ -19,7 +19,7 @@ class SearchUserResultResource extends JsonResource
             'id' => $this->id,
             'code' => Str::upper($this->code),
             'name' => $this->name,
-            'followers' => format_number($this->followers->count()),
+            'followers' => $this->followers->count(),
             'level' => $this->level?->name,
             'photo' => $this->profilePhotos->last()?->url,
         ];
