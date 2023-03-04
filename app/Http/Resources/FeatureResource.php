@@ -29,11 +29,11 @@ class FeatureResource extends JsonResource
                     'region' => $this->properties->region,
                     'owner' => $this->properties->owner,
                     'rgb' => $this->properties->rgb,
-                    $this->mergeWhen(Auth::guard('sanctum'), [
+                    $this->mergeWhen(Auth::guard('sanctum')->user(), [
                         'price_psc' => $this->properties->price_psc,
                         'price_irr' => $this->properties->price_irr,
                         'date' => $this->latestTraded?->created_at,
-                        'minimum_price_percentage' => $this->minimum_price_percentage,
+                        'minimum_price_percentage' => $this->properties->minimum_price_percentage,
                     ])
                 ],
                 'images' => $this->images,

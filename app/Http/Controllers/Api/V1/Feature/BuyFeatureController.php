@@ -25,8 +25,6 @@ class BuyFeatureController extends Controller
     public function __construct(
         private FeatureRepository $featureRepository
     ) {
-        $this->middleware(['account.security', 'auth:sanctum', 'verified'])
-            ->except('index', 'show');
         $this->rgb = User::firstWhere('code', 'hm-2000000');
     }
 
