@@ -66,7 +66,7 @@ class Transaction extends Model
                 return match($value) {
                     'blue' => 'رنگ آبی',
                     'yellow' => 'رنگ زرد',
-                    'green' => 'رنگ سبز',
+                    'red' => 'رنگ قرمز',
                     'psc' => 'PSC',
                     'irr' => 'ریال',
                 };
