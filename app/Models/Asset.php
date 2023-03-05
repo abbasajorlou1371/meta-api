@@ -11,6 +11,10 @@ class Asset extends Model
 
     protected $guarded = [];
 
+    protected $attributes = [
+        'effect' => 0,
+    ];
+
     public function format_number($number): string
     {
         if ($number >= 1000 && $number < 1000000) {
