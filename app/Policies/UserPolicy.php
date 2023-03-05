@@ -33,7 +33,7 @@ class UserPolicy
 
         $family = $dynasty->family;
 
-        if (FamilyMember::where('user_id', $userToAdd->id)->exists()) return false;
+        if (FamilyMember::where('user_id', $userToAdd->id)->whereNot('relationship', 'owner')->exists()) return false;
 
         $members = $family->familyMembers;
 

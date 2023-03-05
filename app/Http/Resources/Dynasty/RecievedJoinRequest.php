@@ -23,11 +23,6 @@ class RecievedJoinRequest extends JsonResource
                 'code' => $this->fromUser->code,
                 'name' => $this->fromUser->name,
             ],
-            'to_user' => [
-                'id' => $this->toUser->id,
-                'code' => $this->toUser->code,
-                'name' => $this->toUser->name,
-            ],
             'status' => $this->status,
             'relationship' => $this->getRelationShipTitle(),
             $this->mergeWhen(request()->routeIs('joinRequests.recieved.show'), [

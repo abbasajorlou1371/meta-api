@@ -61,9 +61,18 @@ class FeatureHourlyProfitDeposit extends Notification implements ShouldQueue
             'message'  => sprintf(
                 'مقدار %s %s به حساب شما بابت سود ساعت شمار حاصل از ملک به شناسه %s واریز گردید.',
                 number_format($this->data['amount'], 3),
-                $this->data['asset'],
+                $this->assetTitle($this->data['asset']),
                 $this->data['id'],
             )
         ];
+    }
+
+    private function assetTitle(string $asset)
+    {
+        return match($asset) {
+            'red' => 'رنگ قرمز',
+            'yellow' => 'رنگ زرد',
+            'blue' => 'رنگ آبی',
+        };
     }
 }

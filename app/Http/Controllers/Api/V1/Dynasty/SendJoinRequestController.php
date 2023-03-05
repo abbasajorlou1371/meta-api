@@ -38,6 +38,11 @@ class SendJoinRequestController extends Controller
         $user = $request->user();
         $userToAdd = User::findOrFail($request->user);
 
+        abort_if(
+            $request->relationship === 'offspirng' && !$userToAdd->isUnderEighteen() && $request->has('permissions'),
+            'شما مجاز به تعریف دسترسی برای فرزند بالای 18 سال نیستید.'
+        );
+
         $this->authorize('addFamilyMember', [$userToAdd, $request->relationship]);
 
         $senderConfirmationMessage = DynastyMessage::where('type', 'requester_confirmation_message')->pluck('message')->first();

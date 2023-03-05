@@ -16,11 +16,6 @@ class SentRequestsResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'from_user' => [
-                'id' => $this->fromUser->id,
-                'code' => $this->fromUser->code,
-                'name' => $this->fromUser->name,
-            ],
             'to_user' => [
                 'id' => $this->toUser->id,
                 'code' => $this->toUser->code,
