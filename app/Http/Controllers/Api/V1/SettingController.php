@@ -27,8 +27,8 @@ class SettingController extends Controller
 
         if ($request->has('checkout_days_count')) {
             $request->validate([
-                'checkout_days_count' => 'required|numeric|min:3',
-                'automatic_logout' => 'required|integer|min:5',
+                'checkout_days_count' => 'required|integer|min:3|max:1000',
+                'automatic_logout' => 'required|integer|min:1|max:55',
             ]);
 
             $settings->update([
@@ -63,8 +63,10 @@ class SettingController extends Controller
         return response()->noContent();
     }
 
-    public function generalSettingsUpdatePut(GeneralSetting $GeneralSetting, Request $request)
+    public function generalSettingsUpdatePut(GeneralSetting $generalSetting, Request $request)
     {
+        $this->authorize('update', $generalSetting);
+
         $request->validate([
             'announcements_sms' => 'required|boolean',
             'announcements_email' => 'required|boolean',
@@ -77,7 +79,7 @@ class SettingController extends Controller
             'trades_sms' => 'required|boolean',
             'trades_email' => 'required|boolean',
         ]);
-        $GeneralSetting->update([
+        $generalSetting->update([
             'announcements_sms' => $request->announcements_sms,
             'announcements_email' => $request->announcements_email,
             'reports_sms' => $request->reports_sms,
@@ -89,14 +91,14 @@ class SettingController extends Controller
             'trades_sms' => $request->trades_sms,
             'trades_email' => $request->trades_email,
         ]);
-        return response()->noContent();
+        return new GeneralSettingsResource($generalSetting->refresh());
     }
 
     public function uploadProfilePhoto(Request $request)
     {
         $request->validate(['image' => 'required|image|mimes:png,jpg,jpeg|max:1024']);
         $url = $request->file('image')->store('user/profile');
-        $request->user()->profilePhotos()->create(['url' => $url]);
-        return response()->noContent(200);
+        $image = $request->user()->profilePhotos()->create(['url' => $url]);
+        return response()->json(['data' => $image->url]);
     }
 }

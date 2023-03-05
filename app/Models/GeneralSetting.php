@@ -27,4 +27,9 @@ class GeneralSetting extends Model
             'sms' => $settings->{$notificationType . '_sms'}
         ];
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
