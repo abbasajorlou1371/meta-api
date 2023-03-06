@@ -11,6 +11,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Dynasty\IntroductionPrizeResource;
 use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\DynastyPrize;
+use App\Models\LockedFeature;
+use App\Notifications\DynastyCreatedNotification;
+use App\Notifications\DynastyFeatureChangedNotification;
 
 class DynastyController extends Controller
 {
@@ -74,6 +77,8 @@ class DynastyController extends Controller
             'relationship' => 'owner'
         ]);
 
+        $request->user()->notify(new DynastyCreatedNotification($feature->properties->id));
+
         return new DynastyResource($dynasty);
     }
 
@@ -90,8 +95,18 @@ class DynastyController extends Controller
                 $currentFeature->getColor() => $currentFeature->properties->stability * 0.01,
                 'reason' => 'update-dynasty-feature',
             ]);
+
             $currentFeature->properties->update(['label' => 'locked']);
+
+            LockedFeature::create([
+                'feature_id' => $currentFeature->id,
+                'reason' => 'dynasty-feature-change',
+                'until' => now()->addMonth(),
+                'status' => 0,
+            ]);
         }
+
+        $request->user()->notify(new DynastyFeatureChangedNotification($feature->properties->id));
 
         return new DynastyResource($dynasty);
     }

@@ -6,6 +6,19 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+function getRelationshipTitle(string $relationsip)
+{
+    return match ($relationsip) {
+        'brother' => 'برادر',
+        'sister' => 'خواهر',
+        'offspring' => 'فرزند',
+        'father' => 'پدر',
+        'mother' => 'مادر',
+        'husband' => 'شوهر',
+        'wife' => 'زن',
+    };
+}
+
 function getScorePercentageToNextLevel(?Level $level, int $score): int
 {
     if (!$level) {
@@ -442,4 +455,3 @@ function createUserPrivacy(User $user)
         ]
     ]);
 }
-

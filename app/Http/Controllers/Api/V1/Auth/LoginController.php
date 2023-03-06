@@ -14,6 +14,9 @@ class LoginController extends Controller
 {
     use ThrottlesLogins, AuthenticatesUsers;
 
+    protected $maxAttempts = 3;
+    protected $decayMinutes = 5;
+
     protected function authenticated(Request $request, $user)
     {
         $user->logedIn();

@@ -39,7 +39,8 @@ class SendJoinRequestController extends Controller
         $userToAdd = User::findOrFail($request->user);
 
         abort_if(
-            $request->relationship === 'offspirng' && !$userToAdd->isUnderEighteen() && $request->has('permissions'),
+            $request->relationship === 'offspring' && !$userToAdd->isUnderEighteen() && $request->has('permissions'),
+            403,
             'شما مجاز به تعریف دسترسی برای فرزند بالای 18 سال نیستید.'
         );
 
@@ -59,7 +60,7 @@ class SendJoinRequestController extends Controller
             ],
             [
                 $user->code,
-                $this->getRelationshipTitle($request->relationship),
+                getRelationshipTitle($request->relationship),
                 $userToAdd->code,
                 Jalalian::forge(now())->format('Y/m/d'),
                 $user->name,
@@ -81,8 +82,8 @@ class SendJoinRequestController extends Controller
             [
                 $userToAdd->code,
                 $user->code,
-                $this->getRelationshipTitle($request->relationship),
-                $this->getRelationshipTitle($request->relationship),
+                getRelationshipTitle($request->relationship),
+                getRelationshipTitle($request->relationship),
                 $user->code,
                 Jalalian::forge(now())->format('Y/m/d'),
                 $user->name,
@@ -165,18 +166,5 @@ class SendJoinRequestController extends Controller
             'verified' => $user->verified(),
             'age' => $user->kyc?->birthdate->diffInYears(now()),
         ]);
-    }
-
-    private function getRelationshipTitle(string $relationsip)
-    {
-        return match ($relationsip) {
-            'brother' => 'برادر',
-            'sister' => 'خواهر',
-            'offspring' => 'فرزند',
-            'father' => 'پدر',
-            'mother' => 'مادر',
-            'husband' => 'شوهر',
-            'wife' => 'زن',
-        };
     }
 }

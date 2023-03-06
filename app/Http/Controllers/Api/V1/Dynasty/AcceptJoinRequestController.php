@@ -112,17 +112,29 @@ class AcceptJoinRequestController extends Controller
             'request' => $joinRequest
         ]));
 
-        return response()->noContent();
+        return new RecievedJoinRequest($joinRequest->refresh());
     }
 
-    public function reject(JoinRequest $joinRequest)
+    public function reject(Request $request, JoinRequest $joinRequest)
     {
         $this->authorize('reject', $joinRequest);
+
         $joinRequest->update(['status' => -1]);
+
         $requestedUser = $joinRequest->fromUser;
+
         $requestedUser->notify(new JoinDynastyNotification([
+            'type' => 'reciever_reject_message',
+            'request' => $joinRequest,
+            'message' => "درخواست پیوستن به سلسله از طرف {$requestedUser->code} توسط شما رد شد.",
+        ]));
+
+        $request->user()->notify(new JoinDynastyNotification([
+            'type' => 'requester_reject_message',
+            'request' => $joinRequest,
             'message' => "درخواست پیوستن به سلسله شما توسط کاربر {$joinRequest->toUser->code} رد شد!",
         ]));
-        return response()->noContent();
+
+        return new RecievedJoinRequest($joinRequest->refresh());
     }
 }

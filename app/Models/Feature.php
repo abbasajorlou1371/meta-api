@@ -96,7 +96,8 @@ class Feature extends Model
 
     public function locked()
     {
-        return $this->properties->label === 'locked';
+        return $this->properties->label === 'locked'
+            && LockedFeature::whereFeatureId($this->id)->whereStatus(0)->exists();
     }
 
     public function getColor()
@@ -146,7 +147,7 @@ class Feature extends Model
 
     public function getCoordinates()
     {
-        return implode('|', $this->geometry->coordinates->map(function($coordinate) {
+        return implode('|', $this->geometry->coordinates->map(function ($coordinate) {
             return $coordinate->implodeXY();
         })->toArray());
     }

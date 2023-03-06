@@ -2,14 +2,12 @@
 
 namespace App\Policies;
 
-use App\Constants\FamilyMembersType;
-use App\Constants\JoinRequestStatus;
 use App\Models\Dynasty\FamilyMember;
+use App\Models\Dynasty\JoinRequest;
 use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\DB;
 
 class UserPolicy
 {
@@ -33,14 +31,31 @@ class UserPolicy
 
         $family = $dynasty->family;
 
+        $requestAlreadySent = JoinRequest::whereFromUser($user->id)
+            ->whereToUser($userToAdd->id)
+            ->whereStatus(0)
+            ->exists();
+
+        if ($requestAlreadySent) {
+            return Response::deny('شما قبلا درخواست خود را به این کاربر ارسال کرده اید.', 403);
+        }
+
+        $rejectedByUser = JoinRequest::whereFromUser($user->id)
+            ->whereToUser($userToAdd->id)
+            ->whereStatus(-1)
+            ->exists();
+
+        if ($rejectedByUser) {
+            return Response::deny('درخواست شما قبلا توسط این کاربر رد شده است.', 403);
+        }
+
         if (FamilyMember::where('user_id', $userToAdd->id)->whereNot('relationship', 'owner')->exists()) return false;
 
         $members = $family->familyMembers;
 
         if ($members->count() >= 11) return false;
 
-        if (!$userToAdd->verified())
-        {
+        if (!$userToAdd->verified()) {
             return Response::deny(sprintf('کاربر %s احراز هویت نکرده است.', $userToAdd->code), 403);
         }
 

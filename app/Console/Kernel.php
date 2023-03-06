@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
         $schedule->command('command:featureHourlyProfit')->everyMinute();
         $schedule->command('command:prune-unverified')->daily();
+        $schedule->command('command:release-feature')->daily();
     }
 
     /**
