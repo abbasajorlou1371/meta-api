@@ -72,10 +72,14 @@ Route::controller(CalendarController::class)->prefix('calendar')->group(function
     Route::get('/{event}/dislike', 'dislike');
 });
 
-Route::apiResource('players', PlayerController::class);
+Route::controller(PlayerController::class)->prefix('players')->group(function() {
+    Route::get('/', 'index');
+    Route::get('/profile', 'profileInfo');
+    Route::get('/assets', 'assetsInfo');
+
+});
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/get-user-info/{user}', [HomeController::class, 'showUserDetails'])->name('top-player-details');
 
 Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function () {
 
@@ -84,14 +88,11 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::post('/store', 'filterByTypeAndCount');
     });
 
-
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
-        Route::get('/payments/latest', 'getUserLatestTransaction');
-        Route::get('/transactions', 'transactions');
-        Route::get('/privacy', 'getPrivacySettings');
-        Route::post('/privacy', 'updatePrivacySettings');
         Route::get('/wallet', 'showWallet');
+        Route::get('/transactions', 'transactions');
+        Route::get('/payments/latest', 'latestTransaction');
     });
 
     Route::controller(EmailVerificationController::class)->prefix('email')->group(function () {
@@ -107,12 +108,10 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
             ->name('verification.send');
     });
 
-    Route::controller(AccountSecurityController::class)
-        ->prefix('account/security')
-        ->group(function () {
-            Route::post('/', 'getVerifyCode');
-            Route::post('verify', 'turnOffAccountSecurity');
-        });
+    Route::controller(AccountSecurityController::class)->prefix('account/security')->group(function () {
+        Route::post('/', 'getVerifyCode');
+        Route::post('verify', 'turnOffAccountSecurity');
+    });
 
     Route::scopeBindings()->group(function () {
         Route::controller(FeatureController::class)->as('my-features.')->prefix('my-features')->group(function () {
@@ -125,7 +124,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
         Route::controller(BuyFeatureController::class)->prefix('features')->group(function () {
             Route::withoutMiddleware(['account.security', 'verified', 'auth:sanctum'])->group(function() {
-                Route::post('/', 'index')->name('features');
+                Route::get('/', 'index')->name('features');
                 Route::get('/{feature}', 'show')->name('features.show');
             });
             Route::post('/buy/{feature}', 'buy')->can('buy', 'feature');
@@ -151,9 +150,9 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::get('/settings', 'showSettings');
         Route::post('/settings', 'update');
         Route::get('/general-settings', 'showGeneralSettings');
-        Route::post('/general-settings', 'generalSettingsUpdate');
-        Route::put('/general-settings/{GeneralSetting}', 'generalSettingsUpdatePut');
-        Route::post('/settings/upload-profile-photo', 'uploadProfilePhoto');
+        Route::put('/general-settings/{GeneralSetting}', 'updateGeneralSettings');
+        Route::get('/privacy', 'getPrivacySettings');
+        Route::post('/privacy', 'updatePrivacySettings');
     });
 
     Route::apiResource('profilePhotos', ProfilePhotoController::class);

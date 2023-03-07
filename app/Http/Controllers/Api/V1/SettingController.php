@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateGeneralSettingsRequest;
 use App\Http\Resources\GeneralSettingsResource;
 use App\Http\Resources\SettingResource;
 use App\Models\GeneralSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Privacy;
+use App\Http\Resources\PrivacyResource;
+use App\Http\Requests\UpdatePrivacyRequest;
 
 class SettingController extends Controller
 {
@@ -55,15 +57,7 @@ class SettingController extends Controller
         return new GeneralSettingsResource(request()->user()->generalSettings);
     }
 
-    public function generalSettingsUpdate(UpdateGeneralSettingsRequest $request)
-    {
-        $request->user()->generalSettings->update([
-            $request->input('setting') => $request->input('status'),
-        ]);
-        return response()->noContent();
-    }
-
-    public function generalSettingsUpdatePut(GeneralSetting $generalSetting, Request $request)
+    public function updateGeneralSettings(Request $request, GeneralSetting $generalSetting)
     {
         $this->authorize('update', $generalSetting);
 
@@ -94,11 +88,23 @@ class SettingController extends Controller
         return new GeneralSettingsResource($generalSetting->refresh());
     }
 
-    public function uploadProfilePhoto(Request $request)
+    public function getPrivacySettings(Request $request)
     {
-        $request->validate(['image' => 'required|image|mimes:png,jpg,jpeg|max:1024']);
-        $url = $request->file('image')->store('user/profile');
-        $image = $request->user()->profilePhotos()->create(['url' => $url]);
-        return response()->json(['data' => $image->url]);
+        return new PrivacyResource($request->user()->privacy);
+    }
+
+    public function updatePrivacySettings(UpdatePrivacyRequest $request)
+    {
+        Privacy::updateOrCreate(
+            [
+                'user_id' => $request->user()->id,
+                'name' => $request->setting,
+            ],
+
+            [
+                'display' => $request->value
+            ]
+        );
+        return response()->noContent();
     }
 }

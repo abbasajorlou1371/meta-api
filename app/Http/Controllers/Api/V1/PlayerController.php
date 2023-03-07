@@ -9,11 +9,11 @@ use App\Repositories\UserRepository;
 
 class PlayerController extends Controller
 {
+
     public function __construct(
         private UserRepository $userRepository
     )
     {
-
     }
     /**
      * Display a listing of the resource.
@@ -22,7 +22,7 @@ class PlayerController extends Controller
      */
     public function index()
     {
-        return response()->json(['data' => $this->userRepository->getTopPlayers()]);
+        return response()->json(['data' => $this->userRepository->topPlayers()]);
     }
 
     /**

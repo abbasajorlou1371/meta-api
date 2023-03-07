@@ -1,10 +1,18 @@
 <?php
 
+use App\Models\Challenge\Question;
+use App\Models\Challenge\UserQuestionAnswer;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Level\Level;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+
+function getUnansweredQuestionsCount(User $user): int
+{
+    $answeredQuestions = UserQuestionAnswer::whereUserId($user->id);
+    return Question::whereNotIn('id', Arr::wrap($answeredQuestions->pluck('id')))->count();
+}
 
 function getRelationshipTitle(string $relationsip)
 {
@@ -33,22 +41,11 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
     }
 }
 
-function getRemainedTimePercentage($date)
+function hourlyProfitInfo(User $user): int
 {
-}
-
-function hourlyProfitInfo(User $user): array
-{
-    $firstHourlyProfit = FeatureHourlyProfit::with(['feature', 'feature.properties'])->firstWhere('user_id', $user->id);
-    if ($firstHourlyProfit) {
-        $dead_line = new Carbon($firstHourlyProfit->dead_line);
-        $user_withdraw_profit_limit = $user->variables->withdraw_profit * 86400;
-        return [
-            'percentage' => 100 - floor(($dead_line->diffInSeconds(now()) / $user_withdraw_profit_limit) * 100),
-            'karbari' => $firstHourlyProfit->feature->properties->karbari,
-        ];
-    }
-    return [];
+    $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
+    $userDeadLine = $user->variables->withdraw_profit;
+    return $profit ? $profit->dead_line->diffInDays(now()) / $userDeadLine : 0;
 }
 
 function getLevelsImages($userLevel)

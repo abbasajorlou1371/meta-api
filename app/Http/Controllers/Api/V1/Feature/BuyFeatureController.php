@@ -30,7 +30,7 @@ class BuyFeatureController extends Controller
 
     public function index(Request $request)
     {
-        return response()->json(['date' => $this->featureRepository->getFeaturesByCoordinates($request)]);
+        return response()->json(['data' => $this->featureRepository->all($request)]);
     }
 
     public function show(Feature $feature)

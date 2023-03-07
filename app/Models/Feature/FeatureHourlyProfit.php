@@ -11,14 +11,11 @@ class FeatureHourlyProfit extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'feature_id',
-        'asset',
-        'amount',
-        'dead_line'
-    ];
+    protected $guarded = [];
 
+    protected $casts = [
+        'dead_line' => 'datetime',
+    ];
 
     public function feature() {
         return $this->belongsTo(Feature::class);
