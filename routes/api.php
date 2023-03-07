@@ -125,7 +125,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
         Route::controller(BuyFeatureController::class)->prefix('features')->group(function () {
             Route::withoutMiddleware(['account.security', 'verified', 'auth:sanctum'])->group(function() {
-                Route::post('/', 'index')->name('features');
+                Route::get('/', 'index')->name('features');
                 Route::get('/{feature}', 'show')->name('features.show');
             });
             Route::post('/buy/{feature}', 'buy')->can('buy', 'feature');
