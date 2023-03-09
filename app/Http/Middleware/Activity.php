@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Events\UserStatusChanged;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class Activity
 {
@@ -20,7 +19,7 @@ class Activity
     {
         if (auth()->user()) {
             $latestActivity = $request->user()->latestActivity;
-            $start = Carbon::parse($latestActivity->start);
+            $start = $latestActivity->start;
             if (is_null($latestActivity->end)) {
                 if ($start->diffInMinutes(now()) > 5) {
                     $latestActivity->update([

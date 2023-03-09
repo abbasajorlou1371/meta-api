@@ -11,9 +11,12 @@ class UserActivity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'start', 'end', 'total', 'ip'];
+    protected $guarded = [];
 
-    protected $dates = ['start', 'end'];
+    protected $casts = [
+        'start' => 'datetime',
+        'end' => 'datetime'
+    ];
 
     /**
      * @return BelongsTo
