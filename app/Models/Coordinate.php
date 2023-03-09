@@ -10,15 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Coordinate extends Model
 {
-	protected $fillable = [
-		'geometry_id',
-		'x',
-		'y',
-	];
+	protected $guarded = [];
 
     protected $casts = [
-        'x' => 'double',
-        'y' => 'double',
+        'x' => 'decimal:12',
+        'y' => 'decimal:12',
     ];
 
     protected $hidden = [
