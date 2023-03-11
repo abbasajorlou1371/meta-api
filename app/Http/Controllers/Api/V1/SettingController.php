@@ -63,7 +63,7 @@ class SettingController extends Controller
         return response()->noContent();
     }
 
-    public function generalSettingsUpdatePut(GeneralSetting $generalSetting, Request $request)
+    public function generalSettingsUpdatePut(Request $request, GeneralSetting $generalSetting)
     {
         $this->authorize('update', $generalSetting);
 
