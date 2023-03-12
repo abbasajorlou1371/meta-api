@@ -86,7 +86,7 @@ class TicketController extends Controller
         if (isset($ticket->reciever)) {
             $ticket->reciever->notify(new TicketRecieved($ticket));
         }
-        return response()->noContent();
+        return new TicketResource($ticket);
     }
 
     /**
@@ -106,7 +106,7 @@ class TicketController extends Controller
             'attachment' => $attachment,
             'status' => TicketStatus::NEW,
         ]);
-        return response()->noContent();
+        return new TicketResource($ticket->refresh());
     }
 
     /**
@@ -134,7 +134,7 @@ class TicketController extends Controller
 
         $ticket->sender->notify(new TicketRecieved($ticket));
 
-        return response()->noContent();
+        return new TicketResource($ticket->refresh());
     }
 
     /**
@@ -145,6 +145,6 @@ class TicketController extends Controller
     {
         $this->authorize('close', $ticket);
         $ticket->update(['status' => TicketStatus::CLOSED]);
-        return response()->noContent();
+        return new TicketResource($ticket->refresh());
     }
 }
