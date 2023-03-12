@@ -528,9 +528,9 @@ class User extends Authenticatable implements MustVerifyEmail
         $irr_price = $feature->properties->price_irr;
 
         if ($this->assets->psc < $psc_price + $psc_price * config('rgb.fee')) {
-            throw new InsufficientBalanceException('موجودی psc شما کافی نمی باشد.');
+            abort(403, 'موجودی psc شما کافی نمی باشد.');
         } elseif ($this->assets->irr < $irr_price + $irr_price * config('rgb.fee')) {
-            throw new InsufficientBalanceException('موجودی ریال شما کافی نمی باشد.');
+            abort(403, 'موجودی ریال شما کافی نمی باشد.');
         }
     }
 

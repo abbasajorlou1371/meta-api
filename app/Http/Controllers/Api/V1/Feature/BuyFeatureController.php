@@ -64,7 +64,7 @@ class BuyFeatureController extends Controller
         $price = $featureProperties->stability;
 
         if ($buyer->checkColorBalance($feature)) {
-            throw new InsufficientBalanceException("برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!");
+            abort(403, "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!");
         }
 
         $buyer->assets->decrement($feature->getColor(), $price);
