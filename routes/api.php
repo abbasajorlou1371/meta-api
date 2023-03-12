@@ -181,7 +181,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
     // Route::apiResource('kyc', KycController::class);
 
-    Route::prefix('kyc')->group(function() {
+    Route::controller(KycController::class)->prefix('kyc')->group(function() {
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::patch('/{kyc}', 'update');
