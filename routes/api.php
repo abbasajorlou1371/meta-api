@@ -74,9 +74,10 @@ Route::controller(CalendarController::class)->prefix('calendar')->group(function
 
 Route::controller(PlayerController::class)->prefix('players')->group(function() {
     Route::get('/', 'index');
-    Route::get('/profile', 'profileInfo');
-    Route::get('/assets', 'assetsInfo');
-
+    Route::get('/{user}/profile', 'profileInfo');
+    Route::get('/{user}/assets', 'assetsInfo');
+    Route::get('/{user}/followers', 'assetsInfo');
+    Route::get('/{user}/following', 'assetsInfo');
 });
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');

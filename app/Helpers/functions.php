@@ -45,7 +45,7 @@ function hourlyProfitInfo(User $user): int
 {
     $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
     $userDeadLine = $user->variables->withdraw_profit;
-    return $profit ? $profit->dead_line->diffInDays(now()) / $userDeadLine : 0;
+    return $profit ? $profit->dead_line->diffInDays(now()) / $userDeadLine * 100 : 0;
 }
 
 function getLevelsImages($userLevel)

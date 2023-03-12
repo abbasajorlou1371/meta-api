@@ -22,10 +22,11 @@ class AuthenticatedUserResource extends JsonResource
             'level' => $this->level?->slug,
             'image' => $this->profilePhotos->last()?->url,
             'notifications' => $this->unreadNotifications->count(),
-            'socre_percentage_to_next_level' => getScorePercentageToNextLevel($this->level, $this->score),
+            'socre_percentage_to_next_level' => $this->level ? $this->level->getScorePercentageToNextLevel($this->resource) : 0,
             'unasnwered_questions_count' => getUnansweredQuestionsCount($this->resource),
             'hourly_profit_time_percentage' => hourlyProfitInfo($this->resource),
             'verified_kyc' => $this->verified(),
+            'birthdate' => $this->verified() ? jdate($this->kyc->birthdate)->format('Y/m/d') : null,
         ];
     }
 }
