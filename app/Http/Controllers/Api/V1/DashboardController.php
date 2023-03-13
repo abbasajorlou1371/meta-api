@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdatePrivacyRequest;
 use App\Http\Resources\AssetResource;
 use App\Http\Resources\LatestTransactionResource;
-use App\Http\Resources\PrivacyResource;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\TransactionResource;
-use App\Http\Resources\UserResource;
-use App\Models\Privacy;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,14 +15,12 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        return new UserResource($request->user());
-        // return new ProfileResource($user);
+        return new ProfileResource($request->user());
     }
 
-    public function getUserLatestTransaction(Request $request)
+    public function latestTransaction(Request $request)
     {
-        $user = User::where('id', $request->user()->id)
+        $user = User::whereId($request->user()->id)
             ->with(['latestPayment', 'latestTransaction', 'latestOrder'])
             ->first();
         return new LatestTransactionResource($user);
@@ -34,27 +28,9 @@ class DashboardController extends Controller
 
     public function transactions(Request $request)
     {
-        return TransactionResource::collection(Transaction::whereBelongsTo($request->user())->simplePaginate(10));
-    }
-
-    public function getPrivacySettings(Request $request)
-    {
-        return new PrivacyResource($request->user()->privacy);
-    }
-
-    public function updatePrivacySettings(UpdatePrivacyRequest $request)
-    {
-        Privacy::updateOrCreate(
-            [
-                'user_id' => $request->user()->id,
-                'name' => $request->setting,
-            ],
-
-            [
-                'display' => $request->value
-            ]
+        return TransactionResource::collection(
+            Transaction::whereBelongsTo($request->user())->simplePaginate(10)
         );
-        return response()->noContent();
     }
 
     public function showWallet(Request $request)

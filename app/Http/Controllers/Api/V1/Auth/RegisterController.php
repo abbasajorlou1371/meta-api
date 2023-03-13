@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use App\Http\Resources\AuthenticatedUserResource;
+use App\Models\Setting;
 
 class RegisterController extends Controller
 {
@@ -69,6 +71,10 @@ class RegisterController extends Controller
             ]);
         }
         $user->registered();
-        return response()->noContent();
+        $automaticLogout = Setting::whereUserId($user->id)->pluck('automatic_logout')->first();
+        $user->automaticLogout = $automaticLogout;
+        $tokenExpiresAt = now()->addMinutes($automaticLogout > 0 ? $automaticLogout : 60);
+        $user->token = $user->createToken('token-' . $user->id, expiresAt: $tokenExpiresAt)->plainTextToken;
+        return new AuthenticatedUserResource($user);
     }
 }

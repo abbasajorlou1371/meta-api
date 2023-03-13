@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Feature;
 
 use App\Events\FeatureStatusChanged;
-use App\Exceptions\InsufficientBalanceException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FeatureResource;
 use App\Models\Trade;
@@ -30,7 +29,7 @@ class BuyFeatureController extends Controller
 
     public function index(Request $request)
     {
-        return response()->json(['date' => $this->featureRepository->getFeaturesByCoordinates($request)]);
+        return response()->json(['data' => $this->featureRepository->all($request)]);
     }
 
     public function show(Feature $feature)

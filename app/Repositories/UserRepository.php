@@ -3,23 +3,24 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use Illuminate\Support\LazyCollection;
 
 class UserRepository extends Repository
 {
-    public function getTopPlayers()
+    public function topPlayers()
     {
-        return User::orderBy('score', 'DESC')
-            ->take(10)
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'code' => $user->code,
-                    'profile_photos' => [$user->profilePhotos->last()],
-                    'level' => $user->level,
-                    'online' => $user->last_seen->diffInMinutes(now()) < 2,
-                ];
-            });
+        return User::where('score', '>', 0)
+        ->orderByDesc('score')
+        ->take(10)
+        ->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'image' => $user->profilePhotos->last()?->url,
+                'online' => $user->last_seen->diffInMinutes(now()) < 2,
+                'level' => $user->level?->slug,
+                'code' => $user->code,
+                'score' => $user->score,
+            ];
+        });
     }
 }

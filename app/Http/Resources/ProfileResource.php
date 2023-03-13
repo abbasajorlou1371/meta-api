@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use App\Models\Feature;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
 
 class ProfileResource extends JsonResource
 {
@@ -21,9 +20,10 @@ class ProfileResource extends JsonResource
             'name' => $this->name,
             'code' => $this->code,
             'score' => $this->score,
-            'registered_at' => Jalalian::forge($this->email_verified_at)->format('Y/m/d'),
+            'registered_at' => jdate($this->email_verified_at)->format('Y/m/d'),
             'level' => $this->level,
             'score_percentage_to_next_level' => $this->level->getScorePercentageToNextLevel($this->resource) ?? 0,
+            'wallet' => new AssetResource($this->assets),
             $this->mergeWhen($this->features->count() > 0, [
                 'features' => [
                     'maskoni' => Feature::whereOwnerId($this->id)->where(function ($query) {
