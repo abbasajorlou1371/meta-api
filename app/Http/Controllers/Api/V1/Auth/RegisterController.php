@@ -61,7 +61,7 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
-        if ($request->has('referral')) {
+        if ($request->referral) {
             $reference_user = User::firstWhere('code', $request->referral);
             Referal::create([
                 'reference_id' => $reference_user->id,

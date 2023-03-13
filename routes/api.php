@@ -53,10 +53,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('guest')->group(function () {
-    Route::post('register', [RegisterController::class, 'register']);
-    Route::post('login', [LoginController::class, 'login']);
-});
+Route::post('register', [RegisterController::class, 'register'])->middleware('guest');
+Route::post('login', [LoginController::class, 'login'])->middleware('guest');
 
 Route::post('logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -124,7 +122,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         });
 
         Route::controller(BuyFeatureController::class)->middleware('account.security')->prefix('features')->group(function () {
-            Route::withoutMiddleware(['account.security', 'verified', 'auth:sanctum'])->group(function() {
+            Route::withoutMiddleware(['account.security', 'verified', 'auth:sanctum'])->group(function () {
                 Route::get('/', 'index')->name('features');
                 Route::get('/{feature}', 'show')->name('features.show');
             });
