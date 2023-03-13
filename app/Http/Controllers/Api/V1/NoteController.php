@@ -8,7 +8,6 @@ use App\Http\Resources\NoteResource;
 use Illuminate\Http\JsonResponse;
 use App\Models\Note;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 
 class NoteController extends Controller
 {
@@ -18,16 +17,9 @@ class NoteController extends Controller
      * @return Response
      */
 
-    private $user;
-
-    public function __construct()
-    {
-        $this->user = Auth::guard('sanctum')->user();
-    }
-
     public function index(): mixed
     {
-        return NoteResource::collection($this->user->notes);
+        return NoteResource::collection(request()->user()->notes);
     }
 
 
@@ -39,13 +31,11 @@ class NoteController extends Controller
      */
     public function store(NoteRequest $request): NoteResource
     {
-        if($request->hasFile('attachment')) {
-            $attachment = $request->file('attachment')->store('notes');
-        } else {
-            $attachment = '';
-        }
+        $attachment = $request->hasFile('attachment')
+            ? $request->file('attachment')->store('notes', 'public')
+            : '';
         $note = Note::create([
-            'user_id' => $this->user->id,
+            'user_id' => $request->user()->id,
             'title' => $request->title,
             'content' => $request->content,
             'attachment' => $attachment,
@@ -73,12 +63,9 @@ class NoteController extends Controller
      */
     public function update(NoteRequest $request, Note $note): NoteResource
     {
-        if($request->hasFile('attachment')) {
-            $attachment = $request->file('attachment')->store('notes');
-        } else {
-            $attachment = '';
-        }
-
+        $attachment = $request->hasFile('attachment')
+            ? $request->file('attachment')->store('notes', 'public')
+            : '';
         $note->update([
             'title' => $request->title,
             'content' => $request->content,

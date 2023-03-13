@@ -19,6 +19,7 @@ class NoteResource extends JsonResource
             'title' => $this->title,
             $this->mergeWhen(request()->routeIs('notes.show'), [
                 'content' => $this->content,
+                'attachment' => config('rgb.uploads-path') . $this->attachment,
             ]),
             'date' => jdate($this->updated_at)->format('Y/m/d'),
             'time' => jdate($this->updated_at)->format('H:m:s'),
