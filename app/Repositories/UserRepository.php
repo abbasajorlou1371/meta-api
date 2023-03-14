@@ -19,7 +19,6 @@ class UserRepository extends Repository
                 'online' => $user->last_seen->diffInMinutes(now()) < 2,
                 'level' => $user->level?->slug,
                 'code' => $user->code,
-                'score' => $user->score,
             ];
         });
     }
