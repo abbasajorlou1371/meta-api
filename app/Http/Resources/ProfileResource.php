@@ -24,6 +24,7 @@ class ProfileResource extends JsonResource
             'level' => $this->level,
             'score_percentage_to_next_level' => $this->level?->getScorePercentageToNextLevel($this->resource) ?? 0,
             'wallet' => new AssetResource($this->assets),
+            'image' => $this->profilePhotos->last()?->url,
             $this->mergeWhen($this->features->count() > 0, [
                 'features' => [
                     'maskoni' => Feature::whereOwnerId($this->id)->where(function ($query) {
