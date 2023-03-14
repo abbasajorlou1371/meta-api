@@ -5,13 +5,12 @@ use App\Models\Challenge\UserQuestionAnswer;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Level\Level;
 use App\Models\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 function getUnansweredQuestionsCount(User $user): int
 {
-    $answeredQuestions = UserQuestionAnswer::whereUserId($user->id);
-    return Question::whereNotIn('id', Arr::wrap($answeredQuestions->pluck('id')))->count();
+    $answeredQuestions = UserQuestionAnswer::whereUserId($user->id)->select(['id'])->get();
+    return Question::whereNotIn('id', $answeredQuestions)->count();
 }
 
 function getRelationshipTitle(string $relationsip)
