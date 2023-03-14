@@ -28,11 +28,11 @@ class UserFeatureResource extends JsonResource
                 'price_irr' => $this->properties->price_irr,
             ],
 
-            $this->mergeWhen(request()->routeIs('my-features.show'), [
+            $this->mergeWhen(request()->routeIs('my-features.show') || request()->routeIs('players.feature'), [
                 'images' => $this->images,
             ]),
 
-            $this->mergeWhen(request()->routeIs('my-features.index'), [
+            $this->mergeWhen(request()->routeIs('my-features.index') || request()->routeIs('players.features'), [
                 'geometry' => $this->geometry->coordinates,
             ]),
 

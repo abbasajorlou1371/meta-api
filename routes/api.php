@@ -72,10 +72,11 @@ Route::controller(CalendarController::class)->prefix('calendar')->group(function
 
 Route::controller(PlayerController::class)->prefix('players')->group(function() {
     Route::get('/', 'index');
-    Route::get('/{user}/profile', 'profileInfo');
-    Route::get('/{user}/assets', 'assetsInfo');
-    Route::get('/{user}/followers', 'assetsInfo');
-    Route::get('/{user}/following', 'assetsInfo');
+    Route::get('/{player}/profile', 'profile');
+    Route::get('/{player}/assets', 'assets')->name('players.features');
+    Route::get('/{player}/assets/{feature}', 'asset')->name('players.feature');
+    Route::get('/{player}/followers', 'followers');
+    Route::get('/{player}/following', 'following');
 });
 
 Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function () {
