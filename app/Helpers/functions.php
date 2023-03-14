@@ -42,7 +42,9 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
 
 function hourlyProfitInfo(User $user): int
 {
-    $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
+    $profit = FeatureHourlyProfit::whereUserId($user->id)
+        ->where('dead_line', '<', now())
+        ->oldest('dead_line')->first();
     $userDeadLine = $user->variables->withdraw_profit;
     return $profit ? $profit->dead_line->diffInDays(now()) / $userDeadLine * 100 : 0;
 }

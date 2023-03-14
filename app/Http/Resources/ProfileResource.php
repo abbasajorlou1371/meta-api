@@ -22,7 +22,7 @@ class ProfileResource extends JsonResource
             'score' => $this->score,
             'registered_at' => jdate($this->email_verified_at)->format('Y/m/d'),
             'level' => $this->level,
-            'score_percentage_to_next_level' => $this->level->getScorePercentageToNextLevel($this->resource) ?? 0,
+            'score_percentage_to_next_level' => $this->level?->getScorePercentageToNextLevel($this->resource) ?? 0,
             'wallet' => new AssetResource($this->assets),
             $this->mergeWhen($this->features->count() > 0, [
                 'features' => [
