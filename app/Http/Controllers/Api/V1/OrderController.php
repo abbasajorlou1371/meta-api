@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BuyAssetRequest;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\User;
 use App\Models\Variable;
 use App\Notifications\TransactionNotification;
 use App\Services\ReferalService;
@@ -18,6 +19,8 @@ class OrderController extends Controller
 {
     public function store(BuyAssetRequest $request): JsonResponse
     {
+        $this->authorize('buyFromStore', User::class);
+
         $rate = Variable::getRate($request->asset);
 
         $user = $request->user();

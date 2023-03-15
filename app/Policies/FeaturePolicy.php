@@ -66,7 +66,9 @@ class FeaturePolicy
     {
         $hasUnderEighteenPermissions = true;
         if ($user->isUnderEighteen()) {
-            $hasUnderEighteenPermissions = $user->permissions?->verified && $user->permissions?->SF;
+            $hasUnderEighteenPermissions = $user->permissions
+                ? $user->permissions?->verified && $user->permissions?->SF
+                : true;
         }
         return $feature->owner->is($user)
             && !in_array($feature->properties->rgb, $this->sellLimitedFeatures)

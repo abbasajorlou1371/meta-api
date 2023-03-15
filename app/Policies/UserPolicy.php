@@ -23,6 +23,14 @@ class UserPolicy
      */
     public function addFamilyMember(User $user, User $userToAdd, string $relationship)
     {
+        if ($user->isUnderEighteen()) {
+            if ($user->permissions) {
+                if (!$user->permissions?->verified && !$user->permissions?->DM) {
+                    return false;
+                }
+            }
+        }
+
         if ($user->id == $userToAdd->id) return false;
 
         $dynasty = $user->dynasty;
@@ -86,7 +94,7 @@ class UserPolicy
 
     public function follow(User $user, User $user_to_follow)
     {
-        return $user->id !== $user_to_follow->id
+        return $user->isNot($user_to_follow)
             && Follow::where('follower_id', $user->id)->where('following_id', $user_to_follow->id)->doesntExist();
     }
 
@@ -98,5 +106,12 @@ class UserPolicy
         $family = $dynasty->family;
         if (FamilyMember::where('family_id', $family->id)->where('user_id', $child->id)->doesntExist()) return false;
         return true;
+    }
+
+    public function buyFromStore(User $user)
+    {
+        return $user->isUnderEighteen()
+            ? is_null($user->permissions) || $user->permissions?->verified && $user->permissions?->BFR
+            : true;
     }
 }
