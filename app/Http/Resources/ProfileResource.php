@@ -23,6 +23,7 @@ class ProfileResource extends JsonResource
             'registered_at' => jdate($this->email_verified_at)->format('Y/m/d'),
             'level' => $this->level,
             'score_percentage_to_next_level' => $this->level?->getScorePercentageToNextLevel($this->resource) ?? 0,
+            'hourly_profit_time_percentage' => hourlyProfitInfo($this->resource),
             'wallet' => new AssetResource($this->assets),
             'image' => $this->profilePhotos->last()?->url,
             $this->mergeWhen($this->features->count() > 0, [
