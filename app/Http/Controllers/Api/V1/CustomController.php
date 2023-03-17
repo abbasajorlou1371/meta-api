@@ -19,7 +19,8 @@ class CustomController extends Controller
      */
     public function index()
     {
-        return new CustomsResource(auth()->user()->customs);
+        $customs = request()->user()->customs;
+        return $customs ? new CustomsResource($customs) : [];
     }
 
     /**
