@@ -35,7 +35,7 @@ class ReportEventRequest extends FormRequest
                     }
                 }
             ],
-            'event_description' => 'required|max:300'
+            'event_description' => 'required|string|max:500'
         ];
     }
 
@@ -43,7 +43,7 @@ class ReportEventRequest extends FormRequest
     {
         return [
             'event_description.required' => 'شرح واقعه را وارد کنید',
-            'event_description.max' => 'تعداد حداکثر مجاز 300 کاراکتر می باشد'
+            'event_description.max' => 'تعداد حداکثر مجاز 500 کاراکتر می باشد'
         ];
     }
 }
