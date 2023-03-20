@@ -47,7 +47,7 @@ function hourlyProfitInfo(User $user): int
         ->orderBy('dead_line', 'desc')
         ->first();
     $userDeadLine = $user->variables->withdraw_profit;
-    return $profit ? ($profit->dead_line->diffInDays(now()) - $userDeadLine) / $userDeadLine * 100 : 0;
+    return $profit ? ($userDeadLine - $profit->dead_line->diffInDays(now())) / $userDeadLine * 100 : 0;
 }
 
 function getLevelsImages($userLevel)
