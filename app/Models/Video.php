@@ -13,14 +13,14 @@ class Video extends Model
     protected function fileName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => config('rgb.uploads-path').$value
+            get: fn ($value) => config('rgb.admin_panel_url').$value
         );
     }
 
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => config('rgb.uploads-path').$value
+            get: fn ($value) => config('rgb.admin_panel_url').$value
         );
     }
 }

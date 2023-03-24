@@ -27,6 +27,6 @@ class HomeController extends Controller
         $request->validate(['url' => 'required|string']);
         $tutorial = Video::select(['title', 'description', 'fileName', 'image', 'creator_code'])
             ->where('fileName', 'like', $request->url . '%')->first();
-        return new VideoTutorialResource($tutorial);
+        return $tutorial ? new VideoTutorialResource($tutorial) : [];
     }
 }

@@ -255,7 +255,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 });
 
-Route::post('video-tutorials', [HomeController::class, 'getTutorials']);
+Route::post('video-tutorials', [HomeController::class, 'tutorials']);
 
 Route::get('ping', static fn () => null);
 
