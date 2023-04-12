@@ -15,11 +15,15 @@ class VideoTutorialResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'creator' => $this->creator_code,
             'video' => $this->fileName,
             'image' => $this->image,
+            'visits' => $this->visits,
+            'likes' => $this->likes->count(),
+            'dislikes' => $this->dislikes->count(),
         ];
     }
 }

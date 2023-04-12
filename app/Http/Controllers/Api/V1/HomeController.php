@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Option;
 use App\Http\Resources\PackageResource;
-use App\Http\Resources\VideoTutorialResource;
-use App\Models\Video;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -20,13 +18,5 @@ class HomeController extends Controller
         return PackageResource::collection(
             Option::whereIn('code', $request->codes)->get()
         );
-    }
-
-    public function tutorials(Request $request)
-    {
-        $request->validate(['url' => 'required|string']);
-        $tutorial = Video::select(['title', 'description', 'fileName', 'image', 'creator_code'])
-            ->where('fileName', 'like', $request->url . '%')->first();
-        return $tutorial ? new VideoTutorialResource($tutorial) : [];
     }
 }

@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\ResetInfo\ResetPhoneController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
+use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\UserEventsController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
@@ -255,7 +256,11 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 });
 
-Route::post('video-tutorials', [HomeController::class, 'tutorials']);
+Route::controller(TutorialController::class)->prefix('video-tutorials')->group(function() {
+    Route::post('/', 'index');
+    Route::post('/like/{video}', 'like');
+    Route::post('/dislike/{video}', 'dislike');
+});
 
 Route::get('ping', static fn () => null);
 
