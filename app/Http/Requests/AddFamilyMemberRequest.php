@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\FamilyRelationships;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class AddFamilyMemberRequest extends FormRequest
@@ -36,7 +37,8 @@ class AddFamilyMemberRequest extends FormRequest
                 'required_if:relationship,offspring',
                 'array',
                 'min:10',
-                'required_array_keys:BFR,SF,W,JU,DM,PIUP,PITC,PIC,ESOO,COTB'
+                'required_array_keys:BFR,SF,W,JU,DM,PIUP,PITC,PIC,ESOO,COTB',
+                Rule::prohibitedIf(fn () => request()->input('relationship') !== 'offspring'),
             ],
             'permissions.*' => 'integer|boolean'
         ];
