@@ -256,8 +256,8 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 });
 
-Route::controller(TutorialController::class)->prefix('video-tutorials')->group(function() {
-    Route::post('/', 'index');
+Route::controller(TutorialController::class)->prefix('tutorials')->group(function() {
+    Route::get('/', 'index');
     Route::post('/like/{video}', 'like');
     Route::post('/dislike/{video}', 'dislike');
 });

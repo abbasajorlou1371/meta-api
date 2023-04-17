@@ -17,6 +17,8 @@ class CheckIp
      */
     public function handle(Request $request, Closure $next)
     {
+        if(app()->isLocal()) return $next($request);
+
         $ipAllowed = app(Pipeline::class)
             ->send($request)
             ->through([
@@ -24,8 +26,6 @@ class CheckIp
                 \App\Services\FilterIpService::class
             ])
             ->thenReturn();
-        return $ipAllowed
-            ? $next($request)
-            : abort(401, 'UnAuthorized');
+        return $ipAllowed ? $next($request) : abort(401, 'UnAuthorized');
     }
 }

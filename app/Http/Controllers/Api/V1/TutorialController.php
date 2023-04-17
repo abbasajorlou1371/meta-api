@@ -15,10 +15,9 @@ class TutorialController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $request->validate(['url' => 'required|string']);
-        $tutorial = Video::where('fileName', 'like', $request->url . '%')->first();
+        $tutorial = Video::where('fileName', 'like', request()->query('modal') . '%')->first();
         if ($tutorial) $tutorial->increment('visits');
         return $tutorial ? new VideoTutorialResource($tutorial) : [];
     }
