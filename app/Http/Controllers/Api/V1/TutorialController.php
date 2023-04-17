@@ -17,9 +17,17 @@ class TutorialController extends Controller
      */
     public function index()
     {
-        $tutorial = Video::where('fileName', 'like', request()->query('modal') . '%')->first();
-        if ($tutorial) $tutorial->increment('visits');
-        return $tutorial ? new VideoTutorialResource($tutorial) : [];
+        if(request()->query('modal'))
+        {
+            $tutorial = Video::where('fileName', 'like', request()->query('modal') . '%')
+            ->with(['likes', 'dislikes', 'categoriable'])
+            ->first();
+            if ($tutorial) $tutorial->increment('visits');
+            return $tutorial ? new VideoTutorialResource($tutorial) : [];
+        } else {
+            $tutorials = Video::with(['likes', 'dislikes', 'categoriable'])->simplePaginate(18);
+            return VideoTutorialResource::collection($tutorials);
+        }
     }
 
     /**
@@ -45,5 +53,12 @@ class TutorialController extends Controller
     {
         $video->dislikes()->create(['ip' => $request->ip()]);
         return new JsonResponse([], 200);
+    }
+
+    public function search(Request $request)
+    {
+        $tutorials = Video::where('title', 'like', '%'. $request->searchTerm .'%')
+        ->with(['likes', 'dislikes', 'categoriable'])->simplePaginate(18);
+        return VideoTutorialResource::collection($tutorials);
     }
 }

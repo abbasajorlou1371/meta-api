@@ -260,6 +260,7 @@ Route::controller(TutorialController::class)->prefix('tutorials')->group(functio
     Route::get('/', 'index');
     Route::post('/like/{video}', 'like');
     Route::post('/dislike/{video}', 'dislike');
+    Route::post('/search', 'search');
 });
 
 Route::get('ping', static fn () => null);

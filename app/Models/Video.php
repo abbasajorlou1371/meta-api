@@ -36,4 +36,9 @@ class Video extends Model
     {
         return $this->morphMany(Dislike::class, 'dislikeable');
     }
+
+    public function categoriable()
+    {
+        return $this->morphTo();
+    }
 }
