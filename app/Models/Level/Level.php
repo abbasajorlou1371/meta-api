@@ -7,6 +7,7 @@ use App\Models\Level\Prize;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Level extends Model
 {
@@ -35,7 +36,32 @@ class Level extends Model
     {
         $nextLevel = Level::find($this->id + 1);
         return $nextLevel
-        ? (int)($user->score / $nextLevel->score * 100)
-        : 0;
+            ? (int)($user->score / $nextLevel->score * 100)
+            : 0;
+    }
+
+    public function generalInfo(): HasOne
+    {
+        return $this->hasOne(LevelGeneralInfo::class);
+    }
+
+    public function gem(): HasOne
+    {
+        return $this->hasOne(LevelGem::class);
+    }
+
+    public function licenses(): HasOne
+    {
+        return $this->hasOne(LevelLicense::class);
+    }
+
+    public function gift(): HasOne
+    {
+        return $this->hasOne(LevelGift::class);
+    }
+
+    public function prizes(): HasOne
+    {
+        return $this->hasOne(LevelPrize::class);
     }
 }

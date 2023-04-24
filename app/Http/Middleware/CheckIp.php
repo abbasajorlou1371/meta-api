@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\App;
 
 class CheckIp
 {
@@ -24,8 +25,8 @@ class CheckIp
                 \App\Services\FilterIpService::class
             ])
             ->thenReturn();
-        return $ipAllowed
+        return $ipAllowed || App::isLocal()
             ? $next($request)
-            : abort(401, 'UnAuthorized');
+            : abort(403, 'UnAuthorized');
     }
 }
