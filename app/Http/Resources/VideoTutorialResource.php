@@ -19,16 +19,20 @@ class VideoTutorialResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'description' => $this->description,
+            $this->mergeWhen(request()->routeIs('tutorials.show'), [
+                'description' => $this->description,
+            ]),
             'creator_code' => $this->creator_code,
             'creator_image' => User::firstWhere('code', $this->creator_code)->profilePhotos->last()?->url,
             'video' => $this->fileName,
             'image' => $this->image,
-            'visits' => $this->visits,
-            'likes' => $this->likes->count(),
-            'dislikes' => $this->dislikes->count(),
+            'views' => $this->views->count(),
+            'likes' => $this->interactions->where('liked', 1)->count(),
+            'dislikes' => $this->interactions->where('liked', 0)->count(),
             'category_name' => $this->categoriable->name,
-            'sub_category_name' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category->name : null
+            'category_slug' => $this->categoriable->slug,
+            'sub_category_name' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category->name : null,
+            'sub_category_slug' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category->slug : null
         ];
     }
 }

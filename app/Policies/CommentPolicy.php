@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\BankAccount;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class BankAccountPolicy
+class CommentPolicy
 {
     use HandlesAuthorization;
 
@@ -18,19 +18,19 @@ class BankAccountPolicy
      */
     public function viewAny(User $user)
     {
-        return true;
+        //
     }
 
     /**
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
+     * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, BankAccount $bankAccount)
+    public function view(User $user, Comment $comment)
     {
-        return $bankAccount->bankable->is($user);
+        //
     }
 
     /**
@@ -41,41 +41,41 @@ class BankAccountPolicy
      */
     public function create(User $user)
     {
-        return $user->verified();
+        //
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
+     * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, BankAccount $bankAccount)
+    public function update(User $user, Comment $comment)
     {
-        return $bankAccount->bankable->is($user) && $bankAccount->status === -1;
+        return $comment->user->is($user);
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
+     * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, BankAccount $bankAccount)
+    public function delete(User $user, Comment $comment)
     {
-        return $bankAccount->bankable->is($user);
+        return $comment->user->is($user);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
+     * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, BankAccount $bankAccount)
+    public function restore(User $user, Comment $comment)
     {
         //
     }
@@ -84,11 +84,16 @@ class BankAccountPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
+     * @param  \App\Models\Comment  $comment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, BankAccount $bankAccount)
+    public function forceDelete(User $user, Comment $comment)
     {
         //
+    }
+
+    public function report(User $user, Comment $comment)
+    {
+        return $comment->user->isNot($user);
     }
 }

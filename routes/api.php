@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\UserEventsController;
+use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -254,14 +255,24 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
         Route::post('question', 'getQuestion')->name('question');
         Route::post('answer', 'answerResult')->name('answer');
     });
-});
 
-Route::controller(TutorialController::class)->prefix('tutorials')->group(function () {
-    Route::get('/', 'index');
-    Route::get('/{video}', 'show');
-    Route::post('/like/{video}', 'like');
-    Route::post('/dislike/{video}', 'dislike');
-    Route::post('/search', 'search');
+    Route::controller(TutorialController::class)->prefix('tutorials')->as('tutorials.')->group(function () {
+        Route::get('/', 'index')->withoutMiddleware('auth:sanctum')->name('index');
+        Route::get('/{video}', 'show')->withoutMiddleware('auth:sanctum')->name('show');
+        Route::post('/like/{video}', 'like');
+        Route::post('/dislike/{video}', 'dislike');
+        Route::post('/search', 'search')->withoutMiddleware('auth:sanctum');
+    });
+
+    Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
+        Route::get('/{video}/comments', 'index')->withoutMiddleware('auth:sanctum');
+        Route::post('/{video}/comments', 'store');
+        Route::put('/{video}/comments/{comment}', 'update');
+        Route::delete('/{video}/comments/{comment}', 'destroy');
+        Route::post('/{video}/comments/{comment}/report', 'report');
+        Route::post('/{video}/comments/{comment}/like', 'like');
+        Route::post('/{video}/comments/{comment}/dislike', 'dislike');
+    });
 });
 
 Route::get('ping', static fn () => null);
