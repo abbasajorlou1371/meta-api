@@ -17,13 +17,14 @@ class VideoCommentResource extends JsonResource
         return [
             'id' => $this->id,
             'video_id' => $this->commentable->id,
+            'user_id' => $this->user->id,
             'commenter_name' => $this->user->name,
             'commenter_code' => $this->user->code,
             'commenter_image' => $this->user->profilePhotos->last()?->url,
             'content' => $this->content,
-            'created_at' => jdate($this->created_at)->format('Y/m/d'),
             'likes' => $this->interactions->where('liked', 1)->count(),
-            'dislikes' => $this->interactions->where('liked', 0)->count()
+            'dislikes' => $this->interactions->where('liked', 0)->count(),
+            'created_at' => jdate($this->created_at)->format('Y/m/d')
         ];
     }
 }
