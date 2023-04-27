@@ -19,9 +19,7 @@ class VideoTutorialResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            $this->mergeWhen(request()->routeIs('tutorials.show'), [
-                'description' => $this->description,
-            ]),
+            'description' => $this->description,
             'creator_code' => $this->creator_code,
             'creator_image' => User::firstWhere('code', $this->creator_code)->profilePhotos->last()?->url,
             'video' => $this->fileName,

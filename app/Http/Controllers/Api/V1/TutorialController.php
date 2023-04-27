@@ -17,6 +17,16 @@ class TutorialController extends Controller
      */
     public function index()
     {
+        if(request()->method() === 'post' && request()->has('url'))
+        {
+            request()->validate(['url' => 'required|string|max:255']);
+
+            $video = Video::where('fileName', 'like', request()->query('modal') . '%')
+            ->with(['interactions', 'categoriable', 'views'])
+            ->first();
+            return $video ? new VideoTutorialResource($video) : [];
+        }
+
         if (request()->query('modal')) {
             $video = Video::where('fileName', 'like', request()->query('modal') . '%')
                 ->with(['interactions', 'categoriable', 'views'])
