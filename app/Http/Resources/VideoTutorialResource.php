@@ -29,8 +29,8 @@ class VideoTutorialResource extends JsonResource
             'dislikes' => $this->interactions->where('liked', 0)->count(),
             'category_name' => $this->categoriable->name,
             'category_slug' => $this->categoriable->slug,
-            'sub_category_name' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category->name : null,
-            'sub_category_slug' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category->slug : null
+            'sub_category_name' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category?->name : null,
+            'sub_category_slug' => $this->categoriable instanceof VideoSubCategory ? $this->categoriable->category?->slug : null
         ];
     }
 }
