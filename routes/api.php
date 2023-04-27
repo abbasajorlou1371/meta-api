@@ -275,7 +275,7 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 });
 
-Route::post('/video-tutorials', [TutorialController::class, 'index']);
+Route::post('/video-tutorials', [TutorialController::class, 'index'])->name('tutorials-temp-url');
 
 Route::get('ping', static fn () => null);
 

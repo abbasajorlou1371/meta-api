@@ -17,7 +17,7 @@ class TutorialController extends Controller
      */
     public function index()
     {
-        if(request()->method() === 'post' && request()->has('url'))
+        if(request()->routeIs('tutorials-temp-url'))
         {
             request()->validate(['url' => 'required|string|max:255']);
 
