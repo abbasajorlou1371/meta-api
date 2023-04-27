@@ -90,7 +90,7 @@ class TutorialController extends Controller
     public function search(Request $request)
     {
         $tutorials = Video::where('title', 'like', '%' . $request->searchTerm . '%')
-            ->with(['likes', 'dislikes', 'categoriable'])->simplePaginate(18);
+            ->with(['interactions', 'categoriable', 'views'])->simplePaginate(18);
         return VideoTutorialResource::collection($tutorials);
     }
 }

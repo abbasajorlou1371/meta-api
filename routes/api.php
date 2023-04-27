@@ -257,15 +257,15 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
     });
 
     Route::controller(TutorialController::class)->prefix('tutorials')->as('tutorials.')->group(function () {
-        Route::get('/', 'index')->withoutMiddleware('auth:sanctum')->name('index');
-        Route::get('/{video}', 'show')->withoutMiddleware('auth:sanctum')->name('show');
+        Route::get('/', 'index')->withoutMiddleware(['auth:sanctum', 'verified'])->name('index');
+        Route::get('/{video}', 'show')->withoutMiddleware(['auth:sanctum', 'verified'])->name('show');
         Route::post('/like/{video}', 'like');
         Route::post('/dislike/{video}', 'dislike');
-        Route::post('/search', 'search')->withoutMiddleware('auth:sanctum');
+        Route::post('/search', 'search')->withoutMiddleware(['auth:sanctum', 'verified']);
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
-        Route::get('/{video}/comments', 'index')->withoutMiddleware('auth:sanctum');
+        Route::get('/{video}/comments', 'index')->withoutMiddleware(['auth:sanctum', 'verified']);
         Route::post('/{video}/comments', 'store');
         Route::put('/{video}/comments/{comment}', 'update');
         Route::delete('/{video}/comments/{comment}', 'destroy');
