@@ -22,16 +22,15 @@ class VideoCommentsController extends Controller
         $videoId = $video->id; // Replace with the ID of the video you want to get comments for
 
         $comments = Comment::with('user')
-            ->leftJoin('likes', function ($join) {
-                $join->on('comments.id', '=', 'likes.likeable_id')
-                    ->where('likes.likeable_type', '=', Comment::class);
+            ->leftJoin('interactions', function ($join) {
+                $join->on('comments.id', '=', 'interactions.likeable_id')
+                    ->where('interactions.likeable_type', '=', Comment::class);
             })
             ->where('comments.commentable_id', $videoId)
             ->where('comments.commentable_type', Video::class)
-            ->select('comments.*', DB::raw('COUNT(likes.id) as likes_count'))
+            ->select('comments.*', DB::raw('COUNT(interactions.id) as interactions_count'))
             ->groupBy('comments.id')
-            ->orderByDesc('likes_count')
-            ->with('interactions')
+            ->orderByDesc('interactions_count')
             ->simplePaginate(10);
         return VideoCommentResource::collection($comments);
     }
@@ -44,7 +43,7 @@ class VideoCommentsController extends Controller
      */
     public function store(Request $request, Video $video)
     {
-        $request->validate(['content' => 'required|string|max:500']);
+        $request->validate(['content' => 'required|string|max:2000']);
         $comment = $video->comments()->create([
             'user_id' => $request->user()->id,
             'content' => $request->content
@@ -62,7 +61,7 @@ class VideoCommentsController extends Controller
     public function update(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('update', $comment);
-        $request->validate(['content' => 'required|string|max:500']);
+        $request->validate(['content' => 'required|string|max:2000']);
         $comment->update([
             'user_id' => $request->user()->id,
             'content' => $request->content
@@ -80,8 +79,7 @@ class VideoCommentsController extends Controller
     {
         $this->authorize('update', $comment);
         $comment->delete();
-        $comment->likes()->delete();
-        $comment->dislikes()->delete();
+        $comment->interactions()->delete();
         return new JsonResponse([], 200);
     }
 
@@ -129,6 +127,7 @@ class VideoCommentsController extends Controller
     public function report(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('report', $comment);
+        $request->validate(['content' => 'required|string|max:2000']);
         $video->reports()->create([
             'user_id' => $request->user()->id,
             'comment_id' => $comment->id,
