@@ -19,18 +19,17 @@ class VideoCommentsController extends Controller
      */
     public function index(Video $video)
     {
-        $videoId = $video->id; // Replace with the ID of the video you want to get comments for
-
         $comments = Comment::with('user')
             ->leftJoin('interactions', function ($join) {
                 $join->on('comments.id', '=', 'interactions.likeable_id')
                     ->where('interactions.likeable_type', '=', Comment::class);
             })
-            ->where('comments.commentable_id', $videoId)
+            ->where('comments.commentable_id', $video->id)
             ->where('comments.commentable_type', Video::class)
             ->select('comments.*', DB::raw('COUNT(interactions.id) as interactions_count'))
             ->groupBy('comments.id')
             ->orderByDesc('interactions_count')
+            ->with(['user', 'user.kyc:id,fname,lname'])
             ->simplePaginate(10);
         return VideoCommentResource::collection($comments);
     }

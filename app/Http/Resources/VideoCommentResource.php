@@ -18,7 +18,9 @@ class VideoCommentResource extends JsonResource
             'id' => $this->id,
             'video_id' => $this->commentable->id,
             'user_id' => $this->user->id,
-            'commenter_name' => $this->user->name,
+            'commenter_name' => $this->user->verified()
+                ? implode(' ', [$this->user->key->fname, $this->user->kyc->lname])
+                : $this->user->name,
             'commenter_code' => $this->user->code,
             'commenter_image' => $this->user->profilePhotos->last()?->url,
             'content' => $this->content,
