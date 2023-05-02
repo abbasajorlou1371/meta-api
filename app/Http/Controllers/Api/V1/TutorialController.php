@@ -20,7 +20,7 @@ class TutorialController extends Controller
         if (request()->routeIs('tutorials-temp-url')) {
             request()->validate(['url' => 'required|string|max:255']);
 
-            $video = Video::where('fileName', 'like', request()->input('url') . '%')
+            $video = Video::where('fileName', 'like', '%' . request()->input('url') . '%')
                 ->with(['interactions', 'categoriable', 'views'])
                 ->first();
 
@@ -30,7 +30,7 @@ class TutorialController extends Controller
         }
 
         if (request()->query('modal')) {
-            $video = Video::where('fileName', 'like', request()->query('modal') . '%')
+            $video = Video::where('fileName', 'like', '%' . request()->query('modal') . '%')
                 ->with(['interactions', 'categoriable', 'views'])
                 ->first();
             if ($video) $video->incrementViews();
