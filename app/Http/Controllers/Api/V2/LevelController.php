@@ -26,22 +26,22 @@ class LevelController extends Controller
 
     public function getGeneralInfo(Level $level)
     {
-        return new GeneralInfoResource($level->load('generalInfo'));
+        return new GeneralInfoResource($level->generalInfo);
     }
 
     public function gift(Level $level)
     {
-        return new GiftResource($level->load('gift'));
+        return new GiftResource($level->gift);
     }
 
     public function gem(Level $level)
     {
-        return new GemResource($level->load('gem'));
+        return new GemResource($level->gem);
     }
 
     public function licenses(Level $level)
     {
-        return new LicensesResource($level->load('licenses'));
+        return new LicensesResource($level->licenses);
     }
 
     public function prizes(Level $level)
