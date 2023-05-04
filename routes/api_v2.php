@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V2\LevelController;
 use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\Api\V1\TutorialController;
+use App\Http\Controllers\Api\V2\VideoPanelController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function () {
@@ -28,10 +29,13 @@ Route::middleware(['auth:sanctum', 'verified', 'user.activity'])->group(function
 
 Route::controller(LevelController::class)->prefix('levels')->group(function () {
     Route::get('/', 'index');
-    Route::get('/{level}', 'show');
-    Route::get('/{level}/general-info', 'getGeneralInfo');
-    Route::get('/{level}/gem', 'gem');
-    Route::get('/{level}/gift', 'gift');
-    Route::get('/{level}/licenses', 'licenses');
-    Route::get('/{level}/prize', 'prizes');
+    Route::get('/{level:slug}', 'show');
+    Route::get('/{level:slug}/general-info', 'getGeneralInfo');
+    Route::get('/{level:slug}/gem', 'gem');
+    Route::get('/{level:slug}/gift', 'gift');
+    Route::get('/{level:slug}/licenses', 'licenses');
+    Route::get('/{level:slug}/prize', 'prizes');
 });
+
+
+Route::controller(VideoPanelController::class)->group(function() {});
