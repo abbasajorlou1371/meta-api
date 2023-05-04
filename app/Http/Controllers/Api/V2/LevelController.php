@@ -49,6 +49,6 @@ class LevelController extends Controller
 
     public function prizes(Level $level)
     {
-        return new PrizeResource($level->load('prizes'));
+        return new PrizeResource($level->prizes);
     }
 }
