@@ -3,6 +3,8 @@
 namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\V2\VideoCategoryResource;
+use App\Http\Resources\VideoTutorialResource;
 
 class VideoSubCategoryResource extends JsonResource
 {
@@ -21,6 +23,7 @@ class VideoSubCategoryResource extends JsonResource
             'image' => $this->image,
             $this->mergeWhen(request()->routeIs('tutorials.subcategories.show'), [
                 'description' => $this->description,
+                'videos' => VideoTutorialResource::collection($this->videos)
             ])
         ];
     }

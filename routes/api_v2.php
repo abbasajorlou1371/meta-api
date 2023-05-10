@@ -17,9 +17,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             });
 
             Route::prefix('categories')->name('subcategories.')->group(function () {
-                Route::get('/{category}/subcategories', 'subcategories')->name('index');
                 Route::get('/{category}/subcategories/{subCategory}', 'subcategory')->name('show');
-                Route::get('/{category}/subcategories/{subCategory}/videos', 'subCategoryVideos')->name('videos');
             });
 
             Route::get('/{video}', 'show')->name('show');

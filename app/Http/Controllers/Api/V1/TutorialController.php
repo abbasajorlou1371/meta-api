@@ -126,22 +126,9 @@ class TutorialController extends Controller
         return new VideoCategoryResource($category);
     }
 
-    // View subcategories of a category
-    public function subCategories(VideoCategory $category)
-    {
-        return VideoSubCategoryResource::collection($category->subCategories);
-    }
-
     // View Single subcategory
     public function subCategory(VideoCategory $category, VideoSubCategory $subCategory)
     {
-        return new VideoSubCategoryResource($subCategory);
-    }
-
-    // View videos of a subcategory
-    public function subCategoryVideos(VideoCategory $category, VideoSubCategory $subCategory)
-    {
-        $videos = $subCategory->videos()->with(['interactions', 'subCategory.category', 'views'])->get();
-        return VideoTutorialResource::collection($videos);
+        return new VideoSubCategoryResource($subCategory->load('videos'));
     }
 }
