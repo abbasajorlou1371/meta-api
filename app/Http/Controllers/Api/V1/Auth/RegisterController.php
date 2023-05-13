@@ -3,57 +3,23 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\Referal;
 use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 use App\Http\Resources\AuthenticatedUserResource;
-use App\Models\Setting;
 
 class RegisterController extends Controller
 {
-    use RegistersUsers;
-
-    public function create(array $data)
+    public function register(RegisterUserRequest $request)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
         ]);
-    }
 
-    protected function validator(array $data)
-    {
-        return Validator::make(
-            $data,
-            [
-                'name' => 'required|string|min:2|max:50|not_regex:/hm-/i',
-                'email' => 'required|email|unique:users,email',
-                'password' => [
-                    'required',
-                    Password::min(8)->mixedCase()->symbols(),
-                ],
-                'referral' => 'nullable|exists:users,code'
-            ],
-            [
-                'name' => [
-                    'required' => 'نام خود را وارد کنید',
-                    'string' => 'نام صحیح نمی باشد'
-                ],
-                'email' => [
-                    'required' => 'ایمیل را وارد کنید',
-                    'email' => 'آدرس ایمیل صحیح نیست',
-                    'unique' => 'آدرس ایمیل قبلا استفاده شده است'
-                ],
-                'password.required' => 'رمز عبور را وارد کنید',
-                'referral.exists' => 'لینک رفرال صحیح نیست.'
-            ]
-        );
+        return $this->registered($request, $user);
     }
 
     protected function guard()
@@ -61,7 +27,7 @@ class RegisterController extends Controller
         return Auth::guard('web');
     }
 
-    protected function registered(Request $request, $user)
+    protected function registered(RegisterUserRequest $request, $user)
     {
         if ($request->referral) {
             $reference_user = User::firstWhere('code', $request->referral);
@@ -71,7 +37,7 @@ class RegisterController extends Controller
             ]);
         }
         $user->registered();
-        $automaticLogout = Setting::whereUserId($user->id)->pluck('automatic_logout')->first();
+        $automaticLogout = $user->settings->automatic_logout;
         $user->automaticLogout = $automaticLogout;
         $tokenExpiresAt = now()->addMinutes($automaticLogout > 0 ? $automaticLogout : 60);
         $user->token = $user->createToken('token-' . $user->id, expiresAt: $tokenExpiresAt)->plainTextToken;

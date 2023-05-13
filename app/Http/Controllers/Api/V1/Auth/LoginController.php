@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AuthenticatedUserResource;
-use App\Models\Setting;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
@@ -20,7 +19,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         $user->logedIn();
-        $automaticLogout = Setting::whereUserId($user->id)->pluck('automatic_logout')->first();
+        $automaticLogout = $user->settings->automatic_logout;
         $user->automaticLogout = $automaticLogout;
         $tokenExpiresAt = now()->addMinutes($automaticLogout > 0 ? $automaticLogout : 60);
         $user->token = $user->createToken('token-' . $user->id, expiresAt: $tokenExpiresAt)->plainTextToken;

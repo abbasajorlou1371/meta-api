@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Level\UserLevel;
 use App\Models\Level\Level;
 use App\Models\Variable;
+use Illuminate\Auth\Events\Registered;
 
 class UserObserver
 {
@@ -75,6 +76,7 @@ class UserObserver
         $user->log()->create();
         $user->variables()->create();
         createUserPrivacy($user);
+        event(new Registered($user));
     }
 
     /**

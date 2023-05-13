@@ -11,6 +11,10 @@ class Setting extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'automatic_logout' => 'integer'
+    ];
+
     protected $attributes = [
         'automatic_logout' => 60
     ];
