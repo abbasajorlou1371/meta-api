@@ -8,5 +8,6 @@ use Illuminate\Http\Request;
 
 class SendResetPasswordLinkEmailController extends Controller
 {
+    // Send reset password link
     use SendsPasswordResetEmails;
 }

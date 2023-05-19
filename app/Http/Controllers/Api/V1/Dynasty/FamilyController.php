@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class FamilyController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     * @param Dynasty $dynasty
+     * @return FamilyMemberResource
+     */
     public function index(Dynasty $dynasty ,Family $family)
     {
         return FamilyMemberResource::collection($family->familyMembers);

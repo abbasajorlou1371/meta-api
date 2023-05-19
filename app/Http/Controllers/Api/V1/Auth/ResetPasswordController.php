@@ -9,6 +9,8 @@ use Illuminate\Validation\Rules\Password;
 class ResetPasswordController extends Controller
 {
     use ResetsPasswords;
+
+    // Get the password reset validation rules
     protected function rules()
     {
         return [

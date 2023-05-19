@@ -83,6 +83,7 @@ class BankAccountController extends Controller
             'status' => 2,
         ]);
 
+        // Delete the bank account's errors
         $bankAccount->errors()->delete();
         return new BankAccountResource($bankAccount);
     }

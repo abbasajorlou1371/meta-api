@@ -10,16 +10,31 @@ use Illuminate\Http\Request;
 
 class DynastyPrizeController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     * @return DynastyPrizeResource
+     */
     public function index()
     {
         return DynastyPrizeResource::collection(request()->user()->recievedDynastyPrizes);
     }
 
+    /**
+     * Display the specified recievedPrize.
+     * @param RecievedPrize $recievedPrize
+     * @return DynastyPrizeResource
+     */
     public function show(RecievedPrize $recievedPrize)
     {
         return new DynastyPrizeResource($recievedPrize);
     }
 
+    /**
+     * Get the prize.
+     * @param Request $request
+     * @param RecievedPrize $recievedPrize
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request, RecievedPrize $recievedPrize)
     {
         $user = $request->user();

@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
+    /**
+     * Verify the user's email address.
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function verify(Request $request)
     {
         $user = User::find($request->route('id'));
@@ -28,6 +33,7 @@ class EmailVerificationController extends Controller
     }
 
     /**
+     * Generate referal link
      * @param $code
      * @return string
      */
@@ -37,6 +43,7 @@ class EmailVerificationController extends Controller
     }
 
     /**
+     * Generate citizen code
      * @return string
      */
     private function generateCitizenCode(): string
@@ -45,6 +52,12 @@ class EmailVerificationController extends Controller
         return $code ? $this->getCode($code) : 'hm-2000000';
     }
 
+    /**
+     * Generate referal code
+     * Get next code
+     * @param $code
+     * @return string
+     */
     private function getCode($code)
     {
         $codeNum = explode('-', $code)[1];

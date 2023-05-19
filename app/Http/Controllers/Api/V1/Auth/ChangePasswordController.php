@@ -7,6 +7,11 @@ use App\Http\Requests\ChangePasswordRequest;
 
 class ChangePasswordController extends Controller
 {
+    /**
+     * Change user's password
+     * @param ChangePasswordRequest $request
+     * @return \Illuminate\Http\Response
+     */
     public function __invoke(ChangePasswordRequest $request)
     {
         $request->user()->update(['password' => bcrypt($request->password)]);
