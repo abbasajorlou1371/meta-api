@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V2\LevelController;
 use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\Api\V1\TutorialController;
+use App\Http\Controllers\Api\V2\MapsController;
 use App\Http\Controllers\Api\V2\VideoPanelController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,7 @@ Route::controller(LevelController::class)->prefix('levels')->group(function () {
     Route::get('/{level:slug}/prize', 'prizes');
 });
 
+Route::apiResource('maps', MapsController::class)->only(['index', 'show']);
 
 Route::controller(VideoPanelController::class)->group(function () {
 });
