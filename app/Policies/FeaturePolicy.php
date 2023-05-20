@@ -6,6 +6,7 @@ use App\Models\Feature;
 use App\Models\User;
 use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
+use App\Models\Image;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FeaturePolicy
@@ -91,13 +92,18 @@ class FeaturePolicy
             && is_null($feature->dynasty);
     }
 
+    public function update(User $user, Feature $feature)
+    {
+        return $feature->owner->is($user);
+    }
+
     public function addImage(User $user, Feature $feature)
     {
         return $feature->owner->is($user);
     }
 
-    public function removeImage(User $user, Feature $feature)
+    public function removeImage(User $user, Feature $feature, Image $image)
     {
-        return $feature->owner->is($user);
+        return $feature->owner->is($user) && $image->imageable->is($feature);
     }
 }

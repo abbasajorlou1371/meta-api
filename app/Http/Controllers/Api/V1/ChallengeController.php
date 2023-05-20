@@ -14,6 +14,11 @@ use Illuminate\Validation\ValidationException;
 
 class ChallengeController extends Controller
 {
+    /**
+     * Get the timings for challenge intervals and participant statistics.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getTimings()
     {
         return response()->json([
@@ -28,6 +33,11 @@ class ChallengeController extends Controller
         ]);
     }
 
+    /**
+     * Get a question for the challenge.
+     *
+     * @return \App\Http\Resources\QuestionResource|null
+     */
     public function getQuestion()
     {
         $question = $this->selectQuestion();
@@ -37,6 +47,13 @@ class ChallengeController extends Controller
         return $question ? new QuestionResource($question) : null;
     }
 
+    /**
+     * Submit the answer to a question and provide the result.
+     *
+     * @param Request $request
+     * @return \App\Http\Resources\QuestionResource
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function answerResult(Request $request)
     {
         $request->validate([
@@ -52,15 +69,20 @@ class ChallengeController extends Controller
                 'answer_id' => 'Answer is not valid!'
             ]);
         } else {
+            // Check if the user has already answered the question
             $this->authorize('answer', $question);
+
+            // Record the user's answer to the question
             UserQuestionAnswer::create([
                 'user_id' => $request->user()->id,
                 'question_id' => $question->id,
                 'answer_id' => $answer->id,
             ]);
 
+            // Increment the question's participants
             $question->increment('participants');
 
+            // If the answer is correct, increment the user's 'psc' assets by the question prize amount
             if ($answer->isCorrect()) {
                 $request->user()->assets->increment('psc', $question->prize);
             }
@@ -68,7 +90,12 @@ class ChallengeController extends Controller
         return new QuestionResource($question);
     }
 
-    private function getCorrectAnswers()
+    /**
+     * Get the number of correct answers for the current user.
+     *
+     * @return int
+     */
+    private function getCorrectAnswers(): int
     {
         return UserQuestionAnswer::whereUserId(request()->user()->id)
             ->where(function (Builder $query) {
@@ -80,6 +107,11 @@ class ChallengeController extends Controller
             ->count();
     }
 
+    /**
+     * Get the number of wrong answers for the current user.
+     *
+     * @return int
+     */
     private function getWrongAnswers()
     {
         return UserQuestionAnswer::whereUserId(request()->user()->id)
@@ -92,6 +124,11 @@ class ChallengeController extends Controller
             ->count();
     }
 
+    /**
+     * Select a question for the challenge.
+     *
+     * @return App\Models\Challenge\UserQuestionAnswer|null
+     */
     private function selectQuestion(): Question|null
     {
         while (true) {
@@ -115,13 +152,26 @@ class ChallengeController extends Controller
         return $question;
     }
 
+    /**
+     * Get the user's answer for a specific question.
+     *
+     * @param Question $question
+     * @return \App\Models\Challenge\UserQuestionAnswer|null
+     */
     private function getUserAnswer(Question $question): UserQuestionAnswer|null
     {
         return UserQuestionAnswer::whereUserId(request()->user()->id)->whereQuestionId($question->id)->first();
     }
 
+    /**
+     * Check if the user's answer is correct.
+     *
+     * @param UserQuestionAnswer $userAnswer
+     * @return bool
+     */
     private function checkUserAnswer(UserQuestionAnswer $userAnswer): bool
     {
         return Answer::whereId($userAnswer->answer_id)->first()->isCorrect();
     }
 }
+

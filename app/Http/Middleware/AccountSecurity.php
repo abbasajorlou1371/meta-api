@@ -17,8 +17,9 @@ class AccountSecurity
      */
     public function handle(Request $request, Closure $next)
     {
+        if(!app()->isProduction()) return $next($request);
         $accountSecurity = $request->user()->accountSecurity;
-        if (is_null($accountSecurity) || time() > $accountSecurity?->until) {
+        if (is_null($accountSecurity) || time() > optional($accountSecurity)->until) {
             return $request->expectsJson() ?
                 abort(410, 'جهت ادامه امنیت حساب کاربری خود را غیر فعال کنید!')
                 : RouteServiceProvider::HOME;

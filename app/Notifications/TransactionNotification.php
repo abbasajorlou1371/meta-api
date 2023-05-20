@@ -8,7 +8,6 @@ use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use App\Services\NotificationService;
 
 class TransactionNotification extends Notification implements ShouldQueue
 {

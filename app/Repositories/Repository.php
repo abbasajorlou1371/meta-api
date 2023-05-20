@@ -5,7 +5,8 @@ namespace App\Repositories;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class Repository implements RepositoryInterface{
+abstract class Repository implements RepositoryInterface
+{
     protected Model $model;
 
     public function getAll(): Collection

@@ -10,8 +10,7 @@ class FilterIpRangeService
 {
     public function handle(Request $request, Closure $next)
     {
-        return  Ip::where('type', 'range')
-            ->where('from', '<=', ip2long(request()->ip()))
+        return  Ip::whereType('range')->where('from', '<=', ip2long(request()->ip()))
             ->where('to', '>=', ip2long(request()->ip()))
             ->doesntExist()
             ? $next($request)

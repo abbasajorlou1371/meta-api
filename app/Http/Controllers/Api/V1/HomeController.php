@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     * @return PackageResource
+     */
     public function store(Request $request)
     {
         $request->validate([

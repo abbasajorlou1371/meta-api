@@ -17,6 +17,12 @@ use Morilog\Jalali\Jalalian;
 
 class OrderController extends Controller
 {
+    /**
+     * Store a new order for buying an asset.
+     *
+     * @param BuyAssetRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(BuyAssetRequest $request): JsonResponse
     {
         $this->authorize('buyFromStore', User::class);
@@ -25,12 +31,14 @@ class OrderController extends Controller
 
         $user = $request->user();
 
+        // Create a new order
         $order = Order::create([
             'user_id' => $user->id,
             'asset' => $request->asset,
             'amount' => $request->amount,
         ]);
 
+        // Create a new transaction for the order
         $transaction = $order->transaction()->create([
             'user_id' => $user->id,
             'asset' => $order->asset,
@@ -39,6 +47,7 @@ class OrderController extends Controller
             'status' => 0
         ]);
 
+        // Send a request to ZarinPal for payment
         $response = Http::post(config('zarinpal.curl.post'), [
             "merchant_id" => config('zarinpal.merchant_id'),
             "amount" => $order->amount * $rate,
@@ -54,6 +63,7 @@ class OrderController extends Controller
                     'link' => 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"],
                 ]);
             } else {
+                // Update the order and transaction status to -1 (error)
                 $order->update(['status' => -1]);
                 $transaction->update(['status' => -1]);
                 return response()->json([
@@ -61,6 +71,7 @@ class OrderController extends Controller
                 ]);
             }
         } else {
+            // Update the order and transaction status to -1 (error)
             $order->update(['status' => -1]);
             $transaction->update(['status' => -1]);
             return response()->json([
@@ -69,11 +80,18 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * Handle the callback after a payment is made.
+     *
+     * @param Order $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function callback(Order $order): RedirectResponse
     {
         $transaction = $order->transaction;
         $amount = $order->amount * Variable::getRate($order->asset);
 
+        // Verify the payment with ZarinPal
         $response = Http::post(config('zarinpal.curl.verify'), [
             "merchant_id" => config('zarinpal.merchant_id'),
             "authority" => $_GET['Authority'],
@@ -84,11 +102,14 @@ class OrderController extends Controller
 
         if ($response->successful()) {
             if ($result['data']['code'] == 100) {
+                // Update the transaction and order status to 1 (success)
                 $transaction->update(['status' => 1]);
                 $order->update(['status' => 1]);
                 $user = $order->user;
 
+                // Check if the user can get a bonus for the order
                 if ($user->can('canGetBonus', $order)) {
+                    // Create a new first order record with bonus
                     $user->firstOrder()->create([
                         'type' => $order->asset,
                         'amount' => $order->amount,
@@ -96,11 +117,14 @@ class OrderController extends Controller
                         'bonus' => $order->amount * 0.5,
                     ]);
                     $bonus = $order->amount * 0.5;
+                    // Increase the user's asset amount with the order amount and bonus
                     $user->assets->increment($order->asset, $order->amount + $bonus);
                 } else {
+                    // Increase the user's asset amount with the order amount
                     $user->assets->increment($order->asset, $order->amount);
                 }
 
+                // Create a payment record
                 Payment::create([
                     'user_id' => $user->id,
                     'ref_id' => $result['data']['ref_id'],
@@ -110,14 +134,20 @@ class OrderController extends Controller
                     'product' => $order->asset
                 ]);
 
-                ReferalService::referal($user, $order);
+                // Check if the order asset is not IRR
+                if($order->asset !== 'irr') {
+                    // Perform referral actions
+                    ReferalService::referal($user, $order);
+                }
 
+                // Notify the user about the transaction
                 $user->notify(new TransactionNotification($order));
                 $user->deposit();
                 return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');
             }
         } else {
             if ($result['errors']['code'] == -51) {
+                // Update the transaction and order status to -1 (error)
                 $transaction->update(['status' => -1]);
                 $order->update(['status' => -1]);
                 return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');

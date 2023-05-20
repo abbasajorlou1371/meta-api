@@ -15,6 +15,7 @@ class BankAccountController extends Controller
     {
         $this->authorizeResource(BankAccount::class);
     }
+    
     /**
      * Display a listing of the resource.
      *

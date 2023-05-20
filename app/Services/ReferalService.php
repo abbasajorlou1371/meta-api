@@ -8,23 +8,46 @@ use App\Models\Variable;
 
 class ReferalService
 {
+    /**
+     * Handle referral when an order is placed.
+     *
+     * @param User $user
+     * @param Order $order
+     * @return void
+     */
     public static function referal(User $user, Order $order)
     {
+        // Check if the user has a reference
         if ($user->has_reference()) {
-            if($order->asset == 'irr') return;
+            // If the asset is 'irr', do not proceed with referral
+            if ($order->asset == 'irr') {
+                return;
+            }
+
             $psc_price = Variable::getRate('psc');
             $reference = $user->reference;
+
+            // Calculate the total amount referred by the reference user
             $reference_amount = $reference->referalOrderHistories->sum('amount') * $psc_price ?? 0;
 
-            if(in_array($order->asset, ['blue', 'red', 'yellow'])) {
+            // Calculate the referral amount for the referer based on the order asset
+            if (in_array($order->asset, ['blue', 'red', 'yellow'])) {
                 $referer_amount = (($order->amount * Variable::getRate($order->asset)) / $psc_price) * 0.5;
             } else {
                 $referer_amount = $order->amount * 0.5;
             }
 
             $referalLimit = $reference->variables;
-            if ($reference_amount >= $referalLimit->referral_profit) return;
+
+            // Check if the reference user has reached the referral profit limit
+            if ($reference_amount >= $referalLimit->referral_profit) {
+                return;
+            }
+
+            // Increment the referer's 'psc' asset with the referral amount
             $reference->assets->increment('psc', $referer_amount);
+
+            // Create a new referal order history entry
             $reference->referalOrderHistories()->create([
                 'referer_id' => $user->id,
                 'amount' => $referer_amount,

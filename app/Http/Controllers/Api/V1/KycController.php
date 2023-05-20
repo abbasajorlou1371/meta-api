@@ -15,12 +15,21 @@ class KycController extends Controller
         $this->authorizeResource(Kyc::class);
     }
 
+    /**
+     * Get the current user's kyc info.
+     * @return KycResource
+     */
     public function index()
     {
         $kyc = request()->user()->kyc;
         return $kyc ? new KycResource($kyc) : null;
     }
 
+    /**
+     * Store the current user's kyc info.
+     * @param StoreKycRequest $request
+     * @return KycResource
+     */
     public function store(StoreKycRequest $request)
     {
         $melliCardFile = $request->file('melli_card');

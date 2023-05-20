@@ -13,11 +13,21 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     * @param Request $request
+     * @return ProfileResource
+     */
     public function index(Request $request)
     {
         return new ProfileResource($request->user());
     }
 
+    /**
+     * Get the latest transaction of the current user.
+     * @param Request $request
+     * @return LatestTransactionResource
+     */
     public function latestTransaction(Request $request)
     {
         $user = User::whereId($request->user()->id)
@@ -26,6 +36,11 @@ class DashboardController extends Controller
         return new LatestTransactionResource($user);
     }
 
+    /**
+     * Get the transactions of the current user.
+     * @param Request $request
+     * @return TransactionResource
+     */
     public function transactions(Request $request)
     {
         return TransactionResource::collection(
@@ -33,6 +48,11 @@ class DashboardController extends Controller
         );
     }
 
+    /**
+     * Get the wallet of the current user.
+     * @param Request $request
+     * @return AssetResource
+     */
     public function showWallet(Request $request)
     {
         return new AssetResource($request->user()->assets);

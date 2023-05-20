@@ -14,6 +14,9 @@ use App\Http\Requests\UpdatePrivacyRequest;
 
 class SettingController extends Controller
 {
+    /**
+     * @return SettingResource
+     */
     public function showSettings()
     {
         return new SettingResource(request()->user()->settings);
@@ -52,11 +55,21 @@ class SettingController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * Get the General setting info
+     * @return GeneralSettingsResource
+     */
     public function showGeneralSettings()
     {
         return new GeneralSettingsResource(request()->user()->generalSettings);
     }
 
+    /**
+     * Update the General setting info
+     * @param Request $request
+     * @param GeneralSetting $generalSetting
+     * @return JsonResponse
+     */
     public function updateGeneralSettings(Request $request, GeneralSetting $generalSetting)
     {
         $this->authorize('update', $generalSetting);
@@ -88,11 +101,21 @@ class SettingController extends Controller
         return new GeneralSettingsResource($generalSetting->refresh());
     }
 
+    /**
+     * Get the Privacy setting info
+     * @param Request $request
+     * @return PrivacyResource
+     */
     public function getPrivacySettings(Request $request)
     {
         return new PrivacyResource($request->user()->privacy);
     }
 
+    /**
+     * Update the Privacy setting info
+     * @param UpdatePrivacyRequest $request
+     * @return JsonResponse
+     */
     public function updatePrivacySettings(UpdatePrivacyRequest $request)
     {
         Privacy::updateOrCreate(

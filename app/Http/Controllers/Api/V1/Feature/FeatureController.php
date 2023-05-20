@@ -63,11 +63,17 @@ class FeatureController extends Controller
      */
     public function removeّFeatureImage(User $user, Feature $feature, Image $image)
     {
-        $this->authorize('removeImage', $feature);
+        $this->authorize('removeImage', [$feature, $image]);
         $image->delete();
-        return response()->noContent();
+        return response()->noContent(200);
     }
 
+    /**
+     * @param User $user
+     * @param Feature $feature
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function updateFeature(User $user, Feature $feature, Request $request)
     {
         $request->validate([
@@ -83,6 +89,8 @@ class FeatureController extends Controller
             ]
         ]);
 
+        $this->authorize('update', $feature);
+
         $color = $feature->getColor();
         $totalPrice = $feature->properties->stability * Variable::getRate($color) * $request->minimum_price_percentage / 100;
         $price_psc = $totalPrice * 0.5 / Variable::getRate('psc');
@@ -93,6 +101,6 @@ class FeatureController extends Controller
             'minimum_price_percentage' => $request->minimum_price_percentage
         ]);
 
-        return response()->noContent();
+        return response()->noContent(200);
     }
 }
