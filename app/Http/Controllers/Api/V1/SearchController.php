@@ -39,7 +39,7 @@ class SearchController extends Controller
     {
         $features = FeatureProperties::where('id', 'like', '%' . $request->searchTerm . '%')
             ->orWhere('address', 'like', '%' . $request->searchTerm . '%')
-            ->with(['feature', 'feature.owner'])
+            ->with(['feature', 'feature.owner', 'feature.geometry.coordinates'])
             ->take(5)
             ->get();
         return SearchFeatureResultResource::collection($features);
