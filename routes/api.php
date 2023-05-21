@@ -186,9 +186,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('bank-accounts', BankAccountController::class);
 
     Route::controller(SearchController::class)->prefix('search')->group(function () {
-        Route::post('/users', 'users');
-        Route::post('/features', 'features');
-    });
+        Route::post('users', 'users');
+        Route::post('features', 'features');
+    })->withoutMiddleware(['auth:sanctum', 'verified']);
 
     Route::post('order', [OrderController::class, 'store']);
 
