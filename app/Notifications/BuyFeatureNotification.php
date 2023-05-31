@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use App\Mail\FeatureBoughtMail;
 use App\Models\Trade;
-use App\Services\NotificationService;
 
 class BuyFeatureNotification extends Notification implements ShouldQueue
 {
@@ -73,7 +72,7 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
      */
     public function toDatabase($notifiable)
     {
-        if ($this->trade->seller->code == 'hm-2000000') {
+        if ($this->trade->seller->code === 'hm-2000000') {
             $message = sprintf(
                 '%s لیتر رنگ %s از حساب شما بابت خرید زمین %s برداشت شد.',
                 $this->trade->feature->properties->stability,
