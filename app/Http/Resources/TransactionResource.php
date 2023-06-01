@@ -3,8 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
-use App\Helpers\AssetHelper;
 
 class TransactionResource extends JsonResource
 {
@@ -17,13 +15,14 @@ class TransactionResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id'     => $this->id,
             'type'   => $this->getTitle(),
             'asset'  => $this->asset,
             'amount' => $this->amount,
             'action' => $this->action,
             'status' => $this->status,
-            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d H:m:s'),
+            'date'   => jdate($this->created_at)->format('Y/m/d'),
+            'time'   => jdate($this->created_at)->format('H:m:s'),
         ];
     }
 }
