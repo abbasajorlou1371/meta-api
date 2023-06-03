@@ -48,7 +48,7 @@ return [
                 ]
             ],
             'client_options' => [
-                'verify' => true
+                'verify' => false
             ],
         ],
 
