@@ -6,6 +6,7 @@ use App\Mail\EmailOtp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+
 class GetOtpNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -18,7 +19,7 @@ class GetOtpNotification extends Notification implements ShouldQueue
 
     private $code, $phone, $type, $email;
 
-    public function __construct($code, $type = 'sms', $email = null, $phone = null, )
+    public function __construct($code, $type = 'sms', $email = null, $phone = null,)
     {
         $this->code = $code;
         $this->phone = $phone;
@@ -33,9 +34,9 @@ class GetOtpNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
-        return $this->type == 'sms' ? 'sms' : ['mail'];
+        return $this->type === 'sms' ? ['sms'] : ['mail'];
     }
 
     /**
@@ -47,8 +48,8 @@ class GetOtpNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new EmailOtp($notifiable, $this->code))
-        ->to($this->email)
-        ->from('rgb-robot@irpsc.com');
+            ->to($this->email)
+            ->from('rgb-robot@irpsc.com');
     }
 
     /**
@@ -58,17 +59,12 @@ class GetOtpNotification extends Notification implements ShouldQueue
      * @return array
      */
 
-    public function toSms($notifiable) {
+    public function toSms($notifiable)
+    {
         return [
             'phone' => is_null($this->phone) ? $notifiable->phone : $this->phone,
             'token' => $this->code,
             'template' => 'verify'
-        ];
-    }
-    public function toArray($notifiable)
-    {
-        return [
-            //
         ];
     }
 }

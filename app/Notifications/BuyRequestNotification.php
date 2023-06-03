@@ -33,7 +33,9 @@ class BuyRequestNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['sms', 'database', 'mail'];
+        return array_keys(array_filter($notifiable->getNotificationSettings('trades'), function ($key) {
+            return $key;
+        }));
     }
 
     public function toMail($notifiable)

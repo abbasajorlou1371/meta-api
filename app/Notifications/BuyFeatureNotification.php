@@ -70,7 +70,7 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toDatabase($notifiable)
+    public function toArray($notifiable)
     {
         if ($this->trade->seller->code === 'hm-2000000') {
             $message = sprintf(

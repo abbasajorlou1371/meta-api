@@ -28,7 +28,7 @@ class DynastyCreatedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['sms'];
+        return $notifiable->hasVerifiedPhone() ? ['sms', 'broadcast'] : ['broadcast'];
     }
 
     /**
@@ -44,6 +44,22 @@ class DynastyCreatedNotification extends Notification implements ShouldQueue
             'token' => $this->featureId,
             'token10' => $notifiable->name,
             'template' => 'dynasty-created'
+        ];
+    }
+
+     /**
+     * Get the array representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function toArray($notifiable): array
+    {
+        return [
+            'related-to' => 'dynasty',
+            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-name' => 'متارنگ',
+            'message' => 'سلسله شما تاسیس شد.',
         ];
     }
 }

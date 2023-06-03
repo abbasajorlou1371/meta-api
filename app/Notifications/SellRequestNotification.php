@@ -34,7 +34,9 @@ class SellRequestNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['sms', 'mail'];
+        return array_keys(array_filter($notifiable->getNotificationSettings('trades'), function ($key) {
+            return $key;
+        }));
     }
 
     /**
@@ -75,7 +77,10 @@ class SellRequestNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            //
+            'related-to' => 'sell-requests',
+            'sender-name' => 'متارنگ',
+            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'message' => sprintf('ملک %s با موفقیت قیمت گذاری شد.', $this->feature->properties->id)
         ];
     }
 }

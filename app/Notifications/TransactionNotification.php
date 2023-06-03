@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Helpers\AssetHelper;
 use App\Mail\TransactionMail;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
@@ -46,8 +45,8 @@ class TransactionNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new TransactionMail($this->order, $notifiable))
-                    ->to($notifiable->email)
-                    ->subject('خریددارایی');
+            ->to($notifiable->email)
+            ->subject('خریددارایی');
     }
 
     public function toSms($notifiable)
@@ -56,7 +55,7 @@ class TransactionNotification extends Notification implements ShouldQueue
             'phone' => $notifiable->phone,
             'token' => $this->order->amount,
             'token2' => $this->order->transaction->amount / 10,
-            'token10' => 'عدد ' .  AssetHelper::getAssetTitle($this->order->asset),
+            'token10' => 'عدد ' .  $this->order->getTitle(),
             'template' => 'transaction'
         ];
     }
@@ -67,18 +66,19 @@ class TransactionNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable)
+    public function toArray($notifiable): array
     {
-        if(in_array($this->order->asset, ['yellow', 'blue', 'red']))
-        {
-            $message = sprintf('مقدار %s لیتر رنگ %s به حساب شما واریز گردید!',
+        if (in_array($this->order->asset, ['yellow', 'blue', 'red'])) {
+            $message = sprintf(
+                'مقدار %s لیتر رنگ %s به حساب شما واریز گردید!',
                 $this->order->amount,
-                AssetHelper::getAssetTitle($this->order->asset)
+                $this->order->getTitle()
             );
         } else {
-            $message = sprintf('مقدار %s %s به حساب شما واریز گردید!',
+            $message = sprintf(
+                'مقدار %s %s به حساب شما واریز گردید!',
                 $this->order->amount,
-                AssetHelper::getAssetTitle($this->order->asset)
+                $this->order->getTitle()
             );
         }
         return [

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Exceptions\InsufficientBalanceException;
 use App\Models\Chat\Chat;
 use App\Models\Dynasty\childrenPermission;
 use App\Models\Dynasty\Dynasty;
@@ -29,7 +28,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Helpers\FeatureIndicators;
-use Illuminate\Broadcasting\PrivateChannel;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -542,9 +540,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * The channels the user receives notification broadcasts on.
+     * @return string
      */
     public function receivesBroadcastNotificationsOn(): string
     {
         return 'user.notifications.'.$this->id;
+    }
+
+    /**
+     * Check user has verified their phone
+     * @return bool
+     */
+    public function hasVerifiedPhone(): bool
+    {
+        return $this->phone && $this->phone_verified_at;
     }
 }

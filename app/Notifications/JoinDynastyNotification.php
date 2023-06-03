@@ -37,7 +37,7 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail', 'database', 'sms'];
+        return ['mail', 'database', 'sms', 'broadcast'];
     }
 
     /**
@@ -112,7 +112,7 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toDatabase($notifiable)
+    public function toArray($notifiable)
     {
         return [
             'related-to' => 'dynasty-join-requests',

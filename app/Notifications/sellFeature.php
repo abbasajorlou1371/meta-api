@@ -3,10 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Trade;
-use App\Services\NotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Mail\sellFeature as SellFeatureMail;
 
@@ -32,7 +30,7 @@ class sellFeature extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return array_keys(array_filter($notifiable->getNotificationSettings('trades'), function ($key) {
             return $key;
@@ -55,9 +53,9 @@ class sellFeature extends Notification implements ShouldQueue
      * Get the sms representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \App\Channels\SmsChannel
+     * @return array
      */
-    public function toSms($notifiable)
+    public function toSms($notifiable): array
     {
         return [
             'phone' => $notifiable->phone,
@@ -74,25 +72,25 @@ class sellFeature extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable)
+    public function toArray($notifiable): array
     {
         if ($this->trade->psc_amount > 0 && $this->trade->irr_amount > 0) {
             $message = sprintf(
                 'مبلغ %s psc و %s به حساب شما بابت فروش ملک %s واریز شد.',
-                totalPrice($this->trade->feature, 'seller', fee($this->trade->feature))['psc'],
-                totalPrice($this->trade->feature, 'seller', fee($this->trade->feature))['irr'],
+                $this->trade->psc_amount,
+                $this->trade->irr_amount,
                 $this->trade->feature->properties->id
             );
         } elseif ($this->trade->psc_amount > 0) {
             $message = sprintf(
                 'مبلغ %s psc به حساب شما بابت فروش ملک %s واریز شد.',
-                totalPrice($this->trade->feature, 'seller', fee($this->trade->feature))['psc'],
+                $this->trade->psc_amount,
                 $this->trade->feature->properties->id
             );
         } elseif ($this->trade->irr_amount > 0) {
             $message = sprintf(
                 'مبلغ %s ریال به حساب شما بابت فروش ملک %s واریز شد.',
-                totalPrice($this->trade->feature, 'seller', fee($this->trade->feature))['irr'],
+                $this->trade->irr_amount,
                 $this->trade->feature->properties->id
             );
         }

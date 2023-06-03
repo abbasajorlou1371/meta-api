@@ -15,7 +15,6 @@
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.2",
         "league/flysystem-ftp": "^3.0",
-        "livewire/livewire": "^2.11",
         "morilog/jalali": "3.*",
         "predis/predis": "^2.0",
         "pusher/pusher-php-server": "~5.0.3",
@@ -23,7 +22,6 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "knuckleswtf/scribe": "^4.16",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",

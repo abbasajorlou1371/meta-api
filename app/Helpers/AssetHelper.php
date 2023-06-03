@@ -36,36 +36,4 @@ class AssetHelper
             FeatureIndicators::Maskoni  => 'yellow'
         };
     }
-
-    public static function checkBalance(User $buyer, Feature $feature)
-    {
-        $totalPrice = totalPrice($feature, 'buyer', fee($feature));
-
-        if (
-            !iszero($feature->properties->price_psc)
-            && !iszero($feature->properties->price_irr)
-        ) {
-            if ($buyer->assets->psc < $totalPrice['psc']) {
-                return ['error' => 'موجودی psc شما کافی نمی باشد'];
-            }
-
-            if ($buyer->assets->irr < $totalPrice['irr']) {
-                return ['error' => 'موجودی ریال شما کافی نمی باشد'];
-            }
-        }
-
-        if (!iszero($feature->properties->price_psc)) {
-            if ($buyer->assets->psc < $totalPrice['psc']) {
-                return ['error' => 'موجودی psc شما کافی نمی باشد'];
-            }
-        }
-
-        if (!iszero($feature->properties->price_irr)) {
-            if ($buyer->assets->irr < $totalPrice['irr']) {
-                return ['error' => 'موجودی ریال شما کافی نمی باشد'];
-            }
-        }
-
-        return null;
-    }
 }

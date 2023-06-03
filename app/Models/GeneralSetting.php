@@ -22,9 +22,11 @@ class GeneralSetting extends Model
     {
         $settings = self::where('user_id', $user->id)
             ->select([$notificationType . '_email', $notificationType . '_sms'])->first();
+
         return [
             'mail' => $settings->{$notificationType . '_email'},
-            'sms' => $settings->{$notificationType . '_sms'}
+            'sms' => $user->hasVerifiedPhone() ? $settings->{$notificationType . '_sms'} : 0,
+            'broadcast' => 1
         ];
     }
 

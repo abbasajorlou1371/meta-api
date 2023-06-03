@@ -29,7 +29,7 @@ class DynastyFeatureChangedNotification extends Notification implements ShouldQu
      */
     public function via($notifiable)
     {
-        return ['sms'];
+        return $notifiable->hasVerifiedPhone() ? ['sms', 'broadcast'] : ['broadcast'];
     }
 
     /**
@@ -44,6 +44,22 @@ class DynastyFeatureChangedNotification extends Notification implements ShouldQu
             'phone' => $notifiable->phone,
             'token' => $this->featureId,
             'template' => 'dynasty-feature-changed'
+        ];
+    }
+
+     /**
+     * Get the array representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function toArray($notifiable): array
+    {
+        return [
+            'related-to' => 'dynasty',
+            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-name' => 'متارنگ',
+            'message' => 'ملک بنای سلسله جایگزین شد.',
         ];
     }
 }
