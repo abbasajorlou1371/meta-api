@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Mail\TransactionMail;
 use App\Models\Order;
+use App\Models\Variable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -54,7 +55,7 @@ class TransactionNotification extends Notification implements ShouldQueue
         return [
             'phone' => $notifiable->phone,
             'token' => $this->order->amount,
-            'token2' => $this->order->transaction->amount / 10,
+            'token2' => $this->order->transaction->amount * Variable::getRate($this->order->asset) / 10,
             'token10' => 'عدد ' .  $this->order->getTitle(),
             'template' => 'transaction'
         ];

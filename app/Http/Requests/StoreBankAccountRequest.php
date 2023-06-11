@@ -13,7 +13,7 @@ class StoreBankAccountRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->verified();
     }
 
     /**
@@ -27,17 +27,6 @@ class StoreBankAccountRequest extends FormRequest
             'bank_name' => 'required|string|min:2',
             'shaba_num' => 'required|ir_sheba|unique:bank_accounts,shaba_num',
             'card_num'  => 'required|ir_bank_card_number|unique:bank_accounts,card_num'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'bank_name.required' => 'نام بانک را وارد کنید.',
-            'sheba_num' => 'شماره شبا را وارد کنید.',
-            'sheba_num.ir_sheba' => 'شماره شبا صحیح نیست.',
-            'card_num.required' => 'شماره کارت را وارد کنید.',
-            'card_num.ir_bank_card_number' => 'شماره کار صحیح نیست.'
         ];
     }
 }

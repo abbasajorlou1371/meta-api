@@ -16,8 +16,8 @@ class ResetInfoRequest extends FormRequest
     public function authorize()
     {
         return Reset::resetInfo(
-            request()->user(),
-            request()->has('email') ? 'email' : 'phone'
+            $this->user(),
+            $this->has('email') ? 'email' : 'phone'
         )
             ->count() < 1;
     }
@@ -31,29 +31,17 @@ class ResetInfoRequest extends FormRequest
     {
         return [
             'phone' =>
-            Rule::when(request()->routeIs('reset.phone'), [
+            Rule::when($this->routeIs('reset.phone'), [
                 'required',
                 'ir_mobile',
                 'unique:users,phone'
             ]),
             'email' =>
-            Rule::when(request()->routeIs('reset.email'), [
+            Rule::when($this->routeIs('reset.email'), [
                 'required',
                 'email',
                 'unique:users,email'
             ]),
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'phone.required' => 'شماره تلفن همراه خود را وارد کنید!',
-            'phone.unique' => 'این شماره تلفن قبلا استفاده شده است!',
-            'phone.ir_mobile' => 'شماره تلفن صحیح نمی باشد!',
-            'email.required' => 'ایمیل را وارد کنید',
-            'email.unique' => 'این ایمیل قبلا استفاده شده است!',
-            'email.email' => 'ایمیل صحیح نمی باشد!',
         ];
     }
 }

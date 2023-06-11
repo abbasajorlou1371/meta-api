@@ -29,12 +29,4 @@ class NoteRequest extends FormRequest
             'attachment' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:5000'
         ];
     }
-
-    public function messages()
-    {
-        return [
-            'title.required' => 'عنوان یادداشت را وارد کنید',
-            'content.required' => 'متن یادداشت را وارد کنید',
-        ];
-    }
 }

@@ -28,12 +28,4 @@ class FeatureImageRequest extends FormRequest
             'images.*' => 'required|file|mimes:png,jpg,bmp|distinct|min:1|max:1024'
         ];
     }
-
-    public function  messages()
-    {
-        return [
-            'images.required' => 'تصویری انتخاب نشده است',
-            'images.mimes' => 'فایل تصویر باید با یکی از فرمت های jpg, png و bmp باشد'
-        ];
-    }
 }

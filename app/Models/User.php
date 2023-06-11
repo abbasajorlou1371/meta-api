@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Chat\Chat;
 use App\Models\Dynasty\childrenPermission;
 use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\JoinRequest;
@@ -421,8 +420,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Payment::class)->latestOfMany();
     }
 
-    // Dynasty
-
     /**
      * @return HasOne
      */
@@ -454,8 +451,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(RecievedPrize::class);
     }
 
-    //
-
     public function latestResetRequest()
     {
         return $this->hasOne(Reset::class)->latestOfMany();
@@ -483,13 +478,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function bankAccounts()
     {
         return $this->morphMany(BankAccount::class, 'bankable');
-    }
-    /**
-     * @return HasMany
-     */
-    public function chats(): HasMany
-    {
-        return $this->hasMany(Chat::class, 'from_user');
     }
 
     public function isUnderEighteen()

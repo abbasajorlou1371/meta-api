@@ -41,9 +41,6 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $e)
     {
-        if($e instanceof ModelNotFoundException) {
-            abort(404, 'Not Found!');
-        }
         return parent::render($request, $e);
     }
 
@@ -56,32 +53,6 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
-        });
-
-
-
-        $this->renderable(function (KycVerificationException $exception, Request $request) {
-            return $request->expectsJson() ?
-                abort(412, 'Kyc is not completed yet!') :
-                redirect('/kyc');
-        });
-
-        $this->renderable(function (AccountSecurityException $exception, Request $request) {
-            return $request->expectsJson() ?
-                abort(410, 'Wallet lock is on!') :
-                redirect('/account-security');
-        });
-
-        $this->renderable(function (EmailVerificationException $exception, Request $request) {
-            return $request->expectsJson() ?
-                abort(411, 'Email is not verified!') :
-                to_route('verification.notice');
-        });
-
-        $this->renderable(function (InsufficientBalanceException $exception, Request $request) {
-            return $request->expectsJson() ?
-                abort($exception->getCode(), $exception->getMessage()) :
-                to_route('store');
         });
     }
 }

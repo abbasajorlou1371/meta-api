@@ -28,13 +28,4 @@ class TicketResponseRequest extends FormRequest
             'attachment' => 'nullable|file|mimes:png,jpg,pdf|max:5000'
         ];
     }
-
-    public function messages()
-    {
-        return [
-            'response.required' => 'متن پاسخ را وارد کنید',
-            'response.string' => 'متن پاسخ باید متن باشد',
-            'attachment.mimes' => 'فایل ضمیمه باید تصویر یا pdf باشد'
-        ];
-    }
 }

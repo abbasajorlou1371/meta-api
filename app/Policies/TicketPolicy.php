@@ -11,7 +11,7 @@ class TicketPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view any tickets.
      *
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
@@ -22,7 +22,7 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine whether the user can view the ticket.
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\Ticket  $ticket
@@ -30,7 +30,7 @@ class TicketPolicy
      */
     public function view(User $user, Ticket $ticket)
     {
-        return $ticket->sender->is($user) || $ticket->reciever?->is($user) ? true : false;
+        return $ticket->sender->is($user) || $ticket->reciever?->is($user);
     }
 
     /**
@@ -57,7 +57,7 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can delete the ticket.
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\Ticket  $ticket
@@ -69,34 +69,24 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can respond to the ticket.
      *
      * @param  \App\Models\User  $user
      * @param  \App\Models\Ticket  $ticket
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Ticket $ticket)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Ticket  $ticket
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Ticket $ticket)
-    {
-        //
-    }
-
     public function respond(User $user, Ticket $ticket)
     {
         return $ticket->reciever?->is($user) || $ticket->sender->is($user) && !$ticket->isClosed();
     }
 
+    /**
+     * Determine whether the user can close the ticket.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Ticket  $ticket
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
     public function close(User $user, Ticket $ticket)
     {
         return $ticket->sender->is($user);

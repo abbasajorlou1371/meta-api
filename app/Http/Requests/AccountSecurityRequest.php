@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class AccountSecurityRequest extends FormRequest
@@ -15,7 +14,8 @@ class AccountSecurityRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check();
+        $accountSecurity = $this->user()->accountSecurity;
+        return $accountSecurity && $accountSecurity->until > time() ? false : true;
     }
 
     /**
@@ -26,13 +26,12 @@ class AccountSecurityRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => [
-                'ir_mobile',
+            'phone' => Rule::when(!$this->user()->hasVerifiedPhone(), [
+                'required',
                 'unique:users,phone',
-                Rule::requiredIf(is_null(request()->user()->phone)
-                || is_null(request()->user()->phone_verified_at)),
-            ],
-            'time' => 'required|numeric|integer|between:5,60',
+                'ir_mobile',
+            ]),
+            'time' => 'required|integer|between:5,60',
         ];
     }
 }

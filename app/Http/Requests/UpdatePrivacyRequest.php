@@ -127,7 +127,6 @@ class UpdatePrivacyRequest extends FormRequest
                 ),
             ],
             'value' => 'required|numeric|boolean'
-
         ];
     }
 }

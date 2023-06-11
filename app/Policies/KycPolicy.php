@@ -41,7 +41,7 @@ class KycPolicy
      */
     public function create(User $user)
     {
-        return is_null($user->kyc);
+        return !$user->verified();
     }
 
     /**
@@ -65,30 +65,6 @@ class KycPolicy
      */
     public function delete(User $user, Kyc $kyc)
     {
-        return $kyc->user->is($user) && !$user->verified();
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Kyc  $kyc
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Kyc $kyc)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Kyc  $kyc
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Kyc $kyc)
-    {
-        //
+        return false;
     }
 }

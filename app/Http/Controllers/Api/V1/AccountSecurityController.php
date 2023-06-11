@@ -7,7 +7,7 @@ use App\Notifications\GetOtpNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VerifyAccountSecurityRequest;
+use Illuminate\Http\Request;
 
 class AccountSecurityController extends Controller
 {
@@ -26,7 +26,7 @@ class AccountSecurityController extends Controller
         $code = random_int(100000, 999999);
 
         // If the user does not have an account security, create it
-        if ( is_null($accountSecurity)) {
+        if (is_null($accountSecurity)) {
             $accountSecurity = $user->accountSecurity()->create([
                 'length' => $request->time * 60,
             ]);
@@ -40,7 +40,7 @@ class AccountSecurityController extends Controller
         }
 
         // If the user does not have a phone number, update it
-        if (is_null($user->phone)) {
+        if (!$user->hasVerifiedPhone()) {
             $user->update(['phone' => $request->phone]);
         }
 
@@ -51,16 +51,20 @@ class AccountSecurityController extends Controller
         );
 
         // Send the code to the user
-        $user->notify(new GetOtpNotification($code, phone:$user->phone ?: $request->phone));
+        $user->notify(new GetOtpNotification($code, phone: $user->phone ?: $request->phone));
         return response()->noContent(200);
     }
 
     /**
-     * @param VerifyAccountSecurityRequest $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function turnOffAccountSecurity(VerifyAccountSecurityRequest $request)
+    public function turnOffAccountSecurity(Request $request)
     {
+        $request->validate([
+            'code' => 'required|numeric|digits:6',
+        ]);
+
         $user = $request->user();
 
         // Get the user's account security
@@ -71,9 +75,9 @@ class AccountSecurityController extends Controller
         abort_if($accountSecurity->unlocked, 400);
 
         // Check if the code is correct
-        if(Hash::check($request->code, $accountSecurity->otp->code)) {
+        if (Hash::check($request->code, $accountSecurity->otp->code)) {
             // If the user does not have a phone number, update it
-            if(is_null($user->phone_verified_at)) {
+            if (is_null($user->phone_verified_at)) {
                 $user->update(['phone_verified_at' => now()]);
             }
 

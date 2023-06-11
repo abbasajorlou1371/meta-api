@@ -67,28 +67,4 @@ class BankAccountPolicy
     {
         return $bankAccount->bankable->is($user);
     }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, BankAccount $bankAccount)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\BankAccount  $bankAccount
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, BankAccount $bankAccount)
-    {
-        //
-    }
 }

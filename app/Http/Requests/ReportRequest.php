@@ -31,12 +31,4 @@ class ReportRequest extends FormRequest
             'attachment' => 'nullable|file|mimes:png,jpg,pdf,jpeg|max:1024'
         ];
     }
-
-    public function messages()
-    {
-        return [
-            'title.required' => 'عنوان گزارش را وارد کنید',
-            'content.required' => 'متن گزارش را وارد کنید'
-        ];
-    }
 }

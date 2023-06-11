@@ -24,26 +24,8 @@ class ReportEventRequest extends FormRequest
     public function rules()
     {
         return [
-            'suspecious_citizen' => ['nullable',
-                function($attribute, $value, $fail) {
-                    if(! preg_match('/hm-/i', $value))
-                    {
-                        $fail('شناسه کاربری وارد شده صحیح نیست');
-                    } else if($value == request()->user()->code)
-                    {
-                        $fail('شما نمی توانید خود را به عنوان مضنون معرفی کنید');
-                    }
-                }
-            ],
+            'suspecious_citizen' => 'nullable|string|exists:users,code',
             'event_description' => 'required|string|max:500'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'event_description.required' => 'شرح واقعه را وارد کنید',
-            'event_description.max' => 'تعداد حداکثر مجاز 500 کاراکتر می باشد'
         ];
     }
 }

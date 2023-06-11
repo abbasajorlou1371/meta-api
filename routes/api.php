@@ -39,7 +39,7 @@ use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\TicketController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\UserEventsController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -204,7 +204,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/password', ChangePasswordController::class);
     });
 
-    //    DYNASTY SECTION
     Route::prefix('dynasty')->group(function () {
         Route::controller(DynastyController::class)->group(function () {
             Route::get('/', 'index');
@@ -264,7 +263,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 });
 
-Route::post('/video-tutorials', [TutorialController::class, 'index'])->name('tutorials-temp-url');
+Route::post('video-tutorials', [TutorialController::class, 'index'])->name('tutorials-temp-url');
 
 Route::get('ping', static fn () => null);
 
