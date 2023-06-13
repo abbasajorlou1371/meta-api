@@ -13,4 +13,11 @@ class LevelGift extends Model
         'created_at',
         'updated_at',
     ];
+
+    protected $guarded = [];
+
+    public function level()
+    {
+        return $this->belongsTo(Level::class);
+    }
 }

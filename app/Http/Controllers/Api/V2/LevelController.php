@@ -16,10 +16,7 @@ class LevelController extends Controller
 {
     public function index()
     {
-        return LevelResource::collection(Level::with([
-            'image',
-            'generalInfo:id,description,png_file,fbx_file,gif_file'
-        ])->get());
+        return LevelResource::collection(Level::with(['image', 'generalInfo'])->get());
     }
 
     public function show(Level $level)
