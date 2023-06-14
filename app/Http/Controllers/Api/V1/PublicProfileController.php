@@ -9,9 +9,9 @@ use App\Http\Resources\PublicProfile\PersonalInfo;
 
 class PublicProfileController extends Controller
 {
-    public function home(Request $request, string $code) {
-        $user = User::with('kyc', 'customs', 'customs.passions', 'profilePhotos', 'level')
-        ->where('code', $code)->first();
-        return $user ? new PersonalInfo($user) : response()->noContent(404);
+    public function home(User $user)
+    {
+        $user->load(['kyc', 'customs', 'customs.passions', 'profilePhotos', 'level']);
+        return new PersonalInfo($user);
     }
 }

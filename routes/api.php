@@ -270,5 +270,5 @@ Route::get('ping', static fn () => null);
 Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
-    Route::get('/{code}', 'home');
+    Route::get('/{user:code}', 'home');
 });
