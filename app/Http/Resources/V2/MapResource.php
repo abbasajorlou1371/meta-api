@@ -19,9 +19,9 @@ class MapResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'color' => $this->polygon_color,
-            'sold_features_percentage' => $this->features->where('owner_id', '<>', 1)->count() / $this->features->count() * 100,
+            'central_point_coordinates' => $this->central_point_coordinates,
+            'sold_features_percentage' => number_format($this->features->where('owner_id', '<>', 1)->count() / $this->features->count() * 100, 2),
             $this->mergeWhen(request()->routeIs('maps.show'), [
-                'central_point_coordinates' => $this->central_point_coordinates,
                 'border_coordinates' => $this->border_coordinates,
                 'area' => $this->polygon_area,
                 'address' => $this->polygon_address,

@@ -25,6 +25,8 @@ class RecievedJoinRequest extends JsonResource
             ],
             'status' => $this->status,
             'relationship' => $this->getRelationShipTitle(),
+            'date' => jdate($this->created_at)->format('Y/m/d'),
+            'time' => jdate($this->created_at)->format('H:i'),
             $this->mergeWhen(request()->routeIs('joinRequests.recieved.show'), [
                 'message' => $this->message,
                 $this->mergeWhen($this->relationship === 'offspring', [
