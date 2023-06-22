@@ -29,4 +29,18 @@ class MapsController extends Controller
         $map = $map->load(['features', 'features.properties']);
         return new MapResource($map);
     }
+
+    /**
+     * Display the specified map's border coordinates.
+     * @param Map $map
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function border(Map $map)
+    {
+        return response()->json([
+            'data' => [
+                'border_coordinates' => $map->border_coordinates,
+            ]
+        ]);
+    }
 }

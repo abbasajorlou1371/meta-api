@@ -52,5 +52,11 @@ Route::controller(LevelController::class)->prefix('levels')->group(function () {
 
 Route::apiResource('maps', MapsController::class)->only(['index', 'show']);
 
+Route::controller(MapsController::class)->prefix('maps')->as('maps.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{map}', 'show')->name('show');
+    Route::get('/{map}/border', 'showBorder');
+});
+
 Route::controller(VideoPanelController::class)->group(function () {
 });
