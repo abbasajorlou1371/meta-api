@@ -35,7 +35,7 @@ class MapsController extends Controller
      * @param Map $map
      * @return \Illuminate\Http\JsonResponse
      */
-    public function border(Map $map)
+    public function showBorder(Map $map)
     {
         return response()->json([
             'data' => [
