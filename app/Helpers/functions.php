@@ -63,7 +63,7 @@ function getLevelsImages($userLevel): array
         $levels = Level::orderBy('score')->lazy();
         foreach ($levels as $level) {
             if ($userLevel->score >= $level->score) {
-                array_push($images, config('app.admin_panel_url') . $level->image?->url);
+                array_push($images, config('app.admin_panel_url') . '/uploads/' . $level->image?->url);
             }
         }
     }
