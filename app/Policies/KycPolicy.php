@@ -41,7 +41,7 @@ class KycPolicy
      */
     public function create(User $user)
     {
-        return !$user->verified();
+        return is_null($user->kyc);
     }
 
     /**
