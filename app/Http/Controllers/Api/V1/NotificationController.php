@@ -24,7 +24,25 @@ class NotificationController extends Controller
      * @return NotificationResource
      */
     public function show(Request $request, Notification $notification) {
+        return new NotificationResource($notification);
+    }
+
+    /**
+     * Mark a notification as read.
+     * @param Notification $notification
+     * @return NotificationResource
+     */
+    public function markAsRead(Request $request, Notification $notification) {
         $notification->markAsRead();
+        return response()->noContent();
+    }
+
+    /**
+     * Mark all notifications as read.
+     * @return NotificationResource
+     */
+    public function markAllAsRead(Request $request) {
+        $request->user()->unreadNotifications->markAsRead();
         return response()->noContent();
     }
 }

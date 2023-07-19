@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
 
 class NotificationResource extends JsonResource
 {
@@ -19,8 +18,8 @@ class NotificationResource extends JsonResource
             'id' => $this->id,
             'data' => $this->data,
             'read_at' => $this->read_at,
-            'date' => Jalalian::forge($this->created_at)->format('Y/m/d'),
-            'time' => Jalalian::forge($this->created_at)->format('H:m:s'),
+            'date' => jdate($this->created_at)->format('Y/m/d'),
+            'time' => jdate($this->created_at)->format('H:m:s'),
         ];
     }
 }

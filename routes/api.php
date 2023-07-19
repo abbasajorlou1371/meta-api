@@ -256,7 +256,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/report/close/{userEvent}', 'closeEventReport');
     });
 
-    Route::apiResource('notifications', NotificationController::class)->only(['index', 'show']);
+    Route::controller(NotificationController::class)->prefix('notifications')->group(function() {
+        Route::get('/', 'index');
+        Route::get('/{notification}', 'show');
+        Route::post('/read/all', 'markAllAsRead');
+        Route::post('/read/{notification}', 'markAsRead');
+    });
 
     Route::controller(ChallengeController::class)->as('challenge.')->prefix('challenge')->group(function () {
         Route::get('timings', 'getTimings')->name('timing');
