@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Ip extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'from',
+        'to',
+        'type',
+    ];
+
+    protected $casts = [
+        'from' => 'integer',
+        'to' => 'integer',
+    ];
 }

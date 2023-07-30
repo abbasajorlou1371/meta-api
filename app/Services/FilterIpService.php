@@ -3,13 +3,23 @@
 namespace App\Services;
 
 use Closure;
-use Illuminate\Http\Request;
 use App\Models\Ip;
+use Illuminate\Support\Facades\Cache;
 
 class FilterIpService
 {
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next)
     {
-        return !Ip::where('type', 'api')->where('from', ip2long(request()->ip()))->doesntExist();
+        $allowedIps = Cache::remember('allowed_api_ips', 60 * 60 * 24, function () {
+            return Ip::whereType('api')->get();
+        });
+
+        $ip = ip2long($request->ip());
+
+        foreach ($allowedIps as $allowedIp) {
+            return $ip === $allowedIp->from;
+        }
+
+        return false;
     }
 }
