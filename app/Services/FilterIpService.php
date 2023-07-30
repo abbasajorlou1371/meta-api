@@ -11,7 +11,7 @@ class FilterIpService
     public function handle($request, Closure $next)
     {
         $allowedIps = Cache::remember('allowed_api_ips', 60 * 60 * 24, function () {
-            return Ip::whereType('api')->get();
+            return Ip::whereType('api')->free()->get();
         });
 
         $ip = ip2long($request->ip());

@@ -11,7 +11,7 @@ class FilterIpRangeService
     public function handle($request, Closure $next)
     {
         $allowedIpRanges = Cache::remember('allowed_ip_ranges', 60 * 60 * 24, function () {
-            return Ip::whereType('range')->orderBy('from')->get();
+            return Ip::whereType('range')->free()->orderBy('from')->get();
         });
 
         $ip = ip2long($request->ip());

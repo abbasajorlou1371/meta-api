@@ -13,10 +13,18 @@ class Ip extends Model
         'from',
         'to',
         'type',
+        'email',
+        'blocked',
+        'title'
     ];
 
     protected $casts = [
         'from' => 'integer',
         'to' => 'integer',
     ];
+
+    public function scopeFree($query)
+    {
+        return $query->where('blocked', 0);
+    }
 }

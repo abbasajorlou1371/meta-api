@@ -29,6 +29,8 @@ class CheckIp
                 ->thenReturn();
         });
 
-        return $ipAllowed ? $next($request) : abort(403, 'UnAuthorized access location');
+        return $ipAllowed
+            ? $next($request)
+            : abort(403, 'UnAuthorized access location');
     }
 }
