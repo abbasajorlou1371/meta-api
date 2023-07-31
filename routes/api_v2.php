@@ -58,5 +58,7 @@ Route::controller(MapsController::class)->prefix('maps')->as('maps.')->group(fun
     Route::get('/{map}/border', 'showBorder');
 });
 
+Route::get('ip', static fn() => null)->withoutMiddleware('check.ip');
+
 Route::controller(VideoPanelController::class)->group(function () {
 });
