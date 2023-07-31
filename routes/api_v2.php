@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V2\MapsController;
 use App\Http\Controllers\Api\V2\VideoPanelController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -58,7 +59,9 @@ Route::controller(MapsController::class)->prefix('maps')->as('maps.')->group(fun
     Route::get('/{map}/border', 'showBorder');
 });
 
-Route::get('ip', static fn() => null)->withoutMiddleware('check.ip');
+Route::get('ip', function(Request $request) {
+    return $request->ip();
+})->withoutMiddleware('check.ip');
 
 Route::controller(VideoPanelController::class)->group(function () {
 });
