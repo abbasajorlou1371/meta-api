@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Helpers\FeatureHelper;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 use App\Http\Resources\CoordinatesResource;

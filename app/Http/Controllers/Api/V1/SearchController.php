@@ -22,10 +22,23 @@ class SearchController extends Controller
      */
     public function users(Request $request): AnonymousResourceCollection
     {
-        $users = User::where('name', 'like', '%' . $request->searchTerm . '%')
-            ->orWhere('code', 'like', '%' . $request->searchTerm . '%')
-            ->whereNot('name', 'rgb')
-            ->with(['profilePhotos'])
+        $searchTerms = explode(' ', $request->searchTerm);
+
+        $users = User::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->orWhere('name', 'like', '%' . $term . '%')
+                        ->orWhere('code', 'like', '%' . $term . '%');
+                }
+            })
+            ->orWhereHas('kyc', function ($query) use ($searchTerms) {
+                $query->where(function ($query) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $query->orWhere('fname', 'like', '%' . $term . '%')
+                            ->orWhere('lname', 'like', '%' . $term . '%');
+                    }
+                });
+            })
+            ->with(['profilePhotos', 'kyc:user_id,fname,lname'])
             ->take(5)
             ->get();
         return SearchUserResultResource::collection($users);

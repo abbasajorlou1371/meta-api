@@ -29,7 +29,7 @@ class CheckIp
                 ->thenReturn();
         });
 
-        return $ipAllowed
+        return $ipAllowed || app()->environment('local')
             ? $next($request)
             : abort(403, 'UnAuthorized access location');
     }

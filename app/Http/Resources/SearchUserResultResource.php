@@ -18,7 +18,7 @@ class SearchUserResultResource extends JsonResource
         return [
             'id' => $this->id,
             'code' => Str::upper($this->code),
-            'name' => $this->name,
+            'name' => $this->verified() ? $this->kyc->fname . ' ' . $this->kyc->lname : $this->name,
             'followers' => $this->followers->count(),
             'level' => $this->level?->name,
             'photo' => $this->profilePhotos->last()?->url,

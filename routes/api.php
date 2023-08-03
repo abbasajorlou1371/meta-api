@@ -189,11 +189,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('kyc', KycController::class)->only(['index', 'store', 'update']);
     Route::apiResource('bank-accounts', BankAccountController::class);
 
-    Route::controller(SearchController::class)->prefix('search')->group(function () {
-        Route::post('users', 'users');
-        Route::post('features', 'features');
-    })->withoutMiddleware(['auth:sanctum', 'verified']);
-
     Route::post('order', [OrderController::class, 'store']);
 
     Route::prefix('reset')->as('reset.')->middleware('account.security')->group(function () {
@@ -280,4 +275,9 @@ Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->nam
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');
+});
+
+Route::controller(SearchController::class)->prefix('search')->group(function () {
+    Route::post('users', 'users');
+    Route::post('features', 'features');
 });
