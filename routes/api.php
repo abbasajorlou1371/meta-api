@@ -243,7 +243,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/{featureHourlyProfit}', 'getSingleProfit');
     });
 
-    Route::apiResource('customs', CustomController::class);
+    Route::apiResource('customs', CustomController::class)->only(['index', 'store', 'update']);
 
     Route::controller(UserEventsController::class)->as('user-events.')->prefix('events')->group(function () {
         Route::get('/', 'index')->name('index');
