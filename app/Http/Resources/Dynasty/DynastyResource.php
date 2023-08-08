@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Dynasty;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
 
 class DynastyResource extends JsonResource
 {
@@ -19,18 +18,18 @@ class DynastyResource extends JsonResource
             'user-has-dynasty' => true,
             'id' => $this->id,
             'family_id' => $this->family->id,
-            'created_at' => Jalalian::forge($this->created_at)->format('Y/m/d'),
-            'profile-image' => $this->user->profilePhotos->first()?->url,
+            'created_at' => jdate($this->created_at)->format('Y/m/d'),
+            'profile-image' => $this->user->profilePhotos->last()?->url,
             'dynasty-feature' => [
                 'id' => $this->feature->id,
                 'properties_id' => $this->feature->properties->id,
                 'area' => $this->feature->properties->area,
                 'density' => $this->feature->properties->density,
-                'feature-profit-increase' => $this->feature->properties->stability > 1000 ?
-                number_format($this->feature->properties->stability / 1000 - 1, 3)
-                : 0,
+                'feature-profit-increase' => $this->feature->properties->stability > 10000 ?
+                    number_format($this->feature->properties->stability / 10000 - 1, 3)
+                    : 0,
                 'family-members-count' => $this->family->familyMembers->count(),
-                'last-updated' => Jalalian::forge($this->updated_at)->format('Y/m/d H:m:s')
+                'last-updated' => jdate($this->updated_at)->format('Y/m/d H:m:s')
             ],
             'features' => $request->user()->features
                 ->reject(function ($feature) {
