@@ -18,7 +18,7 @@ class Activity
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::guard('sanctum')->check()) {
+        if (Auth::check()) {
             $latestActivity = $request->user()->latestActivity;
             $start = $latestActivity->start;
 
