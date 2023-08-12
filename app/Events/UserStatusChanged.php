@@ -22,7 +22,7 @@ class UserStatusChanged implements ShouldBroadcast
 
     public function __construct(public array $data)
     {
-        // 
+        //
     }
 
     public function broadcastAs()

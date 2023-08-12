@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Events\UserStatusChanged;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Activity
 {
@@ -17,9 +18,10 @@ class Activity
      */
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->user()) {
+        if (Auth::guard('sanctum')->check()) {
             $latestActivity = $request->user()->latestActivity;
             $start = $latestActivity->start;
+
             if (is_null($latestActivity->end)) {
                 if ($start->diffInMinutes(now()) > 5) {
                     $latestActivity->update([
@@ -32,7 +34,9 @@ class Activity
                     ]);
                 }
             }
+
             $request->user()->update(['last_seen' => now()]);
+
             broadcast(new UserStatusChanged([
                 'id'     => $request->user()->id,
                 'online' => true,
