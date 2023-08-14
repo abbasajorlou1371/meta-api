@@ -142,6 +142,8 @@ class Feature extends Model
             FeatureIndicators::Amozeshi =>  'آموزشی',
             FeatureIndicators::Tejari =>  'تجاری',
             FeatureIndicators::Maskoni =>  'مسکونی',
+            FeatureIndicators::Edari => 'اداری',
+            FeatureIndicators::Behdashti => 'بهداشتی',
         };
     }
 

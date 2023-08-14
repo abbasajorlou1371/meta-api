@@ -24,11 +24,13 @@ class Activity
 
             if (is_null($latestActivity->end)) {
                 if ($start->diffInMinutes(now()) > 5) {
+
                     $latestActivity->update([
                         'end' => now()->subMinutes($start->diffInMinutes(now()) - 5),
                         'total' => 5,
                         'ip' => $request->ip(),
                     ]);
+
                     $request->user()->activities()->create([
                         'start' => now()
                     ]);

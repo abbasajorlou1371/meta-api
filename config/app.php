@@ -54,10 +54,11 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://rgb.irpsc.com'),
+    'url' => env('APP_URL', 'http://localhost:8000'),
+
     'admin_panel_url' => env('ADMIN_PANEL_URL', 'https://admin.rgb.irpsc.com'),
 
-    'asset_url' => env('ASSET_URL'),
+    'asset_url' => env('ASSET_URL', '/'),
 
     /*
     |--------------------------------------------------------------------------
