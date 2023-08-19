@@ -205,6 +205,12 @@ class SendJoinRequestController extends Controller
         $user = User::select(['id', 'code'])
             ->where('name', 'like', '%' . $request->searchTerm . '%')
             ->orWhere('code', 'like', '%' . $request->searchTerm . '%')
+            ->orWhere(function ($query) {
+                $query->whereHas('kyc', function ($query) {
+                    $query->where('fname', 'like', '%' . request()->searchTerm . '%')
+                        ->orWhere('lname', 'like', '%' . request()->searchTerm . '%');
+                });
+            })
             ->with(['kyc', 'profilePhotos'])
             ->first();
 
