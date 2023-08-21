@@ -54,6 +54,7 @@ class FeatureHourlyProfitController extends Controller
                 't' => 'تجاری',
                 'a' => 'آموزشی',
             },
+            'id' => null,
         ]));
 
         return response()->json([], 200);
