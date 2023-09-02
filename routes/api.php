@@ -90,13 +90,12 @@ Route::controller(PlayerController::class)->prefix('players')->as('players.')->g
     Route::get('/{player}/following', 'following');
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::controller(HomeController::class)->group(function () {
+    Route::post('store', 'getStorePackages');
+    Route::post('/ip/send-to-support', 'sendIpToSupport');
+});
 
-    Route::controller(HomeController::class)->group(function () {
-        Route::post('store', 'getStorePackages');
-        Route::post('/ip/send-to-support', 'sendIpToSupport')
-        ->withoutMiddleware(['auth:sanctum', 'verified', 'check.ip']);
-    });
+Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
 
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');

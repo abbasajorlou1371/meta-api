@@ -19,31 +19,15 @@ class Activity
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check()) {
-            $latestActivity = $request->user()->latestActivity;
-            $start = $latestActivity->start;
-
-            if (is_null($latestActivity->end)) {
-                if ($start->diffInMinutes(now()) > 5) {
-
-                    $latestActivity->update([
-                        'end' => now()->subMinutes($start->diffInMinutes(now()) - 5),
-                        'total' => 5,
-                        'ip' => $request->ip(),
-                    ]);
-
-                    $request->user()->activities()->create([
-                        'start' => now()
-                    ]);
-                }
-            }
 
             $request->user()->update(['last_seen' => now()]);
-
+            
             broadcast(new UserStatusChanged([
                 'id'     => $request->user()->id,
                 'online' => true,
             ]));
         }
+        
         return $next($request);
     }
 }

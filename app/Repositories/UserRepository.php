@@ -9,7 +9,7 @@ class UserRepository extends Repository
     public function topPlayers()
     {
         return User::where('score', '>', 0)
-            ->orderByDesc('score')
+            ->orderBy('score', 'desc')
             ->take(10)
             ->get()
             ->map(function ($user) {

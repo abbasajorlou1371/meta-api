@@ -89,6 +89,6 @@ class TicketPolicy
      */
     public function close(User $user, Ticket $ticket)
     {
-        return $ticket->sender->is($user);
+        return $ticket->responses()->count() > 0;
     }
 }

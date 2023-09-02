@@ -46,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'last_seen'         => 'datetime',
         'code'              => 'string',
+        'score'             => 'integer',
     ];
 
     protected $hidden = [

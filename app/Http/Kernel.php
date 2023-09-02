@@ -22,7 +22,6 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\SecurityHeaders::class,
-        \App\Http\Middleware\Activity::class,
     ];
 
     /**
@@ -68,6 +67,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.ip' => \App\Http\Middleware\CheckIp::class,
         'account.security' => \App\Http\Middleware\AccountSecurity::class,
+        'activity' => \App\Http\Middleware\Activity::class,
     ];
 
     /**

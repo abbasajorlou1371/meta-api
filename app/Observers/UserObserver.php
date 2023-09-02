@@ -52,24 +52,32 @@ class UserObserver
     public function logedOut(User $user)
     {
         $latestActivity = $user->latestActivity;
-        if (isset($latestActivity) && is_null($latestActivity->end)) {
-            $start = $latestActivity->start;
-            $total = $start->diffInMinutes(now());
-            $latestActivity->update([
-                'end' => now(),
-                'total' => $total,
-                'ip' => request()->ip(),
-            ]);
-            $user->hourReached();
-        }
+
+        $latestActivity->update([
+            'end' => now(),
+            'total' => $latestActivity->start->diffInMinutes(now()),
+            'ip' => request()->ip(),
+        ]);
+
+        $user->hourReached();
+
         $user->update(['last_seen' => now()->subMinutes(2)]);
+
+        $user->events()->create([
+            'event' => 'خروج از حساب کاربری',
+            'ip' => request()->ip(),
+            'device' => request()->userAgent(),
+            'status' => 1,
+        ]);
+
         broadcast(new UserStatusChanged([
             'id'     => $user->id,
             'online' => false
         ]));
     }
 
-    public function registered(User $user) {
+    public function registered(User $user)
+    {
         $user->assets()->create();
         $user->settings()->create();
         $user->generalSettings()->create();
@@ -88,9 +96,11 @@ class UserObserver
     public function hourReached(User $user): void
     {
         $totalActiveHours = $user->activities->sum('total');
+
         $user->log->update([
             'activity_hours' => ceil($totalActiveHours / 60) * 0.1
         ]);
+
         $this->calculateScore($user);
     }
 
@@ -153,12 +163,14 @@ class UserObserver
     private function calculateScore(User $user)
     {
         $log = $user->log;
+
         $sum = array_sum([
             $log->transactions_count,
             $log->followers_count,
             $log->deposit_amount,
             $log->activity_hours,
         ]);
+        
         $log->update(['score' => $sum]);
         $user->update(['score' => $sum]);
 
@@ -171,12 +183,15 @@ class UserObserver
         }
 
         if (!$next_level) return;
+
         if ($sum >= $next_level->score) {
             UserLevel::updateOrCreate(
                 ['user_id' => $user->id],
                 ['level_id' => $next_level->id]
             );
+
             $prize = $next_level->prize;
+
             if ($user->can('recievePrize', $prize)) {
                 $assets = $user->assets;
                 $assets->increment('psc', $prize->psc);
@@ -191,5 +206,4 @@ class UserObserver
             }
         }
     }
-
 }
