@@ -42,20 +42,23 @@ class FeatureHourlyProfitController extends Controller
                 }
             });
 
-        $user->notify(new FeatureHourlyProfitDeposit([
-            'asset'   => match ($request->karbari) {
-                'm' => 'red',
-                't' => 'yellow',
-                'a' => 'blue',
-            },
-            'amount'  => $amount,
-            'karbari' => match ($request->karbari) {
-                'm' => 'مسکونی',
-                't' => 'تجاری',
-                'a' => 'آموزشی',
-            },
-            'id' => null,
-        ]));
+        if($amount > 0) {
+            $user->notify(new FeatureHourlyProfitDeposit([
+                'asset'   => match ($request->karbari) {
+                    'm' => 'red',
+                    't' => 'yellow',
+                    'a' => 'blue',
+                },
+                'amount'  => $amount,
+                'karbari' => match ($request->karbari) {
+                    'm' => 'مسکونی',
+                    't' => 'تجاری',
+                    'a' => 'آموزشی',
+                },
+                'id' => null,
+            ]));
+        }
+
 
         return response()->json([], 200);
     }
