@@ -84,7 +84,7 @@ class UserObserver
         $user->log()->create();
         $user->variables()->create();
         createUserPrivacy($user);
-        // event(new Registered($user));
+        event(new Registered($user));
     }
 
     /**
