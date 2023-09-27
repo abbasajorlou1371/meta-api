@@ -27,7 +27,7 @@ class PersonalInfo extends JsonResource
             'kyc' => [
                 $this->mergeWhen($this->verified(), [
                     $this->mergeWhen($this->privacy->where('name', 'nationality')->pluck('display')->first(), [
-                        'nationality' => 'https://dl.qzparadise.ir/public/flags/iran.png',
+                        'nationality' => config('app.url') . '/uploads/flags/iran.png',
                     ]),
 
                     $this->mergeWhen($this->privacy->where('name', 'fname')->pluck('display')->first(),[
