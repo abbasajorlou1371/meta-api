@@ -16,7 +16,7 @@ class ProfilePhotoController extends Controller
      */
     public function index()
     {
-        return ProfilePhotoResource::make(request()->user()->profilePhotos);
+        return ProfilePhotoResource::collection(request()->user()->profilePhotos);
     }
 
     /**
@@ -52,7 +52,7 @@ class ProfilePhotoController extends Controller
      */
     public function destroy(Image $profilePhoto)
     {
-        $this->authorize('delete', $profilePhoto);
+        abort_if($profilePhoto->imageable->isNot(request()->user()), 403, 'Unauthorized');
         $profilePhoto->delete();
         return response()->noContent();
     }
