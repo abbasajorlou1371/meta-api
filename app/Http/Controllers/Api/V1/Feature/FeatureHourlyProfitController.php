@@ -12,9 +12,15 @@ class FeatureHourlyProfitController extends Controller
 {
     public function index()
     {
+        $totalProfit = FeatureHourlyProfit::whereBelongsTo(request()->user())
+            ->sum('amount');
+
         return HourlyProfitResource::collection(
-            FeatureHourlyProfit::whereBelongsTo(request()->user())->simplePaginate(10)
-        );
+            FeatureHourlyProfit::with('feature.properties')
+                ->whereBelongsTo(request()->user())->simplePaginate(10)
+        )->additional([
+            'total_profit' => number_format($totalProfit, 2)
+        ]);
     }
 
     public function getProfitsByApplication(Request $request)
@@ -26,7 +32,7 @@ class FeatureHourlyProfitController extends Controller
         $time = $user->variables->withdraw_profit * 86400;
         $amount = 0;
 
-        FeatureHourlyProfit::whereBelongsTo($user)->with('feature', 'feature.properties')
+        FeatureHourlyProfit::whereBelongsTo($user)->with('feature.properties')
             ->chunkById(100, function ($profits) use ($request, $user, $time, &$amount) {
                 foreach ($profits as $profit) {
                     if ($profit->feature->properties->karbari == $request->karbari) {
@@ -42,7 +48,7 @@ class FeatureHourlyProfitController extends Controller
                 }
             });
 
-        if($amount > 0) {
+        if ($amount > 0) {
             $user->notify(new FeatureHourlyProfitDeposit([
                 'asset'   => match ($request->karbari) {
                     'm' => 'red',

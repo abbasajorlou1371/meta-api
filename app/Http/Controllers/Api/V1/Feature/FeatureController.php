@@ -50,7 +50,7 @@ class FeatureController extends Controller
     {
         $this->authorize('addImage', $feature);
         foreach ($request->file('images') as $image) {
-            $url = url('uploads/'.$image->store('features'));
+            $url = url('uploads/'.$image->store('features', 'public'));
             $feature->images()->create(['url' => $url]);
         }
         return FeatureImageResource::collection($feature->images);

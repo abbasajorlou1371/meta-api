@@ -3,10 +3,11 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
 
 class HourlyProfitResource extends JsonResource
 {
+    public static $wrap = '';
+
     /**
      * Transform the resource into an array.
      *

@@ -66,7 +66,7 @@ class TicketController extends Controller
     public function store(CreateTicketRequest $request)
     {
         $attachment = $request->hasFile('attachment')
-            ? url('uploads/'.$request->file('attachment')->store('tickets'))
+            ? url('uploads/'.$request->file('attachment')->store('tickets', 'public'))
             : '';
 
         $ticket = Ticket::create([
