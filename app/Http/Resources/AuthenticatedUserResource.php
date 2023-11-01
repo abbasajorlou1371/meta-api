@@ -17,7 +17,7 @@ class AuthenticatedUserResource extends JsonResource
         return [
             'id' => $this->id,
             'token' => $this->token,
-            'automatic_logout' => $this->automaticLogout == 0 ? $this->automaticLogout : 5,
+            'automatic_logout' => $this->automaticLogout > 0 ? $this->automaticLogout : 5,
             'code' => $this->code,
             'level' => $this->level,
             'image' => $this->profilePhotos->last()?->url,
