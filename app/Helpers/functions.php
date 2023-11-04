@@ -58,14 +58,16 @@ function hourlyProfitInfo(User $user): int
 
 function getSubLevels($userLevel): array
 {
-    return $userLevel ? Level::where('score', '<', $userLevel->score)->get()->map(function ($level) {
-        return [
-            'id' => $level->id,
-            'name' => $level->name,
-            'slug' => $level->slug,
-            'image' => config('app.admin_panel_url') . $level->image?->url,
-        ];
-    })->toArray() : [];
+    return $userLevel ? Level::where('score', '<', $userLevel->score)->orderBy('score')
+        ->get()->map(function ($level) {
+            return [
+                'id' => $level->id,
+                'name' => $level->name,
+                'slug' => $level->slug,
+                'score' => $level->score,
+                'image' => config('app.admin_panel_url') . $level->image?->url,
+            ];
+        })->toArray() : [];
 }
 
 function createUserPrivacy(User $user)
