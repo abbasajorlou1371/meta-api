@@ -15,6 +15,10 @@ class Level extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'score' => 'integer',
+    ];
+
     protected $hidden = [
         'created_at',
         'updated_at',
