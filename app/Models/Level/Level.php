@@ -18,7 +18,6 @@ class Level extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'score',
         'laravel_through_key'
     ];
 
