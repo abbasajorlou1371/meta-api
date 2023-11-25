@@ -43,7 +43,7 @@ class TicketRecieved extends Notification implements ShouldQueue
     {
         return [
             'related-to' => 'tickets',
-            'sender-image' => $this->ticket->sender->profilePhotos->last()->url ?? 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => $this->ticket->sender->profilePhotos->last()->url ?? url('uploads/img/logo.png'),
             'sender-name' => $this->ticket->sender->name,
             'message' => 'تیکتی از طرف ' . $this->ticket->sender->name . 'دریافت شده است',
         ];

@@ -77,7 +77,7 @@ class BuyRequestNotification extends Notification implements ShouldQueue
         return [
             'related-to' => 'transactions',
             'sender-name' => 'متارنگ',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'message' => $message
         ];
     }

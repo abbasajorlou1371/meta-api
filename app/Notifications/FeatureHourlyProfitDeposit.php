@@ -41,7 +41,7 @@ class FeatureHourlyProfitDeposit extends Notification implements ShouldQueue
     {
         return [
             'sender-name' => 'متارنگ',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'related-to' => 'transactions',
             'message'  => $this->getMessage()
         ];

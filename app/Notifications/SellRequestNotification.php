@@ -79,7 +79,7 @@ class SellRequestNotification extends Notification implements ShouldQueue
         return [
             'related-to' => 'sell-requests',
             'sender-name' => 'متارنگ',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'message' => sprintf('ملک %s با موفقیت قیمت گذاری شد.', $this->feature->properties->id)
         ];
     }

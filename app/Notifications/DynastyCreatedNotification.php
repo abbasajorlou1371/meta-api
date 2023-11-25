@@ -57,7 +57,7 @@ class DynastyCreatedNotification extends Notification implements ShouldQueue
     {
         return [
             'related-to' => 'dynasty',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'sender-name' => 'متارنگ',
             'message' => 'سلسله شما تاسیس شد.',
         ];

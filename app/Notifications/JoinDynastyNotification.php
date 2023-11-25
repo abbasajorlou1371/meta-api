@@ -116,7 +116,7 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
     {
         return [
             'related-to' => 'dynasty-join-requests',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'sender-name' => 'متارنگ',
             'message' => $this->data['message']
         ];

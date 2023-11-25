@@ -84,7 +84,7 @@ class TransactionNotification extends Notification implements ShouldQueue
         }
         return [
             'related-to' => 'transactions',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'sender-name' => 'متارنگ',
             'message' => $message,
         ];

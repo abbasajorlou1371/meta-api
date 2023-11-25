@@ -57,7 +57,7 @@ class DynastyFeatureChangedNotification extends Notification implements ShouldQu
     {
         return [
             'related-to' => 'dynasty',
-            'sender-image' => 'https://dl.qzparadise.ir/public/metarang/logo.png',
+            'sender-image' => url('uploads/img/logo.png'),
             'sender-name' => 'متارنگ',
             'message' => 'ملک بنای سلسله جایگزین شد.',
         ];
