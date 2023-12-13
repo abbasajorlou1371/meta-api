@@ -114,59 +114,59 @@ class PersonalInfo extends JsonResource
                     $this->mergeWhen($this->customs?->passions && $this->privacy->where('name', 'passions')->pluck('display')->first(), [
                         'passions' => [
                             $this->mergeWhen($this->customs?->passions?->music, [
-                                "music" =>  'https://dl.qzparadise.ir/public/customs/music.png',
+                                "music" =>  config('app.url') . '/uploads/' . 'favorites/music.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->sport_health, [
 
-                                "sport_health" => 'https://dl.qzparadise.ir/public/customs/sport_health.png',
+                                "sport_health" => config('app.url') . '/uploads/' . 'favorites/sport_health.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->art, [
 
-                                "art" =>   'https://dl.qzparadise.ir/public/customs/art.png',
+                                "art" =>   config('app.url') . '/uploads/' . 'favorites/art.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->language_culture, [
 
-                                "language_culture" => 'https://dl.qzparadise.ir/public/customs/language_culture.png',
+                                "language_culture" => config('app.url') . '/uploads/' . 'favorites/language_culture.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->philosophy, [
 
-                                "philosophy" =>  'https://dl.qzparadise.ir/public/customs/philosophy.png',
+                                "philosophy" =>  config('app.url') . '/uploads/' . 'favorites/philosophy.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->animals_nature, [
 
-                                "animals_nature" =>  'https://dl.qzparadise.ir/public/customs/animals_nature.png',
+                                "animals_nature" =>  config('app.url') . '/uploads/' . 'favorites/animals_nature.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->aliens, [
 
-                                "aliens" =>  'https://dl.qzparadise.ir/public/customs/aliens.png',
+                                "aliens" =>  config('app.url') . '/uploads/' . 'favorites/aliens.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->food_cooking, [
 
-                                "food_cooking" =>  'https://dl.qzparadise.ir/public/customs/food_cooking.png',
+                                "food_cooking" =>  config('app.url') . '/uploads/' . 'favorites/food_cooking.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->travel_leature, [
 
-                                "travel_leature" => 'https://dl.qzparadise.ir/public/customs/travel_leature.png',
+                                "travel_leature" => config('app.url') . '/uploads/' . 'favorites/travel_leature.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->manufacturing, [
 
-                                "manufacturing" =>  'https://dl.qzparadise.ir/public/customs/manufacturing.png',
+                                "manufacturing" =>  config('app.url') . '/uploads/' . 'favorites/manufacturing.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->science_technology, [
 
-                                "science_technology" => 'https://dl.qzparadise.ir/public/customs/science_technology.png',
+                                "science_technology" => config('app.url') . '/uploads/' . 'favorites/science_technology.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->space_time, [
 
-                                "space_time"  =>  'https://dl.qzparadise.ir/public/customs/space_time.png',
+                                "space_time"  =>  config('app.url') . '/uploads/' . 'favorites/space_time.png',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->history, [
 
-                                "history" =>  'https://dl.qzparadise.ir/public/customs/history',
+                                "history" =>  config('app.url') . '/uploads/' . 'favorites/history',
                             ]),
                             $this->mergeWhen($this->customs?->passions?->politics_economy, [
 
-                                "politics_economy" =>  'https://dl.qzparadise.ir/public/customs/politics_economy.png',
+                                "politics_economy" =>  config('app.url') . '/uploads/' . 'favorites/politics_economy.png',
                             ])
                         ]
                     ]),
