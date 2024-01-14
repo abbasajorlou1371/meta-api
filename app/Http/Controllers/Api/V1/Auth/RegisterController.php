@@ -48,6 +48,11 @@ class RegisterController extends Controller
         return new AuthenticatedUserResource($user);
     }
 
+    /**
+     * Get the guard to be used during registration.
+     * 
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
     protected function guard()
     {
         return Auth::guard('web');
