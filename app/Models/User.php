@@ -63,9 +63,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'ip',
         'last_seen',
         'code',
+        'referral',
         'score',
         'phone_verified_at',
-        'email_verified_at'
+        'email_verified_at',
+        'access_token',
+        'refresh_token',
+        'token_type',
+        'expires_in',
     ];
 
     protected $attributes = [
@@ -533,7 +538,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function receivesBroadcastNotificationsOn(): string
     {
-        return 'user.notifications.'.$this->id;
+        return 'user.notifications.' . $this->id;
     }
 
     /**

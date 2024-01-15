@@ -10,9 +10,42 @@ use App\Models\Level\UserLevel;
 use App\Models\Level\Level;
 use App\Models\Variable;
 use Illuminate\Auth\Events\Registered;
+use App\Models\Referal;
 
 class UserObserver
 {
+    public $afterCommit = true;
+
+    /**
+     * Handle the User "created" event.
+     *
+     * @param  \App\Models\User  $user
+     * @return void
+     */
+    public function created(User $user)
+    {
+        $user->assets()->create();
+        $user->settings()->create();
+        $user->generalSettings()->create();
+        $user->log()->create();
+        $user->variables()->create();
+
+        $user->update([
+            'referal_link' => 'https://rgb.irpsc.com/citizen/' . $user->code,
+        ]);
+
+        if ($user->referral) {
+            $reference_user = User::where('code', $user->referral)->select('id')->first();
+
+            Referal::create([
+                'reference_id' => $reference_user->id,
+                'referer_id' => $user->id,
+            ]);
+        }
+
+        createUserPrivacy($user);
+    }
+
     /**
      * Handle the User "LogedIn" event.
      *
@@ -170,7 +203,7 @@ class UserObserver
             $log->deposit_amount,
             $log->activity_hours,
         ]);
-        
+
         $log->update(['score' => $sum]);
         $user->update(['score' => $sum]);
 

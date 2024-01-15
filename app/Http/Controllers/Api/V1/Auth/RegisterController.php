@@ -8,16 +8,17 @@ use App\Models\Referal;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\AuthenticatedUserResource;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
     public function register(RegisterUserRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make('password');
+        $user->saveQuietly();
 
         return $this->registered($request, $user);
     }
@@ -44,6 +45,8 @@ class RegisterController extends Controller
         $user->token = $user->createToken('token-' . $user->id, expiresAt: $tokenExpiresAt)->plainTextToken;
 
         $this->guard()->login($user);
+
+        $request->session()->regenerate();
 
         return new AuthenticatedUserResource($user);
     }
