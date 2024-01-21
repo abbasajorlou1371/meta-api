@@ -20,7 +20,7 @@ class FollowResource extends JsonResource
             'name' => $this->name,
             'code' => $this->code,
             'profile_photos' => $this->profilePhotos->last()?->url ?? [],
-            'level' => $this->level,
+            'level' => $this->level?->slug,
             'online' => $this->isOnline(),
         ];
     }
