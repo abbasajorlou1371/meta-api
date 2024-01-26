@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use App\Models\Video;
+use App\Models\VideoCategory;
+use App\Models\VideoSubCategory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,6 +41,15 @@ class SitemapGenerator implements ShouldQueue
             $sitemap->add($users);
         });
 
-        $sitemap->writeToDisk('ftp', 'sitemap.xml');
+        $sitemap->writeToDisk('ftp', 'citizen-sitemap.xml');
+
+        $sitemap->create()->add(Video::all())
+            ->writeToDisk('ftp', 'education_single_video-sitemap.xml');
+
+        $sitemap->create()->add(VideoCategory::all())
+            ->writeToDisk('ftp', 'education_category-sitemap.xml');
+
+        $sitemap->create()->add(VideoSubCategory::with('category')->get())
+            ->writeToDisk('ftp', 'education_sub_category-sitemap.xml');
     }
 }

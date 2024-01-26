@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Sitemap\Contracts\Sitemapable;
+use Spatie\Sitemap\Tags\Url;
+use Carbon\Carbon;
 
-class Video extends Model
+class Video extends Model implements Sitemapable
 {
     use HasFactory;
 
@@ -21,6 +24,22 @@ class Video extends Model
     public function getVideoUrlAttribute()
     {
         return config('app.admin_panel_url') . '/uploads/' . $this->fileName;
+    }
+
+    public function toSitemapTag(): Url|string|array
+    {
+        return [
+            Url::create('https://rgb.irpsc.com/fa/education/watch/rgb-video-' . $this->id)
+                ->setLastModificationDate(Carbon::create($this->updated_at))
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.8)
+                ->addVideo($this->image_url, $this->title, $this->description, $this->video_url),
+            Url::create('https://rgb.irpsc.com/en/education/watch/rgb-video-' . $this->id)
+                ->setLastModificationDate(Carbon::create($this->updated_at))
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.8)
+                ->addVideo($this->image_url, $this->title, $this->description, $this->video_url),
+        ];
     }
 
     public function incrementViews()

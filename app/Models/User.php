@@ -89,12 +89,12 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         $faUrl =  Url::create('https://rgb.irpsc.com/fa/citizen/' . $this->code)
             ->setLastModificationDate(Carbon::create($this->updated_at))
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(0.1);
+            ->setPriority(0.8);
 
         $enUrl =  Url::create('https://rgb.irpsc.com/en/citizen/' . $this->code)
             ->setLastModificationDate(Carbon::create($this->updated_at))
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(0.1);
+            ->setPriority(0.8);
 
         foreach ($this->profilePhotos as $photo) {
             $faUrl->addImage($photo->url);

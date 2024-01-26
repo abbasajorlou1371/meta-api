@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:featureHourlyProfit')->everyMinute();
         $schedule->command('command:prune-unverified')->daily();
         $schedule->command('command:release-feature')->daily();
-        $schedule->job(new SitemapGenerator)->daily();
+        $schedule->job(new SitemapGenerator)->everyThreeHours();
     }
 
     /**
