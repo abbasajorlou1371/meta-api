@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\SitemapGenerator;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -15,11 +16,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
         $schedule->command('command:featureHourlyProfit')->everyMinute();
         $schedule->command('command:prune-unverified')->daily();
         $schedule->command('command:release-feature')->daily();
+        $schedule->job(new SitemapGenerator)->daily();
     }
 
     /**

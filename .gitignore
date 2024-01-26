@@ -18,3 +18,4 @@ yarn-error.log
 worker.log
 /tests
 laravel-worker.conf
+/public/sitemap

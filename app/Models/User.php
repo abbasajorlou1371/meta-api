@@ -27,8 +27,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Helpers\FeatureIndicators;
+use Spatie\Sitemap\Contracts\Sitemapable;
+use Spatie\Sitemap\Tags\Url;
+use Carbon\Carbon;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 {
     use Notifiable, HasFactory, HasApiTokens;
 
@@ -78,6 +81,28 @@ class User extends Authenticatable implements MustVerifyEmail
         'code' => '',
         'referal_link' => ''
     ];
+
+    public function toSitemapTag(): Url|string|array
+    {
+        $this->load('profilePhotos');
+
+        $faUrl =  Url::create('https://rgb.irpsc.com/fa/citizen/' . $this->code)
+            ->setLastModificationDate(Carbon::create($this->updated_at))
+            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+            ->setPriority(0.1);
+
+        $enUrl =  Url::create('https://rgb.irpsc.com/en/citizen/' . $this->code)
+            ->setLastModificationDate(Carbon::create($this->updated_at))
+            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+            ->setPriority(0.1);
+
+        foreach ($this->profilePhotos as $photo) {
+            $faUrl->addImage($photo->url);
+            $enUrl->addImage($photo->url);
+        }
+
+        return [$faUrl, $enUrl];
+    }
 
     public function accountSecurity()
     {
