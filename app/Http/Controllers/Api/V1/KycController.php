@@ -98,7 +98,7 @@ class KycController extends Controller
             'postal_code' => $request->postal_code,
             'address' => $request->address,
             'site' => $request->site,
-            'status' => 2,
+            'status' => 0,
         ]);
         $kyc->errors()->delete();
         return new KycResource($kyc);
