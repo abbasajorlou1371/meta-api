@@ -3,7 +3,6 @@
 namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\V2\VideoCategoryResource;
 use App\Http\Resources\VideoTutorialResource;
 
 class VideoSubCategoryResource extends JsonResource
@@ -20,12 +19,14 @@ class VideoSubCategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image' => config('app.admin_panel_url') . '/uploads/' . $this->image,
-            'icon' => config('app.admin_panel_url') . '/uploads/' . $this->icon,
-            $this->mergeWhen(request()->routeIs('tutorials.subcategories.show'), [
-                'description' => $this->description,
-                'videos' => VideoTutorialResource::collection($this->videos)
-            ])
+            'image' => $this->image_url,
+            'icon' => $this->icon_url,
+            'likes_count' => $this->whenCounted('likes'),
+            'dislikes_count' => $this->whenCounted('dislikes'),
+            'views_count' => $this->whenCounted('views'),
+            'videos_count' => $this->whenCounted('videos'),
+            'description' => $this->when($request->routeIs('tutorials.subcategories.show'), $this->description),
+            'videos' => VideoTutorialResource::collection($this->whenLoaded('videos'))
         ];
     }
 }

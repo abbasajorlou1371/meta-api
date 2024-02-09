@@ -7,14 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\Sitemap\Tags\Url;
 use Carbon\Carbon;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class VideoSubCategory extends Model implements Sitemapable
 {
-    use HasFactory;
+    use HasFactory, HasRelationships;
+
+    protected $guarded = [];
+
+    protected $appends = ['image_url', 'icon_url'];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getImageUrlAttribute()
     {
         return config('app.admin_panel_url') . '/uploads/' . $this->image;
+    }
+
+    public function getIconUrlAttribute()
+    {
+        return config('app.admin_panel_url') . '/uploads/' . $this->icon;
     }
 
     public function toSitemapTag(): Url|string|array
@@ -39,5 +57,22 @@ class VideoSubCategory extends Model implements Sitemapable
     public function videos()
     {
         return $this->hasMany(Video::class);
+    }
+
+    public function views()
+    {
+        return $this->hasManyDeepFromRelations($this->videos(), (new Video)->views());
+    }
+
+    public function likes()
+    {
+        return $this->hasManyDeepFromRelations($this->videos(), (new Video)->interactions())
+            ->where('liked', true);
+    }
+
+    public function dislikes()
+    {
+        return $this->hasManyDeepFromRelations($this->videos(), (new Video)->interactions())
+            ->where('liked', false);
     }
 }

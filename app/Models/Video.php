@@ -16,6 +16,10 @@ class Video extends Model implements Sitemapable
 
     protected $guarded = [];
 
+    protected $withCount = ['views', 'likes', 'dislikes'];
+
+    protected $appends = ['image_url', 'video_url'];
+
     public function getImageUrlAttribute()
     {
         return config('app.admin_panel_url') . '/uploads/' . $this->image;
@@ -44,15 +48,24 @@ class Video extends Model implements Sitemapable
 
     public function incrementViews()
     {
-        $this->views()->updateOrCreate(
-            ['ip_address' => request()->ip()],
-            ['ip_address' => request()->ip()]
-        );
+        $this->views()->create([
+            'ip_address' => request()->ip()
+        ]);
     }
 
     public function interactions(): MorphMany
     {
         return $this->morphMany(Interaction::class, 'likeable');
+    }
+
+    public function likes()
+    {
+        return $this->interactions()->where('liked', 1);
+    }
+
+    public function dislikes()
+    {
+        return $this->interactions()->where('liked', 0);
     }
 
     public function views(): MorphMany

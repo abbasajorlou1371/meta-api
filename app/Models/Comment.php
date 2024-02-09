@@ -12,6 +12,8 @@ class Comment extends Model
 
     protected $fillable = ['user_id', 'content'];
 
+    protected $withCount = ['likes', 'dislikes'];
+
     public function commentable()
     {
         return $this->morphTo();
@@ -20,6 +22,16 @@ class Comment extends Model
     public function interactions(): MorphMany
     {
         return $this->morphMany(Interaction::class, 'likeable');
+    }
+
+    public function likes()
+    {
+        return $this->interactions()->where('liked', true);
+    }
+
+    public function dislikes()
+    {
+        return $this->interactions()->where('liked', false);
     }
 
     public function user()

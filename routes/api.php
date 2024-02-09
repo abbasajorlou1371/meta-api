@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
-use App\Http\Controllers\Api\V1\Auth\SendResetPasswordLinkEmailController;
+use App\Http\Controllers\Api\V1\Auth\SendResetPasswordLinkController;
 use App\Http\Controllers\Api\V1\BankAccountController;
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\ChallengeController;
@@ -69,7 +69,7 @@ Route::post('login', [LoginController::class, 'login'])->middleware('guest');
 Route::post('logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware('guest')->group(function () {
-    Route::post('/forgot-password', [SendResetPasswordLinkEmailController::class, 'sendResetLinkEmail']);
+    Route::post('/forgot-password', [SendResetPasswordLinkController::class, 'sendResetLinkEmail']);
     Route::post('/forgot-password/reset/password', [ResetPasswordController::class, 'reset']);
 });
 
@@ -101,7 +101,6 @@ Route::controller(PlayerController::class)->prefix('players')->as('players.')->g
 
 Route::controller(HomeController::class)->group(function () {
     Route::post('store', 'getStorePackages');
-    Route::post('/ip/send-to-support', 'sendIpToSupport')->withoutMiddleware('check.ip');
 });
 
 Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
@@ -275,7 +274,7 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     });
 });
 
-Route::post('video-tutorials', [TutorialController::class, 'index'])->name('tutorials-temp-url');
+Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial']);
 
 Route::get('ping', static fn () => null);
 

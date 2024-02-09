@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Resources\VideoCommentResource;
 use App\Models\Comment;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 class VideoCommentsController extends Controller
 {
@@ -19,17 +18,11 @@ class VideoCommentsController extends Controller
      */
     public function index(Video $video)
     {
-        $comments = Comment::with('user')
-            ->leftJoin('interactions', function ($join) {
-                $join->on('comments.id', '=', 'interactions.likeable_id')
-                    ->where('interactions.likeable_type', '=', Comment::class);
-            })
-            ->where('comments.commentable_id', $video->id)
-            ->where('comments.commentable_type', Video::class)
-            ->select('comments.*', DB::raw('COUNT(interactions.id) as interactions_count'))
-            ->groupBy('comments.id')
-            ->orderByDesc('interactions_count')
-            ->with(['user', 'user.kyc:id,fname,lname'])
+        $comments = $video->comments()
+            ->with(['user:id,name,code', 'user.profilePhotos' => function ($query) {
+                $query->limit(1);
+            }])
+            ->orderByDesc('likes_count')
             ->simplePaginate(10);
         return VideoCommentResource::collection($comments);
     }

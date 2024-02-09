@@ -19,12 +19,14 @@ class VideoCategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image' => config('app.admin_panel_url') . '/uploads/' . $this->image,
-            'icon' => config('app.admin_panel_url') . '/uploads/' . $this->icon,
-            $this->mergeWhen(request()->routeIs('tutorials.categories.show'), [
-                'description' => $this->description,
-                'subcategories' => VideoSubcategoryResource::collection($this->subCategories),
-            ])
+            'image' => $this->image_url,
+            'icon' => $this->icon_url,
+            'likes_count' => $this->whenCounted('likes'),
+            'dislikes_count' => $this->whenCounted('dislikes'),
+            'views_count' => $this->whenCounted('views'),
+            'videos_count' => $this->whenCounted('videos'),
+            'description' => $this->whenHas('description'),
+            'subcategories' => VideoSubcategoryResource::collection($this->whenLoaded('subCategories')),
         ];
     }
 }

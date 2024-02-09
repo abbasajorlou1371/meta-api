@@ -11,22 +11,23 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::controller(TutorialController::class)->prefix('tutorials')->as('tutorials.')->group(function () {
         Route::withoutMiddleware(['auth:sanctum', 'verified'])->group(function () {
-            Route::get('/', 'index')->name('index');
+
 
             Route::name('categories.')->group(function () {
-                Route::get('/categories', 'categories')->name('index');
-                Route::get('/categories/{category}', 'category')->name('show');
+                Route::get('/categories', 'getCategories')->name('index');
+                Route::get('/categories/{category:slug}', 'showCategory')->name('show');
             });
 
             Route::prefix('categories')->name('subcategories.')->group(function () {
-                Route::get('/{category}/subcategories/{subCategory}', 'subcategory')->name('show');
+                Route::get('/{category:slug}/{subCategory:slug}', 'showSubCategory')->name('show');
             });
 
-            Route::get('/{video}', 'show')->name('show');
+            Route::get('/', [TutorialController::class, 'index'])->name('index');
+            Route::get('/{video:slug}', [TutorialController::class, 'show'])->name('show');
             Route::post('/search', 'search')->name('search');
         });
-        Route::post('/like/{video}', 'like');
-        Route::post('/dislike/{video}', 'dislike');
+        Route::post('/{video}/like', 'like');
+        Route::post('/{video}/dislike', 'dislike');
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
@@ -58,10 +59,6 @@ Route::controller(MapsController::class)->prefix('maps')->as('maps.')->group(fun
     Route::get('/{map}', 'show')->name('show');
     Route::get('/{map}/border', 'showBorder');
 });
-
-Route::get('ip', function(Request $request) {
-    return $request->ip();
-})->withoutMiddleware('check.ip');
 
 Route::controller(VideoPanelController::class)->group(function () {
 });
