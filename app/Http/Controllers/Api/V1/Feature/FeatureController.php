@@ -37,7 +37,7 @@ class FeatureController extends Controller
      */
     public function show(User $user, Feature $feature): UserFeatureResource
     {
-        return new UserFeatureResource($feature);
+        return new UserFeatureResource($feature->load('properties', 'images', 'latestTraded'));
     }
 
     /**

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use App\Models\Dynasty\Dynasty;
@@ -19,12 +15,6 @@ class Feature extends Model
         'owner_id',
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
-
-
     public function map()
     {
         return $this->belongsTo(Map::class);
@@ -32,13 +22,19 @@ class Feature extends Model
 
     public function properties()
     {
-        return $this->hasOne(FeatureProperties::class, 'feature_id', 'id');
+        return $this->hasOne(FeatureProperties::class);
     }
 
     public function geometry()
     {
         return $this->hasOne(Geometry::class,  'feature_id', 'id');
     }
+
+    public function coordinates()
+    {
+        return $this->hasManyThrough(Coordinate::class, Geometry::class);
+    }
+
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
@@ -158,5 +154,15 @@ class Feature extends Model
         return implode('|', $this->geometry->coordinates->map(function ($coordinate) {
             return $coordinate->implodeXY();
         })->toArray());
+    }
+
+    public function getKarbariCoefficient()
+    {
+        return match ($this->properties->karbari) {
+            FeatureIndicators::Amozeshi => 0.3,
+            FeatureIndicators::Tejari => 0.2,
+            FeatureIndicators::Maskoni => 0.1,
+            default => 1
+        };
     }
 }
