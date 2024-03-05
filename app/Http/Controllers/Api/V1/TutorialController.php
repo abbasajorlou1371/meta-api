@@ -153,7 +153,7 @@ class TutorialController extends Controller
 
     public function showSubCategory(VideoCategory $category, VideoSubCategory $subCategory)
     {
-        $subCategory->load(['videos', 'videos.creator:id,code', 'videos.creator.profilePhotos' => function ($query) {
+        $subCategory->load(['videos', 'videos.creator:id,code', 'category', 'videos.creator.profilePhotos' => function ($query) {
             $query->limit(1);
         }]);
 
