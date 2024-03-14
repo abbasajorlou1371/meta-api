@@ -126,8 +126,8 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     });
 
     Route::controller(AccountSecurityController::class)->prefix('account/security')->group(function () {
-        Route::post('/', 'getVerifyCode');
-        Route::post('verify', 'turnOffAccountSecurity');
+        Route::post('/', 'sendVerifyCode');
+        Route::post('verify', 'verify');
     });
 
     Route::scopeBindings()->group(function () {

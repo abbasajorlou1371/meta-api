@@ -25,6 +25,7 @@ class VideoTutorialResource extends JsonResource
             'dislikes_count' => $this->whenCounted('dislikes'),
             'creator' => $this->whenLoaded('creator', function () {
                 return [
+                    'name' => $this->creator->name,
                     'code' => $this->creator->code,
                     'image' => optional($this->creator->profilePhotos->first())->url,
                 ];

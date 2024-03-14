@@ -568,6 +568,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
     /**
      * Check user has verified their phone
+     *
      * @return bool
      */
     public function hasVerifiedPhone(): bool
