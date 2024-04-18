@@ -33,16 +33,14 @@ class Video extends Model implements Sitemapable
     public function toSitemapTag(): Url|string|array
     {
         return [
-            Url::create('https://rgb.irpsc.com/fa/education/watch/rgb-video-' . $this->id)
+            Url::create('https://rgb.irpsc.com/fa/education/watch/' . $this->slug)
+                ->setLastModificationDate(Carbon::create($this->updated_at))
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.8),
+            Url::create('https://rgb.irpsc.com/en/education/watch/' . $this->slug)
                 ->setLastModificationDate(Carbon::create($this->updated_at))
                 ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                 ->setPriority(0.8)
-                ->addVideo($this->image_url, $this->title, $this->description, $this->video_url),
-            Url::create('https://rgb.irpsc.com/en/education/watch/rgb-video-' . $this->id)
-                ->setLastModificationDate(Carbon::create($this->updated_at))
-                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                ->setPriority(0.8)
-                ->addVideo($this->image_url, $this->title, $this->description, $this->video_url),
         ];
     }
 
