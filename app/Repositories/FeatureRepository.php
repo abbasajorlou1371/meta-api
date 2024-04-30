@@ -42,7 +42,8 @@ class FeatureRepository extends Repository
     {
         $request->validate([
             'points' => 'required|array|min:4',
-            'points.*' => 'required|regex:/^([0-9]+(\.[0-9]+)?,[0-9]+(\.[0-9]+)?)$/'
+            'points.*' => 'required|regex:/^([0-9]+(\.[0-9]+)?,[0-9]+(\.[0-9]+)?)$/',
+            'load_buildings' => 'nullable|boolean',
         ]);
 
         $points = [];
@@ -65,16 +66,22 @@ class FeatureRepository extends Repository
             ->pluck('geometry_id');
 
         // Retrieve the features with their properties and coordinates, filtering by existing geometries
-        return Feature::whereIn('id', $existingGeometries)
+        $features =  Feature::whereIn('id', $existingGeometries)
             ->selectRaw('id, owner_id as owner')
             ->with([
                 'properties:id,feature_id,rgb',
-                'geometry.coordinates:id,geometry_id,x,y',
-                'buildingModels' => function ($query) {
-                    $query->select('building_models.id', 'building_models.model_id', 'building_models.file')
-                        ->withPivot('construction_end_date', 'rotation', 'position');
-                }
+                'geometry.coordinates:id,geometry_id,x,y'
             ])
-            ->lazy();
+            ->get();
+
+        // If the request specifies to include buildings, load the building models
+        if ($request->boolean('load_buildings')) {
+            $features->load(['buildingModels' => function ($query) {
+                $query->select('building_models.id', 'building_models.model_id', 'building_models.file')
+                    ->withPivot('construction_start_date', 'construction_end_date', 'rotation', 'position');
+            }]);
+        }
+
+        return $features;
     }
 }

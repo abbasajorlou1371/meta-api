@@ -99,7 +99,7 @@ class AuthController extends Controller
 
     /**
      * Get after authentication response data
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\User $user
      */
@@ -128,7 +128,7 @@ class AuthController extends Controller
 
     /**
      * Logout user
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -149,7 +149,7 @@ class AuthController extends Controller
 
     /**
      * Get authenticated user data
-     * 
+     *
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\AuthenticatedUserResource
      */
@@ -170,7 +170,7 @@ class AuthController extends Controller
 
     /**
      * Get the guard to be used during registration.
-     * 
+     *
      * @return \Illuminate\Contracts\Auth\StatefulGuard
      */
     protected function guard()
