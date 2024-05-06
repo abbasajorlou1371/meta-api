@@ -47,7 +47,13 @@ class BuyFeatureController extends Controller
      */
     public function show(Feature $feature)
     {
-        return new FeatureResource($feature);
+        return new FeatureResource($feature->load([
+            'properties',
+            'images',
+            'latestTraded',
+            'hourlyProfit:id,feature_id,is_active',
+            'geometry.coordinates'
+        ]));
     }
 
     /**
