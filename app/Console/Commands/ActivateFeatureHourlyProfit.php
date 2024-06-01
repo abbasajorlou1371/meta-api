@@ -28,7 +28,7 @@ class ActivateFeatureHourlyProfit extends Command
      */
     public function handle()
     {
-        Building::where('construction_end_date', '<', now())->with('feature:id')->chunck(100, function ($buildings) {
+        Building::where('construction_end_date', '<', now())->with('feature:id')->chunkById(100, function ($buildings) {
             foreach ($buildings as $building) {
                 $feature = $building->feature;
 
