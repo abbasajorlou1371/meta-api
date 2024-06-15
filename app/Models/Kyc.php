@@ -10,24 +10,11 @@ class Kyc extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shaba',
-        'bank',
         'melli_card',
-        'prove_picture',
-        'resume',
         'fname',
         'lname',
-        'father_name',
         'melli_code',
-        'birthdate',
-        'phone',
-        'email',
         'province',
-        'city',
-        'number',
-        'postal_code',
-        'address',
-        'site',
         'status',
         'user_id',
         'errors'
@@ -45,7 +32,7 @@ class Kyc extends Model
 
     public function setBirthdateAttribute($value)
     {
-        $this->attributes['birthdate'] = convertShamsiToGregorian($value);
+        $this->attributes['birthdate'] = jalali_to_carbon($value);
     }
 
     public function rejected(): bool
