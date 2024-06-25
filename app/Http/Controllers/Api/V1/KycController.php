@@ -49,10 +49,11 @@ class KycController extends Controller
             'fname' => $request->fname,
             'lname' => $request->lname,
             'melli_code' => $request->melli_code,
-            'birthdate' => $request->birthdate,
+            'birthdate' => jalali_to_carbon($request->birthdate),
             'melli_card' => $melliCard,
             'province' => $request->province,
             'video' => $video,
+            'verify_text' => $request->verify_text,
         ]);
 
         return new KycResource($kyc);
@@ -95,11 +96,12 @@ class KycController extends Controller
             'fname' => $request->fname,
             'lname' => $request->lname,
             'melli_code' => $request->melli_code,
-            'birthdate' => $request->birthdate,
+            'birthdate' => jalali_to_carbon($request->birthdate),
             'province' => $request->province,
             'status' => 0,
             'errors' => null,
             'video' => $kyc->video,
+            'verify_text' => $kyc->verify_text,
         ]);
 
         return new KycResource($kyc->fresh());

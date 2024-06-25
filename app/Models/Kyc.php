@@ -17,7 +17,10 @@ class Kyc extends Model
         'province',
         'status',
         'user_id',
-        'errors'
+        'errors',
+        'verify_text',
+        'video',
+        'birthdate'
     ];
 
     protected $casts = [
@@ -28,11 +31,6 @@ class Kyc extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function setBirthdateAttribute($value)
-    {
-        $this->attributes['birthdate'] = jalali_to_carbon($value);
     }
 
     public function rejected(): bool
