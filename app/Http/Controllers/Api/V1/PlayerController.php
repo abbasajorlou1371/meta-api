@@ -58,6 +58,7 @@ class PlayerController extends Controller
                 && !$privacy->where('name', 'tejari_features')->first()->display
             ) true;
         });
+
         return UserFeatureResource::collection($features);
     }
 

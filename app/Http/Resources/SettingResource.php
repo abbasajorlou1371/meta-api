@@ -16,13 +16,14 @@ class SettingResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             $this->mergeWhen($this->mesasge, [
                 'message' => $this->message,
             ]),
             'checkout_days_count' => $this->checkout_days_count,
             'automatic_logout' => $this->automatic_logout,
             'phone_reset_count' => 1 - Reset::resetInfo($this->user, 'phone')->count(),
-            'email_reset_count' => 1 - Reset::resetInfo($this->user, 'phone')->count(),
+            'email_reset_count' => 1 - Reset::resetInfo($this->user, 'phone')->count()
         ];
     }
 }

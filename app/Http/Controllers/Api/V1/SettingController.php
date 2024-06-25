@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\GeneralSettingsResource;
 use App\Http\Resources\SettingResource;
-use App\Models\GeneralSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Privacy;
-use App\Http\Resources\PrivacyResource;
+use App\Models\Setting;
 use App\Http\Requests\UpdatePrivacyRequest;
+use App\Http\Requests\UpdateSettingNotificationsRequest;
+use App\Http\Resources\NotificationSettingsResource;
 
 class SettingController extends Controller
 {
@@ -57,77 +56,64 @@ class SettingController extends Controller
 
     /**
      * Get the General setting info
-     * @return GeneralSettingsResource
+     *
+     * @return NotificationSettingsResource
      */
     public function showGeneralSettings()
     {
-        return new GeneralSettingsResource(request()->user()->generalSettings);
+        $settings = request()->user()->settings;
+
+        return new NotificationSettingsResource($settings);
     }
 
     /**
      * Update the General setting info
-     * @param Request $request
-     * @param GeneralSetting $generalSetting
+     *
+     * @param UpdateSettingNotificationsRequest $request
+     * @param Setting $setting
      * @return JsonResponse
      */
-    public function updateGeneralSettings(Request $request, GeneralSetting $generalSetting)
+    public function updateGeneralSettings(UpdateSettingNotificationsRequest $request, Setting $setting)
     {
-        $this->authorize('update', $generalSetting);
+        $setting->update(['notifications' => $request->only([
+            'announcements_sms',
+            'announcements_email',
+            'reports_sms',
+            'reports_email',
+            'login_verification_sms',
+            'login_verification_email',
+            'transactions_sms',
+            'transactions_email',
+            'trades_sms',
+            'trades_email',
+        ])]);
 
-        $request->validate([
-            'announcements_sms' => 'required|boolean',
-            'announcements_email' => 'required|boolean',
-            'reports_sms' => 'required|boolean',
-            'reports_email' => 'required|boolean',
-            'login_verification_sms' => 'required|boolean',
-            'login_verification_email' => 'required|boolean',
-            'transactions_sms' => 'required|boolean',
-            'transactions_email' => 'required|boolean',
-            'trades_sms' => 'required|boolean',
-            'trades_email' => 'required|boolean',
-        ]);
-        $generalSetting->update([
-            'announcements_sms' => $request->announcements_sms,
-            'announcements_email' => $request->announcements_email,
-            'reports_sms' => $request->reports_sms,
-            'reports_email' => $request->reports_email,
-            'login_verification_sms' => $request->login_verification_sms,
-            'login_verification_email' => $request->login_verification_email,
-            'transactions_sms' => $request->transactions_sms,
-            'transactions_email' => $request->transactions_email,
-            'trades_sms' => $request->trades_sms,
-            'trades_email' => $request->trades_email,
-        ]);
-        return new GeneralSettingsResource($generalSetting->refresh());
+        return new NotificationSettingsResource($setting->refresh());
     }
 
     /**
      * Get the Privacy setting info
+     *
      * @param Request $request
-     * @return PrivacyResource
+     * @return JsonResponse
      */
     public function getPrivacySettings(Request $request)
     {
-        return new PrivacyResource($request->user()->privacy);
+        return response()->json(['data' => $request->user()->settings->privacy]);
     }
 
     /**
      * Update the Privacy setting info
+     *
      * @param UpdatePrivacyRequest $request
      * @return JsonResponse
      */
     public function updatePrivacySettings(UpdatePrivacyRequest $request)
     {
-        Privacy::updateOrCreate(
-            [
-                'user_id' => $request->user()->id,
-                'name' => $request->setting,
-            ],
+        $request->user()->settings->update([
+            'privacy->' . $request->string('setting') => $request->boolean('value'),
+        ]);
 
-            [
-                'display' => $request->value
-            ]
-        );
         return response()->noContent();
     }
 }

@@ -167,7 +167,7 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
         Route::get('/settings', 'showSettings');
         Route::post('/settings', 'update');
         Route::get('/general-settings', 'showGeneralSettings');
-        Route::put('/general-settings/{generalSetting}', 'updateGeneralSettings');
+        Route::put('/general-settings/{setting}', 'updateGeneralSettings');
         Route::get('/privacy', 'getPrivacySettings');
         Route::post('/privacy', 'updatePrivacySettings');
     });

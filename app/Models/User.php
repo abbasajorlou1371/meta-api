@@ -286,14 +286,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * @return HasOne
-     */
-    public function generalSettings(): HasOne
-    {
-        return $this->hasOne(GeneralSetting::class);
-    }
-
-    /**
      * @return HasOneThrough
      */
     public function level(): HasOneThrough
@@ -332,14 +324,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     public function buys(): HasMany
     {
         return $this->hasMany(Trade::class, 'buyer_id');
-    }
-
-    /**
-     * @return BelongsToMany
-     */
-    public function prizes(): BelongsToMany
-    {
-        return $this->belongsToMany(Prize::class, 'received_prizes', 'user_id', 'prize_id');
     }
 
     /**
@@ -493,14 +477,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         $this->notify(new sendPasswordResetNotification($url, $this));
     }
 
-    /**
-     * @return HasMany
-     */
-    public function questionAnswers(): HasMany
-    {
-        return $this->hasMany(UserQuestionAnswer::class);
-    }
-
     public function privacy()
     {
         return $this->hasMany(Privacy::class);
@@ -554,7 +530,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
     public function getNotificationSettings(string $notificationType)
     {
-        return GeneralSetting::getChannels($this, $notificationType);
+        return Setting::getChannels($this, $notificationType);
     }
 
     /**

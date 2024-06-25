@@ -18,25 +18,13 @@ class Asset extends Model
     public function format_number($number): string
     {
         if ($number >= 1000 && $number < 1000000) {
-            if (($number * 1000) % 1000 > 0) {
-                $number = number_format($number / 1000, 3);
-            } else {
-                $number = number_format($number / 1000);
-            }
+            $number = number_format($number / 1000, ($number * 1000) % 1000 > 0 ? 3 : 0);
             return $number . 'K';
         } elseif ($number >= 1000000 && $number < 1000000000) {
-            if (($number * 1000000) % 1000000 > 0) {
-                $number = number_format($number / 1000000, 3);
-            } else {
-                $number = number_format($number / 1000000);
-            }
+            $number = number_format($number / 1000000, ($number * 1000000) % 1000000 > 0 ? 3 : 0);
             return $number . 'M';
         } elseif ($number < 1000) {
-            if (($number * 1000) % 1000 > 0) {
-                $number = number_format($number, 3);
-            } else {
-                $number = number_format($number);
-            }
+            $number = number_format($number, ($number * 1000) % 1000 > 0 ? 3 : 0);
             return $number;
         }
     }

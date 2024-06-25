@@ -26,16 +26,11 @@ class UserObserver
     {
         $user->assets()->create();
         $user->settings()->create();
-        $user->generalSettings()->create();
         $user->log()->create();
         $user->variables()->create();
 
-        $user->update([
-            'referal_link' => 'https://rgb.irpsc.com/citizen/' . $user->code,
-        ]);
-
-        if ($user->referral) {
-            $reference_user = User::where('code', $user->referral)->select('id')->first();
+        if (request()->referral) {
+            $reference_user = User::where('code', request()->referral)->select('id')->first();
 
             Referal::create([
                 'reference_id' => $reference_user->id,
@@ -43,7 +38,7 @@ class UserObserver
             ]);
         }
 
-        createUserPrivacy($user);
+        event(new Registered($user));
     }
 
     /**
@@ -107,17 +102,6 @@ class UserObserver
             'id'     => $user->id,
             'online' => false
         ]));
-    }
-
-    public function registered(User $user)
-    {
-        $user->assets()->create();
-        $user->settings()->create();
-        $user->generalSettings()->create();
-        $user->log()->create();
-        $user->variables()->create();
-        createUserPrivacy($user);
-        event(new Registered($user));
     }
 
     /**

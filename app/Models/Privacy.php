@@ -12,6 +12,7 @@ class Privacy extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'name' => 'string',
         'display' => 'boolean',
     ];
 

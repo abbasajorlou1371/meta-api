@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterUserRequest;
-use App\Models\Referal;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\AuthenticatedUserResource;
@@ -14,27 +13,17 @@ class RegisterController extends Controller
 {
     public function register(RegisterUserRequest $request)
     {
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->saveQuietly();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
         return $this->registered($request, $user);
     }
 
     protected function registered(RegisterUserRequest $request, $user)
     {
-        if ($request->referral) {
-            $reference_user = User::firstWhere('code', $request->referral);
-
-            Referal::create([
-                'reference_id' => $reference_user->id,
-                'referer_id' => $user->id,
-            ]);
-        }
-
-        $user->registered();
 
         $automaticLogout = $user->settings->automatic_logout;
 
@@ -53,7 +42,7 @@ class RegisterController extends Controller
 
     /**
      * Get the guard to be used during registration.
-     * 
+     *
      * @return \Illuminate\Contracts\Auth\StatefulGuard
      */
     protected function guard()

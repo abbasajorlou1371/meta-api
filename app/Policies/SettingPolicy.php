@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\GeneralSetting;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class GeneralSettingPolicy
+class SettingPolicy
 {
     use HandlesAuthorization;
 
@@ -17,8 +17,8 @@ class GeneralSettingPolicy
      * @param  \App\Models\GeneralSetting  $generalSetting
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, GeneralSetting $generalSetting)
+    public function update(User $user, Setting $setting)
     {
-        return $generalSetting->user->is($user);
+        return $setting->user->is($user);
     }
 }
