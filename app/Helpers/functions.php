@@ -12,7 +12,7 @@ use App\Models\User;
  * @param string $date The Shamsi date to convert.
  * @return string The converted Gregorian date.
  */
-function convertShamsiToGregorian($date): string
+function jalali_to_carbon($date): string
 {
     $date = \Morilog\Jalali\CalendarUtils::convertNumbers($date, true);
     $date = str_replace('/', '-', $date);

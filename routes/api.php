@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\UserEventsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\FileUploadController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -284,6 +285,8 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
         Route::post('answer', 'answerResult')->name('answer');
     });
 });
+
+Route::post('/upload', [FileUploadController::class, 'upload']);
 
 Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial']);
 
