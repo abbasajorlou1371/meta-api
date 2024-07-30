@@ -1,37 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace Database\Seeders;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
 
-class Setting extends Model
+class CreatePrivacySetting extends Seeder
 {
-    use HasFactory;
-
-    protected $guarded = [];
-
-    protected $casts = [
-        'automatic_logout' => 'integer',
-        'privacy' => 'array',
-        'notifications' => 'array',
-    ];
-
-    protected $attributes = [
-        'automatic_logout' => 60,
-        'notifications' => '{
-            "trades_email": 1,
-            "trades_sms": 1,
-            "transactions_email": 1,
-            "transactions_sms": 1,
-            "login_verification_email": 1,
-            "login_verification_sms": 1,
-            "reports_email": 1,
-            "reports_sms": 1,
-            "announcements_email": 1,
-            "announcements_sms": 1
-        }',
-        'privacy' => '{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        \App\Models\Setting::whereNull('privacy')->update([
+            'privacy' => '{
             "nationality": 1,
             "fname": 1,
             "birthdate": 0,
@@ -127,33 +111,7 @@ class Setting extends Model
             "life_style": 1,
             "negative_score": 1,
             "code": 1
-        }',
-    ];
-    /**
-     * Get the notification channels for a user and type.
-     *
-     * @param User $user The user object.
-     * @param string $type The type of notification.
-     * @return array The notification channels.
-     */
-    public static function getChannels(User $user, string $type): array
-    {
-        $settings = self::where('user_id', $user->id)->select('id', 'user_id', 'notifications')->first();
-
-        return [
-            'mail' => $settings->notifications[$type . '_email'],
-            'sms' => $user->hasVerifiedPhone() ? $settings->notifications[$type . '_sms'] : 0,
-            'broadcast' => 1
-        ];
-    }
-
-    /**
-     * Get the user associated with the setting.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The user relationship.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+        }'
+        ]);
     }
 }

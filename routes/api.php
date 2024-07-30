@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\UserEventsController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\FileUploadController;
+use App\Http\Controllers\Api\V2\ProfileLimitationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -93,11 +94,19 @@ Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.'
 });
 
 Route::controller(UserController::class)->prefix('users')->group(function () {
-    Route::get('/top', 'index')->name('index');
+    Route::get('/', 'index');
+    Route::get('/top', 'topUsers');
     Route::get('/{user}/profile', 'getProfile');
     Route::get('/{user}/wallet', 'getWallet');
     Route::get('/{user}/features/count', 'getFeaturesCount');
     Route::get('/{user}/level', 'getLevel');
+    Route::get('/{user}/profile-limitations', 'getProfileLimitations');
+});
+
+Route::controller(ProfileLimitationController::class)->prefix('profile-limitations')->group(function () {
+    Route::post('/', 'store');
+    Route::put('/{profileLimitation}', 'update');
+    Route::delete('/{profileLimitation}', 'destroy');
 });
 
 Route::controller(PlayerController::class)->prefix('players')->as('players.')->group(function () {

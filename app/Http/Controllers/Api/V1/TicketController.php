@@ -82,6 +82,7 @@ class TicketController extends Controller
         if (isset($ticket->reciever)) {
             $ticket->reciever->notify(new TicketRecieved($ticket));
         }
+
         return new TicketResource($ticket);
     }
 

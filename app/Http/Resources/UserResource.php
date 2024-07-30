@@ -3,8 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Morilog\Jalali\Jalalian;
-use App\Http\Resources\FollowResource;
 
 class UserResource extends JsonResource
 {
@@ -17,40 +15,31 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => (string)$this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            $this->mergeWhen($this->token, [
-                'token' => $this->token,
-            ]),
-            'unread_notifications' => $this->unreadNotifications->count(),
-            'score' => $this->score,
-            'phone' => $this->phone,
-            'automatic_logout' => $this->settings->automatic_logout,
-            'level' => $this->level,
-            'birthdate' => $this->verified() ? jdate($this->kyc->birthdate)->format('Y/m/d') : null,
-            'score_percentage_to_next_level' => getScorePercentageToNextLevel($this->level, $this->score),
-            $this->mergeWhen(isset($this->profilePhotos), [
-                'profile_photos' => [$this->profilePhotos->last()]
-            ]),
-            'email_verified_at' => jdate($this->email_verified_at)->format('Y/m/d'),
-            'wallet' => new WalletResource($this->wallet),
-            'settings' => new SettingResource($this->settings),
-            'general_settings' => new NotificationSettingsResource($this->settings->notifcations),
-            'notifications' => $this->unreadNotifications,
-            'referral_link' => $this->referal_link,
+            'id' => $this->id,
+            'name' => $this->whenLoaded('kyc', function () {
+                return $this->kyc->fname . ' ' . $this->kyc->lname;
+            }) ?? $this->name,
             'code' => $this->code,
-            'follows' => [
-                'followers' => FollowResource::collection($this->followers()->orderBy('score', 'DESC')->lazy()),
-                'following' => FollowResource::collection($this->following),
-            ],
-            $this->mergeWhen(!empty($this->features), [
-                'features' => FeatureResource::collection($this->features),
-            ]),
-            $this->mergeWhen(!empty($this->kyc), [
-                'kyc' => new KycResource($this->kyc),
-            ]),
-
+            'score' => $this->score,
+            'levels' => $this->whenLoaded('level', function () {
+                return [
+                    'current' => [
+                        'id' => $this->level->id,
+                        'name' => $this->level->name,
+                        'slug' => $this->level->slug,
+                        'image' => config('app.admin_panel_url') . '/uploads/' . $this->level->image->url,
+                    ],
+                    'previous' => $this->level->previousLevels->map(function ($level) {
+                        return [
+                            'id' => $level->id,
+                            'name' => $level->name,
+                            'slug' => $level->slug,
+                            'image' => config('app.admin_panel_url') . '/uploads/' . $level->image->url,
+                        ];
+                    }),
+                ];
+            }),
+            'profile_photo' => $this->latestProfilePhoto->url ?? null,
         ];
     }
 }

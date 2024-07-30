@@ -4,10 +4,10 @@ namespace App\Policies;
 
 use App\Models\Dynasty\FamilyMember;
 use App\Models\Dynasty\JoinRequest;
-use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
+use App\Models\ProfileLimitation;
 
 class UserPolicy
 {
@@ -92,10 +92,27 @@ class UserPolicy
         return true;
     }
 
-    public function follow(User $user, User $user_to_follow)
+    public function follow(User $user, User $user_to_follow): Response
     {
-        return $user->isNot($user_to_follow)
-            && Follow::where('follower_id', $user->id)->where('following_id', $user_to_follow->id)->doesntExist();
+        if ($user->is($user_to_follow)) {
+            return Response::deny('شما نمی توانید خودتان را دنبال کنید.', 403);
+        } elseif ($user->following()->where('following_id', $user_to_follow->id)->exists()) {
+            return Response::deny('شما قبلا این کاربر را دنبال کرده اید.', 403);
+        }
+
+        $profileLimitation = ProfileLimitation::where('limiter_user_id', $user_to_follow->id)
+            ->where('limited_user_id', $user->id)
+            ->orWhere('limiter_user_id', $user_to_follow->id)
+            ->where('limited_user_id', $user_to_follow->id)
+            ->first();
+
+        if ($profileLimitation) {
+            if (!$profileLimitation->options['follow']) {
+                return Response::deny('این کاربر امکان دنبال کردن را  برای شما غیر فعال کرده است.', 403);
+            }
+        }
+
+        return Response::allow();
     }
 
     public function controlPermissions(User $user, User $child)

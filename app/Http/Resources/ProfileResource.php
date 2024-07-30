@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileResource extends JsonResource
 {
@@ -16,18 +17,35 @@ class ProfileResource extends JsonResource
     {
         return [
             'id' => (string)$this->id,
-            'name' => $this->name,
-            'code' => $this->code,
-            'score' => $this->score,
-            'registered_at' => jdate($this->email_verified_at)->format('Y/m/d'),
-            'profile_images' => $this->profilePhotos->map(function ($photo) {
-                return [
-                    'id' => $photo->id,
-                    'url' => $photo->url,
-                ];
+            'name' => $this->whenLoaded('kyc', function () {
+                return $this->filterField('name', $this->kyc->full_name);
+            }) ?? $this->filterField('name', $this->name),
+            'code' => $this->filterField('code', $this->code),
+            'registered_at' => $this->filterField('registered_at', jdate($this->email_verified_at)->format('Y/m/d')),
+            'profile_images' => $this->whenLoaded('profilePhotos', function () {
+                return $this->profilePhotos->map(function ($photo) {
+                    return $photo->url;
+                });
             }),
-            'followers' => $this->followers_count,
-            'following' => $this->following_count,
+            'followers_count' => $this->filterField('followers_count', $this->followers_count),
+            'following_count' => $this->filterField('following_count', $this->following_count),
         ];
+    }
+
+    /**
+     * Filter a field based on privacy settings.
+     *
+     * @param string $field The name of the field to filter.
+     * @param mixed $value The value of the field.
+     * @return mixed|null The filtered value if the field is allowed, otherwise null.
+     */
+    private function filterField(string $field, mixed $value)
+    {
+        if (Auth::id() == $this->id) {
+            return $value;
+        }
+
+        return isset($this->settings->privacy[$field])
+            && $this->settings->privacy[$field] == 1 ? $value : null;
     }
 }

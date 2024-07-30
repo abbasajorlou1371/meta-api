@@ -12,14 +12,13 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    private $data, $trade;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-
-    private $data, $trade;
-
     public function __construct($data, Trade $trade)
     {
         $this->data = $data;

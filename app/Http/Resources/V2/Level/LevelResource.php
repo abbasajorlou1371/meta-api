@@ -18,12 +18,18 @@ class LevelResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image' => config('app.admin_panel_url') . $this->image?->url,
-            'background_image' => $this->background_image,
-            'png_file' => $this->generalInfo?->png_file,
-            'fbx_file' => $this->generalInfo?->fbx_file,
-            'gif_file' => $this->generalInfo?->gif_file,
-            'description' => $this->generalInfo?->description,
+            'image' => $this->whenLoaded('image', config('app.admin_panel_url') . '/uploads/' . $this->image->url),
+            'background_image' => $this->whenNotNull($this->background_image),
+            'general_info' => $this->whenLoaded('generalInfo', function () {
+                return [
+                    'score' => $this->generalInfo->score,
+                    'rank' => $this->generalInfo->rank,
+                    'png_file' => $this->generalInfo->png_file,
+                    'fbx_file' => $this->generalInfo->fbx_file,
+                    'gif_file' => $this->generalInfo->gif_file,
+                    'description' => $this->generalInfo->description,
+                ];
+            })
         ];
     }
 }

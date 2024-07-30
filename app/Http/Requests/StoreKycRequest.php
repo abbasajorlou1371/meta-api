@@ -31,7 +31,7 @@ class StoreKycRequest extends FormRequest
             'province' => 'required|string',
             'melli_card' => 'required|image|max:5000',
             'video' => 'required|array',
-            'verify_text' => 'required|string|max:5000',
+            'verify_text_id' => 'required|integer|exists:kyc_verify_texts,id',
         ];
     }
 }

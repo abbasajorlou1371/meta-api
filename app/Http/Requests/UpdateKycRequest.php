@@ -31,7 +31,7 @@ class UpdateKycRequest extends FormRequest
             'province' => 'required|string',
             'melli_card' => 'nullable|image|max:1024',
             'video' => 'required|array',
-            'verify_text' => 'required|string|max:5000',
+            'verify_text_id' => 'required|integer|exists:kyc_verify_texts,id',
         ];
     }
 }

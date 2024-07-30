@@ -106,4 +106,9 @@ class Level extends Model
     {
         return $this->hasOne(LevelPrize::class);
     }
+
+    public function getPreviousLevelsAttribute()
+    {
+        return Level::where('score', '<', $this->score)->orderBy('score')->get();
+    }
 }

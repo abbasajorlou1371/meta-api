@@ -82,7 +82,11 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         'remember_token'
     ];
 
-
+    /**
+     * Get site map tags for the model.
+     *
+     * @return Url|string|array
+     */
     public function toSitemapTag(): Url|string|array
     {
         $this->load('profilePhotos');
@@ -484,114 +488,210 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasMany(FeatureHourlyProfit::class);
     }
 
+    /**
+     * Get the associated variables for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function variables()
     {
         return $this->hasOne(UserVariable::class);
     }
 
+    /**
+     * Get the associated customs for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function customs()
     {
         return $this->hasOne(Custom::class);
     }
 
+    /**
+     * Get the associated events for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function events()
     {
         return $this->hasMany(UserEvent::class);
     }
 
+    /**
+     * Get the latest order for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function latestOrder()
     {
         return $this->hasOne(Order::class)->latestOfMany();
     }
 
+    /**
+     * Get the profile photos for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function profilePhotos()
     {
         return $this->morphMany(Image::class, 'imageable');
     }
 
+    /**
+     * Get the latest profile photo for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
     public function latestProfilePhoto()
     {
         return $this->morphOne(Image::class, 'imageable')->latestOfMany();
     }
 
+    /**
+     * Get the latest payment for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function latestPayment()
     {
         return $this->hasOne(Payment::class)->latestOfMany();
     }
 
     /**
-     * @return HasOne
+     * Get the associated dynasty for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function dynasty(): HasOne
     {
         return $this->hasOne(Dynasty::class);
     }
 
+    /**
+     * Get the sent join requests for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sentJoinRequests()
     {
         return $this->hasMany(JoinRequest::class, 'from_user', 'id');
     }
 
-    public function recievedJoinRequests()
+    /**
+     * Get the received join requests for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function receivedJoinRequests()
     {
         return $this->hasMany(JoinRequest::class, 'to_user', 'id');
     }
 
     /**
-     * @return HasOne
+     * Get the associated permissions for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function permissions(): HasOne
     {
         return $this->hasOne(childrenPermission::class);
     }
 
+    /**
+     * Get the received dynasty prizes for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function recievedDynastyPrizes()
     {
         return $this->hasMany(RecievedPrize::class);
     }
 
+    /**
+     * Get the latest reset request for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function latestResetRequest()
     {
         return $this->hasOne(Reset::class)->latestOfMany();
     }
 
+    /**
+     * Send the password reset notification to the user.
+     *
+     * @param  string  $token
+     * @return void
+     */
     public function sendPasswordResetNotification($token)
     {
-        $url = 'https://rgb.irpsc.com/metaverse/reset-password?token=' . $token . '?email=' . $this->getEmailForPasswordReset();
         $url = 'https://rgb.irpsc.com/metaverse/reset-password?token=' . $token . '?email=' . $this->getEmailForPasswordReset();
         $this->notify(new sendPasswordResetNotification($url, $this));
     }
 
+    /**
+     * Get the privacy settings for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function privacy()
     {
         return $this->hasMany(Privacy::class);
     }
 
+    /**
+     * Get the bank accounts associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function bankAccounts()
     {
         return $this->morphMany(BankAccount::class, 'bankable');
     }
 
+    /**
+     * Check if the user is under eighteen years old.
+     *
+     * @return bool
+     */
     public function isUnderEighteen()
     {
         return $this->verified() && $this->kyc?->birthdate->diffInYears(now()) < 18;
     }
 
+    /**
+     * Trigger the registered event for the user.
+     *
+     * @return void
+     */
     public function registered()
     {
         $this->fireModelEvent('registered');
     }
 
+    /**
+     * Trigger the 'logedIn' event.
+     */
     public function logedIn()
     {
         $this->fireModelEvent('logedIn');
     }
 
+    /**
+     * Trigger the 'logedOut' event.
+     */
     public function logedOut()
     {
         $this->fireModelEvent('logedOut');
     }
 
+    /**
+     * Check the color balance based on the given feature.
+     *
+     * @param Feature $feature The feature to check the color balance for.
+     * @return bool True if the color balance is sufficient, false otherwise.
+     */
     public function checkColorBalance(Feature $feature)
     {
         return match ($feature->properties->karbari) {
@@ -601,6 +701,12 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         };
     }
 
+    /**
+     * Check the balance based on the given feature.
+     *
+     * @param Feature $feature The feature to check the balance for.
+     * @return void
+     */
     public function checkBalance(Feature $feature)
     {
         $psc_price = $feature->properties->price_psc;
@@ -613,6 +719,12 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         }
     }
 
+    /**
+     * Get the notification settings for the given type.
+     *
+     * @param string $type The type of notification settings to retrieve.
+     * @return mixed The notification settings.
+     */
     public function getNotificationSettings(string $type)
     {
         return Setting::getChannels($this, $type);
@@ -639,10 +751,16 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
     /**
      * Check if user is online
+     *
      * @return bool
      */
     public function isOnline(): bool
     {
         return $this->last_seen->diffInMinutes(now()) > 2 ? false : true;
+    }
+
+    public function profileLimitations()
+    {
+        return $this->hasMany(ProfileLimitation::class, 'limited_user_id');
     }
 }

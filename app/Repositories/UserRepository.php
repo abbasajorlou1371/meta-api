@@ -11,7 +11,7 @@ class UserRepository extends Repository
      *
      * @return \Illuminate\Support\Collection
      */
-    public function topUsers()
+    public function topTenUsers()
     {
         return User::orderByDesc('score')
             ->with('latestProfilePhoto', 'level')

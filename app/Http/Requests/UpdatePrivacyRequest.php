@@ -26,7 +26,7 @@ class UpdatePrivacyRequest extends FormRequest
     {
         return [
 
-            'setting' => [
+            'key' => [
                 'required',
                 Rule::in(
                     'nationality',

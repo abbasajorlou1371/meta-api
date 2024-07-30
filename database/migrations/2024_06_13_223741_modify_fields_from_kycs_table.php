@@ -26,7 +26,7 @@ return new class extends Migration
             ]);
 
             $table->string('video')->nullable()->after('melli_card');
-            $table->text('verify_text')->nullable()->after('video');
+            $table->integer('verify_text_id')->nullable()->after('video');
         });
     }
 
@@ -47,7 +47,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('site')->nullable();
             $table->dropColumn('video');
-            $table->dropColumn('verify_text');
+            $table->dropColumn('verify_text_id');
         });
     }
 };

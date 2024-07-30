@@ -113,7 +113,7 @@ class SettingController extends Controller
     public function updatePrivacySettings(UpdatePrivacyRequest $request)
     {
         $request->user()->settings->update([
-            'privacy->' . $request->string('setting') => $request->boolean('value'),
+            'privacy->' . $request->string('key') => $request->boolean('value'),
         ]);
 
         return response()->noContent();

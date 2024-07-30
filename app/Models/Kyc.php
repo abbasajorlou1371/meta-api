@@ -28,6 +28,11 @@ class Kyc extends Model
         'errors' => 'array'
     ];
 
+    public function getFullNameAttribute(): string
+    {
+        return $this->fname . ' ' . $this->lname;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

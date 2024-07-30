@@ -2,9 +2,11 @@
 
 namespace App\Policies;
 
+use App\Models\ProfileLimitation;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class TicketPolicy
 {
@@ -41,7 +43,19 @@ class TicketPolicy
      */
     public function create(User $user)
     {
-        return true;
+        $profileLimitation = ProfileLimitation::where('limiter_user_id', request()->input('reciever'))
+            ->where('limited_user_id', $user->id)
+            ->orWhere('limiter_user_id', request()->input('reciever'))
+            ->where('limited_user_id', request()->input('reciever'))
+            ->first();
+
+        if ($profileLimitation) {
+            if (!$profileLimitation->options['send_ticket']) {
+                return Response::deny('کاربر مورد نظر امکان دریافت سند از شما را غیر فعال کرده است..', 403);
+            }
+        }
+
+        return Response::allow();
     }
 
     /**

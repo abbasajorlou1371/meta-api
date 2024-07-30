@@ -16,11 +16,13 @@ class LevelController extends Controller
 {
     public function index()
     {
-        return LevelResource::collection(Level::with(['image', 'generalInfo'])->get());
+        $levels = Level::select('id', 'name', 'slug')->with('image')->get();
+        return LevelResource::collection($levels);
     }
 
     public function show(Level $level)
     {
+        $level->load('image', 'generalInfo');
         return new LevelResource($level);
     }
 

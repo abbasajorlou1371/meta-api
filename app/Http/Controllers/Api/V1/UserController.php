@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Http\Resources\WalletResource;
 use App\Models\Level\Level;
+use App\Models\ProfileLimitation;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProfileLimitationResource;
 
 class UserController extends Controller
 {
@@ -19,13 +22,42 @@ class UserController extends Controller
     }
 
     /**
-     * Get the list of top users.
+     * Get the list of users.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return response()->json(['data' => $this->userRepository->topUsers()]);
+        $users = User::whereNot('code', 'hm-2000000')
+            ->select('id', 'name', 'code', 'score', 'email_verified_at')
+            ->when(request()->has('search'), function ($query) {
+                $query->where('name', 'like', '%' . request('search') . '%');
+            })
+            ->when(request()->has('order-by'), function ($query) {
+                $orderBy = request('order-by');
+                if ($orderBy === 'score') {
+                    $query->orderBy('score', 'desc');
+                } elseif ($orderBy === 'registered_at_asc') {
+                    $query->orderBy('email_verified_at', 'asc');
+                } elseif ($orderBy === 'registered_at_desc') {
+                    $query->orderBy('email_verified_at', 'desc');
+                }
+            })
+            ->with('level', 'latestProfilePhoto', 'kyc:id,user_id,fname,lname')
+            ->orderBy('score', 'desc')
+            ->simplePaginate(20);
+
+        return UserResource::collection($users);
+    }
+
+    /**
+     * Get the list of top 10 users.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topUsers()
+    {
+        return response()->json(['data' => $this->userRepository->topTenUsers()]);
     }
 
     /**
@@ -67,9 +99,9 @@ class UserController extends Controller
 
         return response()->json([
             'data' => [
-                'maskoni_features' => $user->maskoni_features_count,
-                'tejari_features' => $user->tejari_features_count,
-                'amoozeshi_features' => $user->amoozeshi_features_count
+                'maskoni_features_count' => $user->maskoni_features_count,
+                'tejari_features_count' => $user->tejari_features_count,
+                'amoozeshi_features_count' => $user->amoozeshi_features_count
             ]
         ]);
     }
@@ -82,7 +114,14 @@ class UserController extends Controller
      */
     public function getProfile(User $user)
     {
-        $user->load('profilePhotos')->loadCount(['followers', 'following']);
+        $profileLimitation = ProfileLimitation::where('limiter_user_id', auth()->id())
+            ->where('limited_user_id', $user->id)
+            ->first();
+
+        $user->load(['profilePhotos', 'settings:id,user_id,privacy', 'kyc' => function ($query) {
+            $query->where('status', 1)->select('id', 'user_id', 'fname', 'lname');
+        }])->loadCount(['followers', 'following']);
+
         return new ProfileResource($user);
     }
 
@@ -115,7 +154,7 @@ class UserController extends Controller
                     'name' => $currentLevel->name,
                     'score' => $currentLevel->score,
                     'slug' => $currentLevel->slug,
-                    'image' => url('uploads/' . optional($currentLevel->image)->url)
+                    'image' => config('app.admin_panel_url') . '/uploads/' . optional($currentLevel->image)->url,
                 ],
                 'previous_levels' => $previousLevels->map(function ($level) {
                     return [
@@ -123,11 +162,36 @@ class UserController extends Controller
                         'name' => $level->name,
                         'score' => $level->score,
                         'slug' => $level->slug,
-                        'image' => url('uploads/' . optional($level->image)->url)
+                        'image' => config('app.admin_panel_url') . '/uploads/' . optional($level->image)->url
                     ];
                 }),
-                'remaining_score_percentage_to_next_level' => $currentLevel->getScorePercentageToNextLevel($user),
+                'score_percentage_to_next_level' => $currentLevel->getScorePercentageToNextLevel($user),
             ]
         ]);
+    }
+
+    /**
+     * Get the profile limitations for a specific user.
+     *
+     * @param User $user The user for whom to retrieve the profile limitations.
+     * @return \Illuminate\Http\JsonResponse The JSON response containing the profile limitations.
+     */
+    public function getProfileLimitations(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            $profileLimitation = ProfileLimitation::where('limited_user_id', $user->id)
+                ->where('limiter_user_id', auth()->id())
+                ->first();
+        } else {
+            $profileLimitation = ProfileLimitation::where('limiter_user_id', auth()->id())
+                ->where('limited_user_id', $user->id)
+                ->orWhere('limiter_user_id', $user->id)
+                ->where('limited_user_id', auth()->id())
+                ->first();
+        }
+
+        return $profileLimitation ?
+            new ProfileLimitationResource($profileLimitation)
+            : response()->json(null, 204);
     }
 }

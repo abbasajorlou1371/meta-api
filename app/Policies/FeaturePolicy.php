@@ -53,6 +53,13 @@ class FeaturePolicy
         ];
     }
 
+    /**
+     * Determines if a user can buy a feature.
+     *
+     * @param User $user The user attempting to buy the feature.
+     * @param Feature $feature The feature being bought.
+     * @return bool Returns true if the user can buy the feature, false otherwise.
+     */
     public function buy(User $user, Feature $feature)
     {
         $properties = $feature->properties;
@@ -64,6 +71,13 @@ class FeaturePolicy
             && !$feature->locked();
     }
 
+    /**
+     * Determines if a user can sell a feature.
+     *
+     * @param User $user The user attempting to sell the feature.
+     * @param Feature $feature The feature being sold.
+     * @return bool Returns true if the user can sell the feature, false otherwise.
+     */
     public function sell(User $user, Feature $feature)
     {
         $hasUnderEighteenPermissions = true;
@@ -81,6 +95,13 @@ class FeaturePolicy
             && $hasUnderEighteenPermissions;
     }
 
+    /**
+     * Determines if a user can send a buy request for a feature.
+     *
+     * @param User $user The user sending the buy request.
+     * @param Feature $feature The feature for which the buy request is being sent.
+     * @return bool Returns true if the user can send the buy request, false otherwise.
+     */
     public function sendBuyRequest(User $user, Feature $feature)
     {
         $rgb = User::firstWhere('code', 'hm-2000000');
@@ -93,24 +114,53 @@ class FeaturePolicy
             && is_null($feature->dynasty);
     }
 
+    /**
+     * Determines if a user can update a feature.
+     *
+     * @param User $user The user attempting to update the feature.
+     * @param Feature $feature The feature being updated.
+     * @return bool Returns true if the user can update the feature, false otherwise.
+     */
     public function update(User $user, Feature $feature)
     {
         return $feature->owner->is($user);
     }
 
+    /**
+     * Determines if a user can add an image to a feature.
+     *
+     * @param User $user The user attempting to add an image.
+     * @param Feature $feature The feature to which the image is being added.
+     * @return bool Returns true if the user can add an image, false otherwise.
+     */
     public function addImage(User $user, Feature $feature)
     {
         return $feature->owner->is($user);
     }
 
+    /**
+     * Determines if a user can remove an image from a feature.
+     *
+     * @param User $user The user attempting to remove an image.
+     * @param Feature $feature The feature from which the image is being removed.
+     * @param Image $image The image being removed.
+     * @return bool Returns true if the user can remove the image, false otherwise.
+     */
     public function removeImage(User $user, Feature $feature, Image $image)
     {
         return $feature->owner->is($user) && $image->imageable->is($feature);
     }
 
+    /**
+     * Determines if a user can build a feature.
+     *
+     * @param User $user The user attempting to build the feature.
+     * @param Feature $feature The feature being built.
+     * @param BuildingModel $buildingModel The building model used for building.
+     * @return bool Returns true if the user can build the feature, false otherwise.
+     */
     public function build(User $user, Feature $feature, BuildingModel $buildingModel)
     {
         return true;
     }
-
 }

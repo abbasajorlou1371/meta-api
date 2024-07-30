@@ -53,7 +53,7 @@ class KycController extends Controller
             'melli_card' => $melliCard,
             'province' => $request->province,
             'video' => $video,
-            'verify_text' => $request->verify_text,
+            'verify_text_id' => $request->verify_text_id,
         ]);
 
         return new KycResource($kyc);
@@ -101,7 +101,7 @@ class KycController extends Controller
             'status' => 0,
             'errors' => null,
             'video' => $kyc->video,
-            'verify_text' => $kyc->verify_text,
+            'verify_text_id' => $kyc->verify_text_id,
         ]);
 
         return new KycResource($kyc->fresh());
