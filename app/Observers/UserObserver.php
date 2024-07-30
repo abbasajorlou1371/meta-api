@@ -6,8 +6,7 @@ use App\Events\UserStatusChanged;
 use App\Models\User;
 use App\Notifications\LogedInNotification;
 use Illuminate\Support\Facades\DB;
-use App\Models\Level\UserLevel;
-use App\Models\Level\Level;
+use App\Models\Levels\Level;
 use App\Models\Variable;
 use Illuminate\Auth\Events\Registered;
 use App\Models\Referal;
@@ -146,9 +145,11 @@ class UserObserver
     public function followed(User $user): void
     {
         $totalFollwers = $user->followers->count();
+
         $user->log->update([
             'followers_count' => $totalFollwers * 0.1
         ]);
+
         $this->calculateScore($user);
     }
 
@@ -162,6 +163,7 @@ class UserObserver
     {
         $psc_value = Variable::getRate('psc');
         $psc_count = 7000000 / $psc_value;
+
         $trades = DB::table('trades')
             ->where('buyer_id', $user->id)
             ->where(function ($query) use ($psc_count) {
@@ -177,6 +179,7 @@ class UserObserver
         $user->log->update([
             'transactions_count' => $trades * 2
         ]);
+
         $this->calculateScore($user);
     }
 
@@ -207,35 +210,23 @@ class UserObserver
         $log->update(['score' => $sum]);
         $user->update(['score' => $sum]);
 
-        $next_level = null;
+        $next_level = Level::where('score', '<=', $user->score)->with('prize')->first();
 
-        foreach (Level::lazy() as $level) {
-            if ($sum >= $level->score) {
-                $next_level = $level;
-            }
-        }
+        if ($next_level) {
 
-        if (!$next_level) return;
+            $user->levels()->attach($next_level->id);
 
-        if ($sum >= $next_level->score) {
-            UserLevel::updateOrCreate(
-                ['user_id' => $user->id],
-                ['level_id' => $next_level->id]
-            );
+            $levelPrize = $next_level->prize;
 
-            $prize = $next_level->prize;
-
-            if ($user->can('recievePrize', $prize)) {
+            if ($user->can('recievePrize', $levelPrize)) {
                 $assets = $user->assets;
-                $assets->increment('psc', $prize->psc);
-                $assets->increment('blue', $prize->blue);
-                $assets->increment('red', $prize->red);
-                $assets->increment('yellow', $prize->yellow);
-                $assets->update(['effect' => $prize->effect]);
-                $assets->increment('satisfaction', $prize->satisfaction);
-                $user->recievedPrizes()->create([
-                    'prize_id' => $prize->id
-                ]);
+                $assets->increment('psc', $levelPrize->psc);
+                $assets->increment('blue', $levelPrize->blue);
+                $assets->increment('red', $levelPrize->red);
+                $assets->increment('yellow', $levelPrize->yellow);
+                $assets->update(['effect' => $levelPrize->effect]);
+                $assets->increment('satisfaction', $levelPrize->satisfaction);
+                $user->recievedLevelPrizes()->attach($levelPrize->id);
             }
         }
     }

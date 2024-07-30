@@ -22,8 +22,7 @@ class LoginController extends Controller
 
         $user->load([
             'settings:id,user_id,automatic_logout',
-            'profilePhotos',
-            'level',
+            'latestProfilePhoto',
             'kyc:id,user_id,status,birthdate',
             'unreadNotifications'
         ]);
