@@ -210,7 +210,9 @@ class UserObserver
         $log->update(['score' => $sum]);
         $user->update(['score' => $sum]);
 
-        $next_level = Level::where('score', '<=', $user->score)->with('prize')->first();
+        $next_level = Level::where('score', '<=', $user->score)
+            ->whereNotIn('id', $user->levels->pluck('id'))
+            ->with('prize')->first();
 
         if ($next_level) {
 
