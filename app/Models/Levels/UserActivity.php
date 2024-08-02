@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Level;
+namespace App\Models\Levels;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

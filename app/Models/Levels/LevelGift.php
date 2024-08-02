@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Level;
+namespace App\Models\Levels;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LevelPrize extends Model
+class LevelGift extends Model
 {
     use HasFactory;
 

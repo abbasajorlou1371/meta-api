@@ -150,15 +150,15 @@ class PersonalInfo extends JsonResource
                 'score' => $this->score,
             ]),
 
-            'score_percentage_to_next_level' => getScorePercentageToNextLevel($this->level, $this->score),
+            'score_percentage_to_next_level' => getScorePercentageToNextLevel($this->latest_level, $this->score),
 
-            $this->mergeWhen($this->level && $this->checkFilter('level'), [
+            $this->mergeWhen($this->latest_level && $this->checkFilter('level'), [
                 'current_level' => [
-                    'name' => $this->level?->name,
-                    'slug' => $this->level?->slug,
-                    'image' => config('app.admin_panel_url') . '/uploads/' . $this->level?->image?->url,
+                    'name' => $this->latest_level?->name,
+                    'slug' => $this->latest_level?->slug,
+                    'image' => config('app.admin_panel_url') . '/uploads/' . $this->latest_level?->image?->url,
                 ],
-                'achieved_levels' => getSubLevels($this->level),
+                'achieved_levels' => getSubLevels($this->latest_level),
             ]),
 
             $this->mergeWhen($this->checkFilter('avatar'), [

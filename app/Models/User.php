@@ -7,10 +7,9 @@ use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\JoinRequest;
 use App\Models\Dynasty\RecievedPrize;
 use App\Models\Feature\FeatureHourlyProfit;
-use App\Models\Level\Level;
-use App\Models\Level\RecievedLevelPrize;
-use App\Models\Level\UserActivity;
-use App\Models\Level\UserLevel;
+use App\Models\Levels\Level;
+use App\Models\Levels\RecievedLevelPrize;
+use App\Models\Levels\UserActivity;
 use App\Models\User\Custom;
 use App\Models\User\UserEvent;
 use App\Models\User\UserVariable;
@@ -27,6 +26,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Helpers\FeatureIndicators;
+use App\Models\Levels\LevelPrize;
+use App\Models\Levels\LevelUser;
 use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\Sitemap\Tags\Url;
 use Carbon\Carbon;
@@ -329,36 +330,59 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasOne(Setting::class);
     }
 
+    // Level Start
+
     /**
-     * Get the user's level.
-     *
-     * @return HasOneThrough
+     * @return HasOne
      */
-    public function level(): HasOneThrough
+    public function generalSettings(): HasOne
     {
-        return $this->hasOneThrough(Level::class, UserLevel::class, 'user_id', 'id', 'id', 'level_id');
+        return $this->hasOne(GeneralSetting::class);
+    }
+
+    // Level Start
+
+    /**
+     * Get the user's level
+     *
+     * @return BelongsToMany
+     */
+    public function levels()
+    {
+        return $this->belongsToMany(Level::class)->using(LevelUser::class);
     }
 
     /**
-     * Get the user's recieved prizes.
+     * Get the user's latest level
      *
-     * @return HasMany
+     * @return \App\Models\Levels\Level|null
      */
-    public function recievedPrizes(): HasMany
+    public function getLatestLevelAttribute(): Level|null
     {
-        return $this->hasMany(RecievedLevelPrize::class);
+        return $this->levels()->latest('score')->first();
     }
 
     /**
-     * Get the user's log.
+     * Get the user's recieved prizes
+     *
+     * @return BelongsToMany
+     */
+    public function recievedLevelPrizes()
+    {
+        return $this->belongsToMany(LevelPrize::class, 'recieved_level_prizes')->using(RecievedLevelPrize::class);
+    }
+
+    // Level End
+
+    /**
+     * Get the user's log
      *
      * @return HasOne
      */
-    public function log(): HasOne
+    public function log()
     {
         return $this->hasOne(UserLog::class);
     }
-
 
     /**
      * Get the user's sells.
@@ -538,21 +562,11 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->morphMany(Image::class, 'imageable');
     }
 
-    /**
-     * Get the latest profile photo for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
-     */
     public function latestProfilePhoto()
     {
         return $this->morphOne(Image::class, 'imageable')->latestOfMany();
     }
 
-    /**
-     * Get the latest payment for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
     public function latestPayment()
     {
         return $this->hasOne(Payment::class)->latestOfMany();
@@ -635,6 +649,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+
     public function privacy()
     {
         return $this->hasMany(Privacy::class);
@@ -756,11 +771,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      */
     public function isOnline(): bool
     {
-        return $this->last_seen->diffInMinutes(now()) > 2 ? false : true;
-    }
-
-    public function profileLimitations()
-    {
-        return $this->hasMany(ProfileLimitation::class, 'limited_user_id');
+        return $this->last_seen->diffInMinutes(now()) > 2;
     }
 }

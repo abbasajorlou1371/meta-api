@@ -3,7 +3,7 @@
 use App\Models\Challenge\Question;
 use App\Models\Challenge\UserQuestionAnswer;
 use App\Models\Feature\FeatureHourlyProfit;
-use App\Models\Level\Level;
+use App\Models\Levels\Level;
 use App\Models\User;
 
 /**
