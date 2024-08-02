@@ -45,6 +45,18 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         'logedOut'
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_seen'         => 'datetime',
+        'code'              => 'string',
+        'score'             => 'integer',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token'
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -70,19 +82,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         'referal_link' => ''
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_seen'         => 'datetime',
-        'code'              => 'string',
-        'score'             => 'integer',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token'
-    ];
-
-
     public function toSitemapTag(): Url|string|array
     {
         $this->load('profilePhotos');
@@ -105,29 +104,17 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return [$faUrl, $enUrl];
     }
 
-    /**
-     * Get the user's account security.
-     *
-     * @return HasOne
-     */
     public function accountSecurity()
     {
         return $this->hasOne(AccountSecurity::class);
     }
 
-    /**
-     * Get the user's assets.
-     *
-     * @return HasOne
-     */
     public function assets()
     {
         return $this->hasOne(Asset::class);
     }
 
     /**
-     * Get the user's features.
-     *
      * @return HasMany
      */
     public function features(): HasMany
@@ -136,8 +123,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's feature requests.
-     *
      * @return HasMany
      */
     public function sellRequests(): HasMany
@@ -146,8 +131,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's buy requests.
-     *
      * @return HasMany
      */
     public function buyRequests(): HasMany
@@ -156,8 +139,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's recieved buy requests.
-     *
      * @return HasMany
      */
     public function recievedBuyRequests(): HasMany
@@ -167,8 +148,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
 
     /**
-     * Get the user's transactions.
-     *
      * @return HasMany
      */
     public function transactions(): HasMany
@@ -177,8 +156,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's latest transaction.
-     *
      * @return HasOne
      */
     public function latestTransaction(): HasOne
@@ -186,9 +163,9 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasOne(Transaction::class)->latestOfMany('created_at');
     }
 
+    // Referals Start
+
     /**
-     * Get referals of the user.
-     *
      * @return HasManyThrough
      */
     public function referals(): HasManyThrough
@@ -204,8 +181,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get referer of the user.
-     *
      * @return bool
      */
     public function has_reference(): bool
@@ -214,8 +189,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get referer of the user.
-     *
      * @return HasOneThrough
      */
     public function reference(): HasOneThrough
@@ -231,8 +204,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get referal orders of the user.
-     *
      * @return HasMany
      */
     public function referalOrderHistories(): HasMany
@@ -240,9 +211,9 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasMany(ReferalOrderHistory::class, 'reference_id');
     }
 
+    // Referals End
+
     /**
-     * Get first order of the user.
-     *
      * @return HasOne
      */
     public function firstOrder(): HasOne
@@ -251,8 +222,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's locked assets.
-     *
      * @return MorphMany
      */
     public function lockedAssets()
@@ -261,8 +230,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's followers.
-     *
      * @return BelongsToMany
      */
     public function followers(): BelongsToMany
@@ -271,8 +238,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's following.
-     *
      * @return BelongsToMany
      */
     public function following(): BelongsToMany
@@ -281,18 +246,14 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's tickets.
-     *
      * @return HasMany
      */
     public function tickets(): HasMany
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(Ticket::class, 'user_id', 'id');
     }
 
     /**
-     * Get the user's recieved tickets.
-     *
      * @return HasMany
      */
     public function recievedTickets(): HasMany
@@ -301,8 +262,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's notes.
-     *
      * @return HasMany
      */
     public function notes(): HasMany
@@ -311,8 +270,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's kyc.
-     *
      * @return HasOne
      */
     public function kyc(): HasOne
@@ -321,18 +278,14 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's settings.
-     *
      * @return HasOne
      */
     public function settings(): HasOne
     {
-        return $this->hasOne(Setting::class);
+        return $this->hasOne(Setting::class, 'user_id', 'id');
     }
 
     /**
-     * Get the user's general settings.
-     *
      * @return HasOne
      */
     public function generalSettings(): HasOne
@@ -341,8 +294,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's level.
-     *
      * @return HasOneThrough
      */
     public function level(): HasOneThrough
@@ -351,8 +302,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's recieved prizes.
-     *
      * @return HasMany
      */
     public function recievedPrizes(): HasMany
@@ -361,8 +310,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's log.
-     *
      * @return HasOne
      */
     public function log(): HasOne
@@ -372,8 +319,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
 
     /**
-     * Get the user's sells.
-     *
      * @return HasMany
      */
     public function sells(): HasMany
@@ -382,8 +327,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's buys.
-     *
      * @return HasMany
      */
     public function buys(): HasMany
@@ -392,8 +335,14 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Fire the followed event.
-     *
+     * @return BelongsToMany
+     */
+    public function prizes(): BelongsToMany
+    {
+        return $this->belongsToMany(Prize::class, 'received_prizes', 'user_id', 'prize_id');
+    }
+
+    /**
      * @return void
      */
     public function followed(): void
@@ -402,8 +351,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Fire the hourReached event.
-     *
      * @return void
      */
     public function hourReached(): void
@@ -411,19 +358,12 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         $this->fireModelEvent('hourReached');
     }
 
-    /**
-     * Fire the traded event.
-     *
-     * @return void
-     */
     public function traded()
     {
         $this->fireModelEvent('traded');
     }
 
     /**
-     * Fire the deposit event.
-     *
      * @return void
      */
     public function deposit(): void
@@ -432,8 +372,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's activities.
-     *
      * @return HasMany
      */
     public function activities()
@@ -442,8 +380,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's latest activity.
-     *
      * @return HasOne
      */
     public function latestActivity()
@@ -452,8 +388,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's reports.
-     *
      * @return HasMany
      */
     public function reports()
@@ -462,8 +396,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Determine if the user has a verified kyc.
-     *
      * @return bool
      */
     public function verified(): bool
@@ -472,8 +404,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     }
 
     /**
-     * Get the user's debts.
-     *
      * @return HasMany
      */
     public function debts()
@@ -481,21 +411,11 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasMany(Debt::class);
     }
 
-    /**
-     * Get the user's latest sell request.
-     *
-     * @return HasOne
-     */
     public function latestSellRequest()
     {
         return $this->hasOne(SellFeatureRequest::class, 'seller_id', 'id')->latestOfMany();
     }
 
-    /**
-     * Get the user's feature profits.
-     *
-     * @return HasMany
-     */
     public function featureProfits()
     {
         return $this->hasMany(FeatureHourlyProfit::class);
@@ -569,8 +489,16 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
 
     public function sendPasswordResetNotification($token)
     {
-        $url = 'https://rgb.irpsc.com/metaverse/reset-password?token=' . $token . '?email=' . $this->getEmailForPasswordReset();
+        $url = 'https://rgb.irpsc.com/metaverse/reset-password?token=' . $token . '&email=' . $this->getEmailForPasswordReset();
         $this->notify(new sendPasswordResetNotification($url, $this));
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function questionAnswers(): HasMany
+    {
+        return $this->hasMany(UserQuestionAnswer::class);
     }
 
     public function privacy()
