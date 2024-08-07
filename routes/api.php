@@ -94,7 +94,7 @@ Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.'
 });
 
 Route::controller(UserController::class)->prefix('users')->group(function () {
-    Route::get('/', 'index');
+    Route::get('/', 'index')->withoutMiddleware('auth', 'verified');
     Route::get('/top', 'topUsers');
     Route::get('/{user}/profile', 'getProfile');
     Route::get('/{user}/wallet', 'getWallet');
@@ -301,7 +301,7 @@ Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial'])
 
 Route::get('ping', static fn () => null);
 
-Route::any('/order/callback/{order}', [OrderController::class, 'callback'])->name('order.callback');
+Route::post('/parsian/callback', [OrderController::class, 'callback'])->name('parsian.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');

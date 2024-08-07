@@ -21,15 +21,15 @@ class UserResource extends JsonResource
             }) ?? $this->name,
             'code' => $this->code,
             'score' => $this->score,
-            'levels' => $this->whenLoaded('level', function () {
+            'levels' => $this->whenLoaded('levels', function () {
                 return [
-                    'current' => [
-                        'id' => $this->level->id,
-                        'name' => $this->level->name,
-                        'slug' => $this->level->slug,
-                        'image' => config('app.admin_panel_url') . '/uploads/' . $this->level->image->url,
-                    ],
-                    'previous' => $this->level->previousLevels->map(function ($level) {
+                    'current' => $this->latest_level ? [
+                        'id' => $this->latest_level->id,
+                        'name' => $this->latest_level->name,
+                        'slug' => $this->latest_level->slug,
+                        'image' => config('app.admin_panel_url') . '/uploads/' . $this->latest_level->image->url,
+                    ] : null,
+                    'previous' => $this->levels->map(function ($level) {
                         return [
                             'id' => $level->id,
                             'name' => $level->name,

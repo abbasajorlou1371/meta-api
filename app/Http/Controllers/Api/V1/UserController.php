@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Http\Resources\WalletResource;
-use App\Models\Level\Level;
+use App\Models\Levels\Level;
 use App\Models\ProfileLimitation;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProfileLimitationResource;
@@ -43,7 +43,7 @@ class UserController extends Controller
                     $query->orderBy('email_verified_at', 'desc');
                 }
             })
-            ->with('level', 'latestProfilePhoto', 'kyc:id,user_id,fname,lname')
+            ->with('levels.image', 'latestProfilePhoto', 'kyc:id,user_id,fname,lname')
             ->orderBy('score', 'desc')
             ->simplePaginate(20);
 
@@ -133,9 +133,7 @@ class UserController extends Controller
      */
     public function getLevel(User $user)
     {
-        $user->load('level.image');
-
-        if (is_null($user->level)) {
+        if (is_null($user->current_level)) {
             return response()->json([
                 'data' => [
                     'current_level' => null,
@@ -144,8 +142,8 @@ class UserController extends Controller
             ]);
         }
 
-        $previousLevels = Level::where('score', '<', $user->level->score)->orderBy('score')->get();
-        $currentLevel = $user->level;
+        $previousLevels = Level::where('score', '<', $user->current_level->score)->orderBy('score')->get();
+        $currentLevel = $user->current_level;
 
         return response()->json([
             'data' => [

@@ -16,6 +16,11 @@ class Privacy extends Model
         'display' => 'boolean',
     ];
 
+    /**
+     * Get the user who owns the privacy.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -17,16 +17,17 @@ class LatestTransactionResource extends JsonResource
     {
         return [
             'id' => $this->latestTransaction->id,
-            $this->mergeWhen($this->latestTransaction->status === 1, [
-                'ref_id' => $this->latestPayment?->ref_id,
-                'date' => Jalalian::forge($this->latestPayment?->created_at)->format('Y/m/d'),
-                'hour' => Jalalian::forge($this->latestPayment?->created_at)->format('H:m:s'),
-            ]),
+            'payment_info' => $this->whenLoaded('latestPayment', function () {
+                return [
+                    'ref_id' => $this->latestPayment->ref_id,
+                    'date' => jdate($this->latestPayment->created_at)->format('Y/m/d'),
+                    'hour' => jdate($this->latestPayment->created_at)->format('H:m:s'),
+                ];
+            }),
             'product' => $this->latestOrder->asset,
             'count' => $this->latestOrder->amount,
             'amount' => $this->latestTransaction->amount,
             'status' => $this->latestTransaction->status,
         ];
-
     }
 }

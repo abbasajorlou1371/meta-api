@@ -13,15 +13,14 @@ use App\Models\Dynasty\Dynasty;
 use App\Models\Dynasty\JoinRequest;
 use App\Models\Feature;
 use App\Models\Kyc;
-use App\Models\Level\Prize;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\Order;
 use App\Policies\DynastyPolicy;
 use App\Policies\FeaturePolicy;
 use App\Policies\JoinRequestPolicy;
 use App\Policies\KycPolicy;
 use App\Policies\OrderPolicy;
-use App\Policies\PrizePolicy;
 use App\Policies\TicketPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -43,7 +42,6 @@ class AuthServiceProvider extends ServiceProvider
         Feature::class => FeaturePolicy::class,
         Ticket::class => TicketPolicy::class,
         Kyc::class => KycPolicy::class,
-        Prize::class => PrizePolicy::class,
         Dynasty::class => DynastyPolicy::class,
         User::class => UserPolicy::class,
         JoinRequest::class => JoinRequestPolicy::class,

@@ -12,8 +12,9 @@ use App\Notifications\TransactionNotification;
 use App\Services\ReferalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Http;
-use Morilog\Jalali\Jalalian;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -44,78 +45,70 @@ class OrderController extends Controller
             'asset' => $order->asset,
             'amount' => $order->amount,
             'action' => 'deposit',
-            'status' => 0
         ]);
 
-        // Send a request to ZarinPal for payment
-        $response = Http::post(config('zarinpal.curl.post'), [
-            "merchant_id" => config('zarinpal.merchant_id'),
-            "amount" => $order->amount * $rate,
-            "callback_url" => route('order.callback', $order->id),
-            "description" => "خرید تست",
-            "metadata" => ["email" => $user->email],
-        ]);
+        // Send a request to Parsian for payment
+        $response = parsian()
+            ->orderId($order->id)
+            ->amount($order->amount * $rate)
+            ->request()
+            ->callbackUrl(route('parsian.callback'))
+            ->send();
 
-        if ($response->successful()) {
-            $result = $response->json();
-            if ($result['data']['code'] == 100) {
-                return response()->json([
-                    'link' => 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"],
-                ]);
-            } else {
-                // Update the order and transaction status to -1 (error)
-                $order->update(['status' => -1]);
-                $transaction->update(['status' => -1]);
-                return response()->json([
-                    'error' => $response->serverError()
-                ]);
-            }
-        } else {
-            // Update the order and transaction status to -1 (error)
-            $order->update(['status' => -1]);
-            $transaction->update(['status' => -1]);
-            return response()->json([
-                'error' => $response->serverError()
+        if (!$response->success()) {
+            throw ValidationException::withMessages([
+                'error' => $response->error()->message()
             ]);
         }
+
+        $transaction->update(['token' => $response->token()]);
+
+        return response()->json([
+            'link' => $response->url(),
+        ]);
     }
 
     /**
      * Handle the callback after a payment is made.
      *
-     * @param Order $order
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function callback(Order $order): RedirectResponse
+    public function callback(Request $request): RedirectResponse
     {
-        $transaction = $order->transaction;
-        $amount = $order->amount * Variable::getRate($order->asset);
+        $params = http_build_query($request->all());
 
-        // Verify the payment with ZarinPal
-        $response = Http::post(config('zarinpal.curl.verify'), [
-            "merchant_id" => config('zarinpal.merchant_id'),
-            "authority" => $_GET['Authority'],
-            "amount" => $amount,
-        ]);
+        // If status = 0, transaction is successful
+        if ($request->status == 0) {
 
-        $result = $response->json();
+            $order = Order::where('id', $request->orderId)->with('user', 'transaction')->firstOrFail();
+            $transaction = $order->transaction;
+            $amount = $order->amount * Variable::getRate($order->asset);
 
-        if ($response->successful()) {
-            if ($result['data']['code'] == 100) {
-                // Update the transaction and order status to 1 (success)
-                $transaction->update(['status' => 1]);
-                $order->update(['status' => 1]);
+            $response = parsian()
+                ->token($transaction->token)
+                ->verification()
+                ->send();
+
+            if ($response->success()) {
+                $order->update(['status' => $response->status()]);
+
+                $transaction->update([
+                    'status' => $response->status(),
+                    'ref_id' => $response->referenceId()
+                ]);
+
                 $user = $order->user;
 
-                // Check if the user can get a bonus for the order
                 if ($user->can('canGetBonus', $order)) {
-                    // Create a new first order record with bonus
+
                     $user->firstOrder()->create([
                         'type' => $order->asset,
                         'amount' => $order->amount,
-                        'date' => Jalalian::now()->format('Y-m-d'),
+                        'date' => jdate(now())->format('Y/m/d'),
                         'bonus' => $order->amount * 0.5,
                     ]);
+
                     $bonus = $order->amount * 0.5;
                     // Increase the user's asset amount with the order amount and bonus
                     $user->wallet->increment($order->asset, $order->amount + $bonus);
@@ -124,34 +117,25 @@ class OrderController extends Controller
                     $user->wallet->increment($order->asset, $order->amount);
                 }
 
-                // Create a payment record
                 Payment::create([
                     'user_id' => $user->id,
-                    'ref_id' => $result['data']['ref_id'],
-                    'card_pan' => $result['data']['card_pan'],
-                    'gateway' => 'زرین پال',
-                    'amount' => $order->amount * Variable::getRate($order->asset),
+                    'ref_id' => $response->referenceId(),
+                    'card_pan' => $response->cardHash() ?? 'card-hash',
+                    'gateway' => 'parsian',
+                    'amount' => $amount,
                     'product' => $order->asset
                 ]);
 
                 // Check if the order asset is not IRR
-                if($order->asset !== 'irr') {
-                    // Perform referral actions
+                if ($order->asset !== 'irr') {
                     ReferalService::referal($user, $order);
                 }
 
-                // Notify the user about the transaction
                 $user->notify(new TransactionNotification($order));
                 $user->deposit();
-                return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');
-            }
-        } else {
-            if ($result['errors']['code'] == -51) {
-                // Update the transaction and order status to -1 (error)
-                $transaction->update(['status' => -1]);
-                $order->update(['status' => -1]);
-                return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify');
             }
         }
+
+        return redirect()->to('https://rgb.irpsc.com/payment/verify?' . $params);
     }
 }

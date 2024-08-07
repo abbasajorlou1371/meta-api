@@ -40,7 +40,8 @@
         },
         "files": [
             "app/Helpers/functions.php",
-            "app/Constants/ChildrenPermissionConsts.php"
+            "app/Constants/ChildrenPermissionConsts.php",
+            "app/Parsian/helpers.php"
         ]
     },
     "autoload-dev": {
