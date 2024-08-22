@@ -27,7 +27,6 @@ class RedirectRequest extends FormRequest
             'redirect_url' => [
                 'required',
                 'url',
-                'in:http://localhost:5173,http://frdevelop.irpsc.com,https://rgb.irpsc.com',
             ],
         ];
     }
