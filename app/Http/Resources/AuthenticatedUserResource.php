@@ -17,6 +17,7 @@ class AuthenticatedUserResource extends JsonResource
         return [
             'id' => $this->id,
             'token' => $this->token ?? $request->bearerToken(),
+            'access_token' => $this->access_token,
             'automatic_logout' => $this->settings->automatic_logout ?: 55,
             'code' => $this->code,
             'level' => $this->latest_level,
