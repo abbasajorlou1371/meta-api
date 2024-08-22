@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RedirectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\AuthenticatedUserResource;
@@ -31,11 +32,11 @@ class AuthController extends Controller
         return response()->json(['url' => $url]);
     }
 
-    public function redirect(Request $request)
+    public function redirect(RedirectRequest $request)
     {
         cache()->put('state', $state = Str::random(40), now()->addMinutes(5));
 
-        cache()->put('request-host', $request->getSchemeAndHttpHost(), now()->addMinutes(5));
+        cache()->put('request_url', $request->query('request_url'), now()->addMinutes(5));
 
         $query = http_build_query([
             'client_id' => config('app.oauth_client_id'),
@@ -123,7 +124,7 @@ class AuthController extends Controller
             'expires_at' => now()->diffInMinutes($tokenExpiresAt),
         ]);
 
-        $url = cache()->pull('request-host') . '/metaverse/auth?' . $query;
+        $url = cache()->pull('request_url') . '/auth?' . $query;
 
         return redirect()->away($url);
     }
