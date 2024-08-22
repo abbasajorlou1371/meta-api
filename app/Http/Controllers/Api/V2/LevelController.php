@@ -9,7 +9,7 @@ use App\Http\Resources\V2\Level\GiftResource;
 use App\Http\Resources\V2\Level\LevelResource;
 use App\Http\Resources\V2\Level\LicensesResource;
 use App\Http\Resources\V2\Level\PrizeResource;
-use App\Models\Level\Level;
+use App\Models\Levels\Level;
 use Illuminate\Http\Request;
 
 class LevelController extends Controller

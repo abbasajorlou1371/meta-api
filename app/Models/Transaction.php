@@ -52,7 +52,7 @@ class Transaction extends Model
      * @var array
      */
     protected $attributes = [
-        'status' => -138
+        'status' => 1
     ];
 
     /**

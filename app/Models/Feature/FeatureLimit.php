@@ -9,8 +9,11 @@ class FeatureLimit extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'expired' => 'boolean',
     ];
 }

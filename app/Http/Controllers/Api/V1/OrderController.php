@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BuyAssetRequest;
 use App\Models\Order;
-use App\Models\Payment;
 use App\Models\User;
 use App\Models\Variable;
 use App\Notifications\TransactionNotification;
@@ -13,7 +12,6 @@ use App\Services\ReferalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -47,10 +45,15 @@ class OrderController extends Controller
             'action' => 'deposit',
         ]);
 
+        $merchantId = $order->asset !== 'irr'
+            ? config('parsian.merchant_id')
+            : config('parsian.loan_account_merchant_id');
+
         // Send a request to Parsian for payment
         $response = parsian()
             ->orderId($order->id)
             ->amount($order->amount * $rate)
+            ->merchantId($merchantId)
             ->request()
             ->callbackUrl(route('parsian.callback'))
             ->send();
@@ -78,15 +81,21 @@ class OrderController extends Controller
     {
         $params = http_build_query($request->all());
 
+        $order = Order::where('id', $request->OrderId)->with('user', 'transaction')->firstOrFail();
+        $transaction = $order->transaction;
+
         // If status = 0, transaction is successful
         if ($request->status == 0) {
 
-            $order = Order::where('id', $request->orderId)->with('user', 'transaction')->firstOrFail();
-            $transaction = $order->transaction;
             $amount = $order->amount * Variable::getRate($order->asset);
+
+            $merchantId = $order->asset !== 'irr'
+                ? config('parsian.merchant_id')
+                : config('parsian.loan_account_merchant_id');
 
             $response = parsian()
                 ->token($transaction->token)
+                ->merchantId($merchantId)
                 ->verification()
                 ->send();
 
@@ -134,6 +143,13 @@ class OrderController extends Controller
                 $user->notify(new TransactionNotification($order));
                 $user->deposit();
             }
+        } else {
+            $order->update([
+                'status' => $request->status
+            ]);
+            $transaction->update([
+                'status' => $request->status
+            ]);
         }
 
         return redirect()->to('https://rgb.irpsc.com/payment/verify?' . $params);

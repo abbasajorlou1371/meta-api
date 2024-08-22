@@ -7,8 +7,10 @@ use App\Models\User;
 use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
 use App\Models\Feature\BuildingModel;
+use App\Models\Feature\FeatureLimit;
 use App\Models\Image;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class FeaturePolicy
 {
@@ -58,17 +60,34 @@ class FeaturePolicy
      *
      * @param User $user The user attempting to buy the feature.
      * @param Feature $feature The feature being bought.
-     * @return bool Returns true if the user can buy the feature, false otherwise.
+     * @return bool|Response Returns true if the user can buy the feature, false otherwise.
      */
-    public function buy(User $user, Feature $feature)
+    public function buy(User $user, Feature $feature): Response|bool
     {
         $properties = $feature->properties;
+
+        if (in_array($properties->rgb, $this->limitedFeatures)) {
+            $featureLimitation = FeatureLimit::where('expired', false)
+                ->where('start_id', '<=', $properties->id)
+                ->where('end_id', '>=', $properties->id)
+                ->first();
+
+            if ($featureLimitation) {
+                $this->handleLimitedFeature($featureLimitation, $properties);
+            }
+        }
+
 
         return !in_array($properties->rgb, $this->sellLimitedFeatures)
             && !in_array($properties->karbari, $this->notAllowedToBeSoldFeatures)
             && !in_array($properties->rgb, $this->soldAndNotPriced)
             && $feature->owner->isNot($user)
             && !$feature->locked();
+    }
+
+    private function handleLimitedFeature(FeatureLimit $featureLimitation, $properties)
+    {
+        // Do something with the feature limitation
     }
 
     /**
@@ -81,11 +100,13 @@ class FeaturePolicy
     public function sell(User $user, Feature $feature)
     {
         $hasUnderEighteenPermissions = true;
+
         if ($user->isUnderEighteen()) {
             $hasUnderEighteenPermissions = $user->permissions
                 ? $user->permissions?->verified && $user->permissions?->SF
                 : true;
         }
+
         return $feature->owner->is($user)
             && !in_array($feature->properties->rgb, $this->sellLimitedFeatures)
             && $user->verified()

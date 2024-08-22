@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\V2\ProfileLimitationController;
+use App\Http\Controllers\Api\V2\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,7 +62,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(function () {
     Route::post('/register', 'register')->middleware('guest')->name('register');
     Route::get('/redirect', 'redirect')->middleware('guest')->name('redirect');
-    Route::get('/callback', 'callback')->middleware('guest')->name('callback');
+    Route::get('/callback', 'callback')->name('callback');
     Route::post('/me', 'me')->middleware('auth:sanctum')->name('me');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('logout');
 });
@@ -127,8 +128,15 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     Route::controller(DashboardController::class)->prefix('user')->group(function () {
         Route::get('/profile', 'index');
         Route::get('/wallet', 'showWallet');
-        Route::get('/transactions', 'transactions');
-        Route::get('/payments/latest', 'latestTransaction');
+        // Route::get('/transactions', 'transactions');
+        // Route::get('/payments/latest', 'latestTransaction');
+    });
+
+    Route::controller(TransactionController::class)->prefix('user')->group(function() {
+        Route::get('/transactions', 'index');
+        Route::get('/transactions/latest', 'latestTransaction');
+        Route::post('/transactions/filter', 'filter');
+        Route::post('/search', 'search');
     });
 
     Route::controller(EmailVerificationController::class)->prefix('email')->group(function () {

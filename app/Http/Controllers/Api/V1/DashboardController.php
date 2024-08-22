@@ -50,9 +50,10 @@ class DashboardController extends Controller
      */
     public function transactions(Request $request)
     {
-        return TransactionResource::collection(
-            Transaction::whereBelongsTo($request->user())->simplePaginate(10)
-        );
+        $transactions = Transaction::whereBelongsTo($request->user())
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(10);
+        return TransactionResource::collection($transactions);
     }
 
     /**

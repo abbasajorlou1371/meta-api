@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // 
+        $this->call([
+            ChangeTransactionStatus::class,
+            AttachPreviouslyAchievedLevelsToUser::class,
+            FixLevelsImages::class,
+            TransferPrivacyAndGeneralSettingData::class,
+            CreatePrivacySetting::class,
+        ]);
     }
 }

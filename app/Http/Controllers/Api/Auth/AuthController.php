@@ -35,6 +35,8 @@ class AuthController extends Controller
     {
         cache()->put('state', $state = Str::random(40), now()->addMinutes(5));
 
+        cache()->put('request-host', $request->getSchemeAndHttpHost(), now()->addMinutes(5));
+
         $query = http_build_query([
             'client_id' => config('app.oauth_client_id'),
             'redirect_uri' => route('auth.callback'),
@@ -121,7 +123,7 @@ class AuthController extends Controller
             'expires_at' => now()->diffInMinutes($tokenExpiresAt),
         ]);
 
-        $url = 'https://rgb.irpsc.com/metaverse/auth?' . $query;
+        $url = cache()->pull('request-host') . '/metaverse/auth?' . $query;
 
         return redirect()->away($url);
     }
@@ -142,9 +144,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'redirect_url' => config('app.oauth_server_url') . '/logout',
-        ]);
+        return response()->noContent();
     }
 
     /**
@@ -160,7 +160,6 @@ class AuthController extends Controller
         $user->load([
             'settings:id,user_id,automatic_logout',
             'profilePhotos',
-            'level',
             'kyc:id,user_id,status,birthdate',
             'unreadNotifications'
         ]);
