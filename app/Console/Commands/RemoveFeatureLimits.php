@@ -29,26 +29,24 @@ class RemoveFeatureLimits extends Command
      */
     public function handle()
     {
-        FeatureLimit::where('expired', false)->chunk(10, function ($featureLimits) {
+        FeatureLimit::where('expired', false)->where('end_date', '<', now())->chunk(10, function ($featureLimits) {
             foreach ($featureLimits as $featureLimit) {
-                if ($featureLimit->end_date < now()) {
-                    $startId = explode('-', $featureLimit->start_id);
-                    $endId = explode('-', $featureLimit->end_id);
+                $startId = explode('-', $featureLimit->start_id);
+                $endId = explode('-', $featureLimit->end_id);
 
-                    FeatureProperties::where('id_prefix', $startId[0])
-                        ->where('id_postfix', '>=', $startId[1])
-                        ->where('id_postfix', '<=', $endId[1])
-                        ->chunk(100, function ($featureProperties) {
-                            foreach ($featureProperties as $featureProperty) {
-                                $featureProperty->update([
-                                    'stability' => $featureProperty->area * $featureProperty->density,
-                                    'rgb' => $this->getFeatureRGB($featureProperty),
-                                ]);
-                            }
-                        });
+                FeatureProperties::where('id_prefix', $startId[0])
+                    ->where('id_postfix', '>=', $startId[1])
+                    ->where('id_postfix', '<=', $endId[1])
+                    ->chunk(100, function ($featureProperties) {
+                        foreach ($featureProperties as $featureProperty) {
+                            $featureProperty->update([
+                                'stability' => $featureProperty->area * $featureProperty->density,
+                                'rgb' => $this->getFeatureRGB($featureProperty),
+                            ]);
+                        }
+                    });
 
-                    $featureLimit->update(['expired' => true]);
-                }
+                $featureLimit->update(['expired' => true]);
             }
         });
 

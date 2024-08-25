@@ -125,7 +125,7 @@ class BuyFeatureController extends Controller
             'asset' => $feature->getColor(),
             'amount' => $price,
             'action' => 'withdraw',
-            'status' => 1
+            'status' => 0
         ]);
 
         // Get buyer widthdraw profit time
@@ -215,7 +215,7 @@ class BuyFeatureController extends Controller
             'asset' => 'psc',
             'amount' => $this->buyerChargeAmount($feature, 'price_psc'),
             'action' => 'withdraw',
-            'status' => 1
+            'status' => 0
         ]);
 
         // Create a new transaction for the buyer with the irr currency
@@ -224,7 +224,7 @@ class BuyFeatureController extends Controller
             'asset' => 'irr',
             'amount' => $this->buyerChargeAmount($feature, 'price_irr'),
             'action' => 'withdraw',
-            'status' => 1
+            'status' => 0
         ]);
 
         // Create a new transaction for the seller with the psc currency
@@ -233,7 +233,7 @@ class BuyFeatureController extends Controller
             'asset' => 'psc',
             'amount' => $this->sellerPayAmount($feature, 'price_psc'),
             'action' => 'deposit',
-            'status' => 1
+            'status' => 0
         ]);
 
         // Create a new transaction for the seller with the irr currency
@@ -242,7 +242,7 @@ class BuyFeatureController extends Controller
             'asset' => 'irr',
             'amount' => $this->sellerPayAmount($feature, 'price_irr'),
             'action' => 'deposit',
-            'status' => 1
+            'status' => 0
         ]);
 
         // Increment the psc and irr wallet of the system
