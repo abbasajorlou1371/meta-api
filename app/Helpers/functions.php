@@ -5,19 +5,18 @@ use App\Models\Challenge\UserQuestionAnswer;
 use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Levels\Level;
 use App\Models\User;
+use Carbon\Carbon;
 
 /**
  * Convert Shamsi (Persian) date to Gregorian date.
  *
  * @param string $date The Shamsi date to convert.
- * @return string The converted Gregorian date.
+ * @return Carbon The converted Gregorian date.
  */
-function jalali_to_carbon($date): string
+function jalali_to_carbon($date): Carbon
 {
     $date = \Morilog\Jalali\CalendarUtils::convertNumbers($date, true);
-    $date = str_replace('/', '-', $date);
-    return \Morilog\Jalali\CalendarUtils::createCarbonFromFormat('Y-m-d', $date)
-        ->format('Y-m-d');
+    return \Morilog\Jalali\CalendarUtils::createCarbonFromFormat('Y/m/d', $date);
 }
 
 /**

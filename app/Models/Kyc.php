@@ -24,7 +24,7 @@ class Kyc extends Model
     ];
 
     protected $casts = [
-        'birthdate' => 'datetime',
+        'birthdate' => 'date',
         'errors' => 'array'
     ];
 
