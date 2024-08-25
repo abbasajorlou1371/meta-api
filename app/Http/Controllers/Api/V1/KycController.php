@@ -38,7 +38,7 @@ class KycController extends Controller
 
         $melliCard = url('uploads/' . $melliCardFile->store('kyc', 'public'));
 
-        $originalPath = storage_path($request->video['path'] . '/' . $request->video['name']);
+        $originalPath = storage_path('app/' . $request->video['path'] . '/' . $request->video['name']);
 
         rename($originalPath, storage_path('app/public/kyc/' . $request->video['name']));
 
