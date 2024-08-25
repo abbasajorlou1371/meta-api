@@ -6,6 +6,7 @@ use App\Models\Feature\FeatureHourlyProfit;
 use App\Models\Levels\Level;
 use App\Models\User;
 use Carbon\Carbon;
+use Morilog\Jalali\Jalalian;
 
 /**
  * Convert Shamsi (Persian) date to Gregorian date.
@@ -16,7 +17,7 @@ use Carbon\Carbon;
 function jalali_to_carbon($date): Carbon
 {
     $date = \Morilog\Jalali\CalendarUtils::convertNumbers($date, true);
-    return \Morilog\Jalali\CalendarUtils::createCarbonFromFormat('Y/m/d', $date);
+    return Jalalian::fromFormat('Y/m/d', $date)->toCarbon();
 }
 
 /**

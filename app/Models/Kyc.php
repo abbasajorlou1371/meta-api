@@ -18,7 +18,7 @@ class Kyc extends Model
         'status',
         'user_id',
         'errors',
-        'verify_text',
+        'verify_text_id',
         'video',
         'birthdate'
     ];
