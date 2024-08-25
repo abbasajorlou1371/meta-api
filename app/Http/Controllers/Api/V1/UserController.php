@@ -133,26 +133,26 @@ class UserController extends Controller
      */
     public function getLevel(User $user)
     {
-        if (is_null($user->current_level)) {
+        if (is_null($user->latest_level)) {
             return response()->json([
                 'data' => [
-                    'current_level' => null,
+                    'latest_level' => null,
                     'previous_levels' => []
                 ]
             ]);
         }
 
-        $previousLevels = Level::where('score', '<', $user->current_level->score)->orderBy('score')->get();
-        $currentLevel = $user->current_level;
+        $previousLevels = Level::where('score', '<', $user->latest_level->score)->orderBy('score')->get();
+        $latestLevel = $user->latest_level;
 
         return response()->json([
             'data' => [
-                'current_level' => [
-                    'id' => $currentLevel->id,
-                    'name' => $currentLevel->name,
-                    'score' => $currentLevel->score,
-                    'slug' => $currentLevel->slug,
-                    'image' => config('app.admin_panel_url') . '/uploads/' . optional($currentLevel->image)->url,
+                'latest_level' => [
+                    'id' => $latestLevel->id,
+                    'name' => $latestLevel->name,
+                    'score' => $latestLevel->score,
+                    'slug' => $latestLevel->slug,
+                    'image' => config('app.admin_panel_url') . '/uploads/' . optional($latestLevel->image)->url,
                 ],
                 'previous_levels' => $previousLevels->map(function ($level) {
                     return [
@@ -163,7 +163,7 @@ class UserController extends Controller
                         'image' => config('app.admin_panel_url') . '/uploads/' . optional($level->image)->url
                     ];
                 }),
-                'score_percentage_to_next_level' => $currentLevel->getScorePercentageToNextLevel($user),
+                'score_percentage_to_next_level' => $latestLevel->getScorePercentageToNextLevel($user),
             ]
         ]);
     }
