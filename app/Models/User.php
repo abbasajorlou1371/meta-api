@@ -330,8 +330,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->hasOne(Setting::class);
     }
 
-    // Level Start
-
     /**
      * @return HasOne
      */
@@ -359,7 +357,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      */
     public function getLatestLevelAttribute(): Level|null
     {
-        return $this->levels()->latest('score')->first();
+        return $this->levels()->first();
     }
 
     /**
@@ -649,7 +647,6 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-
     public function privacy()
     {
         return $this->hasMany(Privacy::class);

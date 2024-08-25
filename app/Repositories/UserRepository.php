@@ -22,7 +22,7 @@ class UserRepository extends Repository
                     'id' => $user->id,
                     'image' => optional($user->latestProfilePhoto)->url,
                     'online' => $user->last_seen->diffInMinutes(now()) < 2,
-                    'level' => optional($user->level)->slug,
+                    'level' => optional($user->latest_level)->slug,
                     'code' => $user->code,
                 ];
             });
