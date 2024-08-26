@@ -30,12 +30,10 @@ class FeatureResource extends JsonResource
                 'region' => $this->properties->region,
                 'owner' => $this->properties->owner,
                 'rgb' => $this->properties->rgb,
-                $this->mergeWhen(Auth::check(), [
-                    'price_psc' => $this->properties->price_psc,
-                    'price_irr' => $this->properties->price_irr,
-                    'date' => $this->latestTraded?->created_at,
-                    'minimum_price_percentage' => $this->properties->minimum_price_percentage,
-                ])
+                'price_psc' => $this->properties->price_psc,
+                'price_irr' => $this->properties->price_irr,
+                'date' => $this->latestTraded?->created_at,
+                'minimum_price_percentage' => $this->properties->minimum_price_percentage,
             ],
             'images' => $this->images?->map(function ($image) {
                 return [
