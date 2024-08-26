@@ -9,6 +9,7 @@ use App\Models\BuyFeatureRequest;
 use App\Models\Feature\BuildingModel;
 use App\Models\Feature\FeatureLimit;
 use App\Models\Image;
+use App\Models\LimitedFeaturePurchase;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
@@ -67,16 +68,13 @@ class FeaturePolicy
         $properties = $feature->properties;
 
         if (in_array($properties->rgb, $this->limitedFeatures)) {
-            $featureLimitation = FeatureLimit::where('expired', false)
-                ->where('start_id', '<=', $properties->id)
-                ->where('end_id', '>=', $properties->id)
-                ->first();
+
+            $featureLimitation = $this->getLimitation($feature);
 
             if ($featureLimitation) {
-                $this->handleLimitedFeature($featureLimitation, $properties);
+                $this->handleLimitedFeature($user, $featureLimitation, $properties);
             }
         }
-
 
         return !in_array($properties->rgb, $this->sellLimitedFeatures)
             && !in_array($properties->karbari, $this->notAllowedToBeSoldFeatures)
@@ -85,9 +83,51 @@ class FeaturePolicy
             && !$feature->locked();
     }
 
-    private function handleLimitedFeature(FeatureLimit $featureLimitation, $properties)
+    /**
+     * Handles the limitations of a feature.
+     *
+     * @param User $user The user attempting to buy the feature.
+     * @param FeatureLimit $featureLimitation The limitation of the feature.
+     * @param object $properties The properties of the feature.
+     * @return Response Returns a response if the user cannot buy the feature.
+     */
+    private function handleLimitedFeature(User $user, FeatureLimit $featureLimitation, $properties)
     {
-        // Do something with the feature limitation
+        if ($featureLimitation->verified_kyc_limit && !$user->verified()) {
+            return Response::deny('جهت خرید با احراز هویت خود را انجام داده باشید.');
+        } elseif ($featureLimitation->under_18_limit && !$user->isUnderEighteen()) {
+            return Response::deny('جهت خرید باید زیر 18 سال سن داشته باشید.');
+        } elseif ($featureLimitation->more_than_18_limit && $user->isUnderEighteen()) {
+            return Response::deny('جهت خرید باید بالای 18 سال سن داشته باشید.');
+        } elseif ($featureLimitation->dynasty_owner_limit && is_null($user->dynasty)) {
+            return Response::deny('جهت خرید این ملک باید دارای سلسله باشید.');
+        } elseif ($featureLimitation->individual_buy_limit) {
+            $limitedFeaturePurchuseCount = LimitedFeaturePurchase::where('user_id', $user->id)
+                ->where('feature_id', $properties->feature->id)
+                ->count();
+
+            if ($limitedFeaturePurchuseCount >= $featureLimitation->individual_buy_count) {
+                return Response::deny('شما تعداد حداکثر خرید در این طرح را داشته اید.');
+            }
+        }
+    }
+
+    /**
+     * Gets the limitation of a feature.
+     *
+     * @param Feature $feature The feature for which the limitation is being retrieved.
+     * @return FeatureLimit|null Returns the limitation of the feature if it exists, null otherwise.
+     */
+    private function getLimitation(Feature $feature): FeatureLimit|null
+    {
+        $properties = $feature->properties;
+
+        return FeatureLimit::where('expired', false)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->where('start_id', '<=', $properties->id)
+            ->where('end_id', '>=', $properties->id)
+            ->first();
     }
 
     /**
