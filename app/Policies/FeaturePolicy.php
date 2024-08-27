@@ -120,6 +120,8 @@ class FeaturePolicy
                     'شما قبلا از طرح ' . $featureLimitation->title . ' ' . $featureLimitation->individual_buy_count . ' ملک خریداری کرده اید.'
                 );
             }
+        } else {
+            return Response::deny('خطایی رخ داده است لطفا با پشتیبانی تماس بگیرید.');
         }
     }
 

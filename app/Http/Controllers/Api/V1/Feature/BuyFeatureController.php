@@ -121,6 +121,7 @@ class BuyFeatureController extends Controller
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
             'label' => '',
+            'stability' => $featureProperties->area * $featureProperties->density,
             'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 

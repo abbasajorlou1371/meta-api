@@ -46,42 +46,30 @@ class SellRequestsController extends Controller
         $requestedPrice_psc = $request->price_psc;
         $requestedPrice_irr = $request->price_irr;
 
-        // Check if minimum_price_percentage is provided in the request
         if ($request->has('minimum_price_percentage')) {
-            // Check if the user is under 18 and the minimum_price_percentage is less than the under 18 pricing limit
             if ($request->user()->isUnderEighteen() && $request->minimum_price_percentage < $under18PricingLimit) {
                 abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $under18PricingLimit));
-            }
-            // Check if the minimum_price_percentage is less than the public pricing limit
-            elseif ($request->minimum_price_percentage < $publicPricingLimit) {
+            } elseif ($request->minimum_price_percentage < $publicPricingLimit) {
                 abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $publicPricingLimit));
             }
 
-            // Calculate the total price based on stability, color rate, and minimum_price_percentage
             $totalPrice = $feature->properties->stability * Variable::getRate($feature->getColor()) * $request->minimum_price_percentage / 100;
-            // Calculate the requested prices in PSC and IRR based on the total price
             $requestedPrice_psc = $totalPrice / Variable::getRate('psc') * 0.5;
             $requestedPrice_irr = $totalPrice * 0.5;
             $pricing_percentage = $request->minimum_price_percentage;
         } else {
-            // Calculate the total requested price in PSC and IRR
             $totalRequested_price = $request->price_psc * Variable::getRate('psc') + $request->price_irr;
-            // Calculate the total traded price based on stability and color rate
             $totalTradedPrice = $feature->properties->stability * Variable::getRate($feature->getColor());
-            // Calculate the pricing percentage based on the total requested price and total traded price
-            $pricing_percentage = intval($totalRequested_price / $totalTradedPrice * 100);
 
-            // Check if the user is under 18 and the pricing percentage is less than the under 18 pricing limit
+            $pricing_percentage = $totalTradedPrice > 0 ? intval($totalRequested_price / $totalTradedPrice * 100) : 100;
+
             if ($request->user()->isUnderEighteen() && $pricing_percentage < $under18PricingLimit) {
                 abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $under18PricingLimit));
-            }
-            // Check if the pricing percentage is less than the public pricing limit
-            elseif ($pricing_percentage < $publicPricingLimit) {
+            } elseif ($pricing_percentage < $publicPricingLimit) {
                 abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $publicPricingLimit));
             }
         }
 
-        // Create a sell request with the seller ID, feature ID, requested prices, and pricing percentage
         $sellRequest = SellFeatureRequest::create([
             'seller_id' => $feature->owner->id,
             'feature_id' => $feature->id,
@@ -90,7 +78,6 @@ class SellRequestsController extends Controller
             'limit'     => $pricing_percentage,
         ]);
 
-        // Update the feature properties with the new RGB, requested prices, and pricing percentage
         $feature->properties->update([
             'rgb' => $feature->changeStatusToSoldAndPriced(),
             'price_psc' => $sellRequest->price_psc,
@@ -98,16 +85,13 @@ class SellRequestsController extends Controller
             'minimum_price_percentage' => $pricing_percentage
         ]);
 
-        // Broadcast an event to notify that the feature status has changed
         broadcast(new FeatureStatusChanged([
             'id'  => $feature->id,
             'rgb' => $feature->changeStatusToSoldAndPriced(),
         ]));
 
-        // Notify the user about the sell request
         $request->user()->notify(new SellRequestNotification($feature));
 
-        // Return the created sell request as a resource
         return new SellRequestResource($sellRequest);
     }
 
@@ -122,15 +106,12 @@ class SellRequestsController extends Controller
     {
         $feature = $sellRequest->feature;
 
-        // Update the feature properties with the new RGB
         $feature->properties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced()
         ]);
 
-        // Delete the sell request
         $sellRequest->delete();
 
-        // Broadcast an event to notify that the feature status has changed
         broadcast(new FeatureStatusChanged([
             'id'  => $feature->id,
             'rgb' => $feature->changeStatusToSoldAndNotPriced()
