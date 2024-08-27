@@ -20,7 +20,7 @@ class SearchUserResultResource extends JsonResource
             'code' => Str::upper($this->code),
             'name' => $this->verified() ? $this->kyc->fname . ' ' . $this->kyc->lname : $this->name,
             'followers' => $this->followers->count(),
-            'level' => $this->level?->name,
+            'level' => $this->latest_level?->name,
             'photo' => $this->profilePhotos->last()?->url,
         ];
     }
