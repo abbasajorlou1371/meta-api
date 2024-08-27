@@ -15,5 +15,6 @@ class FeatureLimit extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'expired' => 'boolean',
+        'price' => 'int',
     ];
 }

@@ -16,17 +16,26 @@ use App\Notifications\sellFeature;
 use App\Repositories\FeatureRepository;
 use Illuminate\Http\Request;
 use App\Models\SystemVariable;
+use App\Helpers\FeatureIndicators;
+use App\Models\Feature\FeatureLimit;
+use App\Models\LimitedFeaturePurchase;
 
 class BuyFeatureController extends Controller
 {
-    // RGB user
     private $rgb;
+
+    private $limitedFeatures;
 
     public function __construct(
         private FeatureRepository $featureRepository
     ) {
-        // Get RGB user
         $this->rgb = User::firstWhere('code', 'hm-2000000');
+
+        $this->limitedFeatures = [
+            FeatureIndicators::MaskoniTradingLimited,
+            FeatureIndicators::TejariTradingLimited,
+            FeatureIndicators::AmoozeshiTradingLimited,
+        ];
     }
 
     /**
@@ -42,6 +51,7 @@ class BuyFeatureController extends Controller
 
     /**
      * Display the specified Feature
+     *
      * @param Feature $feature
      * @return FeatureResource
      */
@@ -57,60 +67,70 @@ class BuyFeatureController extends Controller
     }
 
     /**
+     * Buy a feature
+     *
      * @param Feature $feature
-     * @return FeatureResource|JsonResponse
+     * @return FeatureResource
      */
-    public function buy(Feature $feature): FeatureResource|\Illuminate\Http\JsonResponse
+    public function buy(Feature $feature): FeatureResource
     {
-        // If the owner of the feature is RGB
-        if ($feature->owner->is($this->rgb)) {
-            // Call buyFromRGB method
+        $feature->load('properties', 'owner');
+
+        if (in_array($feature->properties->rgb, $this->limitedFeatures)) {
+            $this->handleLimitedFeature($feature);
+        } elseif ($feature->owner->is($this->rgb)) {
             $this->buyFromRGB($feature);
         } else {
-            // Call buyFromUser method
             $this->buyFromUser($feature);
         }
+
         return new FeatureResource($feature);
     }
 
-    protected function buyFromRGB(Feature $feature)
+    protected function handleLimitedFeature(Feature $feature)
     {
-        // Get public pricing limit
-        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        // Get the feature limitation
+        $featureLimitation = $this->getLimitation($feature);
 
-        // Get under 18 pricing limit
-        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+        abort_if(is_null($featureLimitation), 400, 'خطایی رخ داده است. لطفا با پشتیبانی تماس بگیرید.');
 
-        $color = $feature->getFeatureColor();
-        $seller = $feature->owner;
-        $featureProperties = $feature->properties;
         $buyer = request()->user();
-        $price = $featureProperties->stability;
+        $seller = $feature->owner;
+        $price = $feature->properties->stability;
+        $color = $feature->getFeatureColor();
 
-        // Check if the buyer has enough balance otherwise abort
-        if ($buyer->checkColorBalance($feature)) {
-            abort(403, "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!");
+        if ($featureLimitation->price_limit && $feature->price !== 0) {
+            if ($buyer->checkColorBalance($feature)) {
+                abort(403, "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!");
+            }
         }
 
-        // Withdraw the price from the buyer
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
+        $featureProperties = $feature->properties;
+
         $buyer->wallet->decrement($feature->getColor(), $price);
 
-        // Deposit the price to the seller
         $seller->wallet->increment($feature->getColor(), $price);
 
-        // Update the feature owner
         $feature->update(['owner_id' => $buyer->id]);
 
-        // Update the feature properties
         $featureProperties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
             'label' => '',
-            // If buyer is under 18 set the minimum price percentage to under 18 pricing limit otherwise set it to public pricing limit
             'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 
-        // Create a new trade
+        if ($featureLimitation->individual_buy_limit) {
+            LimitedFeaturePurchase::create([
+                'user_id' => $buyer->id,
+                'feature_limit_id' => $featureLimitation->id
+            ]);
+        }
+
         $trade = Trade::create([
             'feature_id' => $feature->id,
             'buyer_id' => $buyer->id,
@@ -119,7 +139,6 @@ class BuyFeatureController extends Controller
             'psc_amount' => 0,
         ]);
 
-        // Create a new transaction for the buyer
         $trade->transactions()->create([
             'user_id' => $buyer->id,
             'asset' => $feature->getColor(),
@@ -128,17 +147,15 @@ class BuyFeatureController extends Controller
             'status' => 0
         ]);
 
-        // Get buyer widthdraw profit time
         $time = $buyer->variables->withdraw_profit * 86400;
 
-        // Create a new hourly profit for the buyer
         $feature->hourlyProfit()->create([
             'user_id' => $buyer->id,
             'asset' => $feature->getColor(),
-            'dead_line' => now()->addSeconds($time)
+            'dead_line' => now()->addSeconds($time),
+            'is_active' => $featureLimitation->price_limit && $featureLimitation->price == 0 ? false : true,
         ]);
 
-        // Notify the buyer about their purchase
         $buyer->notify(new BuyFeatureNotification([
             'feature' => $feature,
             'id' => $feature->properties->id,
@@ -147,7 +164,6 @@ class BuyFeatureController extends Controller
             'template' => 'buy-land-metarang'
         ], $trade));
 
-        // Broadcast the feature status change
         broadcast(new FeatureStatusChanged([
             'id' => $feature->id,
             'rgb' => $feature->properties->rgb,
@@ -155,6 +171,93 @@ class BuyFeatureController extends Controller
     }
 
     /**
+     * Gets the limitation of a feature.
+     *
+     * @param Feature $feature The feature for which the limitation is being retrieved.
+     * @return FeatureLimit|null Returns the limitation of the feature if it exists, null otherwise.
+     */
+    private function getLimitation(Feature $feature): FeatureLimit|null
+    {
+        $properties = $feature->properties;
+
+        return FeatureLimit::where('expired', false)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->where('start_id', '<=', $properties->id)
+            ->where('end_id', '>=', $properties->id)
+            ->first();
+    }
+
+    protected function buyFromRGB(Feature $feature)
+    {
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
+        $color = $feature->getFeatureColor();
+        $seller = $feature->owner;
+        $featureProperties = $feature->properties;
+        $buyer = request()->user();
+        $price = $featureProperties->stability;
+
+        if ($buyer->checkColorBalance($feature)) {
+            abort(403, "برای خرید این ملک شما نیاز به {$price} لیتر رنگ {$color} دارید!");
+        }
+
+        $buyer->wallet->decrement($feature->getColor(), $price);
+
+        $seller->wallet->increment($feature->getColor(), $price);
+
+        $feature->update(['owner_id' => $buyer->id]);
+
+        $featureProperties->update([
+            'rgb' => $feature->changeStatusToSoldAndNotPriced(),
+            'owner' => $buyer->name,
+            'label' => '',
+            'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
+        ]);
+
+        $trade = Trade::create([
+            'feature_id' => $feature->id,
+            'buyer_id' => $buyer->id,
+            'seller_id' => $seller->id,
+            'irr_amount' => 0,
+            'psc_amount' => 0,
+        ]);
+
+        $trade->transactions()->create([
+            'user_id' => $buyer->id,
+            'asset' => $feature->getColor(),
+            'amount' => $price,
+            'action' => 'withdraw',
+            'status' => 0
+        ]);
+
+        $time = $buyer->variables->withdraw_profit * 86400;
+
+        $feature->hourlyProfit()->create([
+            'user_id' => $buyer->id,
+            'asset' => $feature->getColor(),
+            'dead_line' => now()->addSeconds($time)
+        ]);
+
+        $buyer->notify(new BuyFeatureNotification([
+            'feature' => $feature,
+            'id' => $feature->properties->id,
+            'buyer' => $buyer->name,
+            'seller' => "",
+            'template' => 'buy-land-metarang'
+        ], $trade));
+
+        broadcast(new FeatureStatusChanged([
+            'id' => $feature->id,
+            'rgb' => $feature->properties->rgb,
+        ]));
+    }
+
+    /**
+     * Buy a feature from a user
+     *
      * @param Feature $feature
      */
     protected function buyFromUser(Feature $feature)
@@ -182,7 +285,6 @@ class BuyFeatureController extends Controller
                         $elapsedTime = $featureTrade->created_at->addDays(1)->diffInHours(now()) . ' ساعت';
                     }
                     // Abort with 403 status code and the message
-                    abort(403, 'این ملک زیر قیمت 100% قیمت گذاری شده است برای خرید آن بعد از ' . $elapsedTime . ' دوباره تلاش کنید');
                 }
             }
         }
@@ -190,16 +292,12 @@ class BuyFeatureController extends Controller
         $seller = $feature->owner;
         $buyer = request()->user();
 
-        // Check buyer balance
         $buyer->checkBalance($feature);
 
-        // Charge the buyer
         $this->chargeBuyer($buyer, $feature);
 
-        // Pay the seller
         $this->paySeller($seller, $feature);
 
-        // Create a new trade
         $trade = Trade::create([
             'feature_id' => $feature->id,
             'buyer_id' => $buyer->id,
@@ -209,7 +307,6 @@ class BuyFeatureController extends Controller
             'date' => now()
         ]);
 
-        // Create a new transaction for the buyer with the psc currency
         $trade->transactions()->create([
             'user_id' => $buyer->id,
             'asset' => 'psc',
@@ -218,7 +315,6 @@ class BuyFeatureController extends Controller
             'status' => 0
         ]);
 
-        // Create a new transaction for the buyer with the irr currency
         $trade->transactions()->create([
             'user_id' => $buyer->id,
             'asset' => 'irr',
@@ -227,7 +323,6 @@ class BuyFeatureController extends Controller
             'status' => 0
         ]);
 
-        // Create a new transaction for the seller with the psc currency
         $trade->transactions()->create([
             'user_id' => $seller->id,
             'asset' => 'psc',
@@ -236,7 +331,6 @@ class BuyFeatureController extends Controller
             'status' => 0
         ]);
 
-        // Create a new transaction for the seller with the irr currency
         $trade->transactions()->create([
             'user_id' => $buyer->id,
             'asset' => 'irr',
@@ -245,24 +339,20 @@ class BuyFeatureController extends Controller
             'status' => 0
         ]);
 
-        // Increment the psc and irr wallet of the system
         $this->rgb->wallet->increment('psc', $this->fee($feature, 'price_psc') * 2);
         $this->rgb->wallet->increment('irr', $this->fee($feature, 'price_irr') * 2);
 
-        // Create a new comission for the system
         Comission::create([
             'trade_id' => $trade->id,
             'psc' => $this->fee($feature, 'price_psc') * 2,
             'irr' => $this->fee($feature, 'price_irr') * 2,
         ]);
 
-        // Update the feature owner
         $feature->update(['owner_id' => $buyer->id]);
 
         $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
         $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
 
-        // Update the feature properties
         $feature->properties->update([
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),
             'owner' => $buyer->name,
@@ -271,32 +361,25 @@ class BuyFeatureController extends Controller
             'minimum_price_percentage' => $buyer->isUnderEighteen() ? $under18PricingLimit : $publicPricingLimit
         ]);
 
-        // Set all pending sell request status to 1
         $feature->sellRequests->where('status', 0)
             ->where('seller_id', $seller->id)
             ->each->update(['status', 1]);
 
-        // Cancel all buy requests
         $this->cancelBuyRequests($feature);
 
-        // Raise the traded event for the buyer and seller
         $buyer->traded();
         $seller->traded();
 
-        // Get the hourly profit of the feature
         $profit = $feature->hourlyProfit->where('user_id', $seller->id)->first();
 
-        // Increment the seller wallet
         $seller->wallet->increment($profit->asset, $profit->amount);
 
-        // Update the seller hourly profit
         $feature->hourlyProfit->update([
             'user_id' => $buyer->id,
             'amount' => 0,
             'dead_line' => now()->addSeconds($buyer->variables->withdraw_profit * 86400),
         ]);
 
-        // Notfiy the buyer about the trade
         $buyer->notify(new BuyFeatureNotification([
             'feature' => $feature,
             'id' => $feature->properties->id,
@@ -305,7 +388,6 @@ class BuyFeatureController extends Controller
             'template' => 'buy-land-user',
         ], $trade));
 
-        // Notfiy the seller about the trade
         $seller->notify(new sellFeature([
             'feature' => $feature,
             'id' => $feature->properties->id,
@@ -314,7 +396,6 @@ class BuyFeatureController extends Controller
             'template' => 'sell-land',
         ], $trade));
 
-        // Broadcast the feature status change
         broadcast(new FeatureStatusChanged([
             'id' => $feature->id,
             'rgb' => $feature->changeStatusToSoldAndNotPriced(),

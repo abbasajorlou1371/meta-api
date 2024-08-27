@@ -18,6 +18,11 @@ class Feature extends Model
         'owner_id',
     ];
 
+    /**
+     * The buildings that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function buildingModels(): BelongsToMany
     {
         return $this->belongsToMany(BuildingModel::class, 'buildings', 'feature_id', 'model_id')
@@ -25,45 +30,91 @@ class Feature extends Model
             ->as('building');
     }
 
+    /**
+     * The map that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function map()
     {
         return $this->belongsTo(Map::class);
     }
 
+    /**
+     * The properties that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function properties()
     {
         return $this->hasOne(FeatureProperties::class);
     }
 
+    /**
+     * The geometry that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function geometry()
     {
         return $this->hasOne(Geometry::class,  'feature_id', 'id');
     }
 
+    /**
+     * The coordinates that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function coordinates()
     {
         return $this->hasManyThrough(Coordinate::class, Geometry::class);
     }
 
+    /**
+     * The images that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function images()
     {
         return $this->morphMany(Image::class, 'imageable');
     }
+
+    /**
+     * The owner that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    /**
+     * The trades that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function buyRequests()
     {
         return $this->hasMany(BuyFeatureRequest::class, 'feature_id');
     }
 
+    /**
+     * The trades that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function sellRequests()
     {
         return $this->hasMany(SellFeatureRequest::class, 'feature_id');
     }
 
+    /**
+     * Determines if the feature has pending requests.
+     *
+     * @return bool
+     */
     function hasPendingRequests()
     {
         return !empty($this->sellRequests
@@ -71,21 +122,41 @@ class Feature extends Model
             ->where('status', 0)->first());
     }
 
+    /**
+     * The dynasty that belong to the feature.
+     *
+     * @return BelongsToMany
+     */
     public function dynasty()
     {
         return $this->belongsTo(Dynasty::class, 'id', 'feature_id');
     }
 
+    /**
+     * Get the latest trade for the feature.
+     *
+     * @return BelongsToMany
+     */
     public function latestTraded()
     {
         return $this->hasOne(Trade::class)->latestOfMany();
     }
 
+    /**
+     * Get the latest sell request for the feature.
+     *
+     * @return BelongsToMany
+     */
     public function latestSellRequest()
     {
         return $this->hasOne(SellFeatureRequest::class)->latestOfMany();
     }
 
+    /**
+     * Determines if the feature is under priced.
+     *
+     * @return bool
+     */
     public function underPriced()
     {
         $sellRequest = $this->latestSellRequest;
@@ -95,17 +166,32 @@ class Feature extends Model
         return false;
     }
 
+    /**
+     * Get the hourly profit for the feature.
+     *
+     * @return BelongsToMany
+     */
     public function hourlyProfit()
     {
         return $this->hasOne(FeatureHourlyProfit::class);
     }
 
+    /**
+     * Determines if the feature is locked.
+     *
+     * @return bool
+     */
     public function locked()
     {
         return $this->properties->label === 'locked'
             && LockedFeature::whereFeatureId($this->id)->whereStatus(0)->exists();
     }
 
+    /**
+     * Get the feature's color.
+     *
+     * @return string
+     */
     public function getColor()
     {
         return match ($this->properties->karbari) {
@@ -115,6 +201,11 @@ class Feature extends Model
         };
     }
 
+    /**
+     * Get the feature's status.
+     *
+     * @return string
+     */
     public function changeStatusToSoldAndPriced()
     {
         return match ($this->properties->karbari) {
@@ -124,6 +215,11 @@ class Feature extends Model
         };
     }
 
+    /**
+     * Get the feature's status.
+     *
+     * @return string
+     */
     public function changeStatusToSoldAndNotPriced()
     {
         return match ($this->properties->karbari) {
@@ -133,6 +229,11 @@ class Feature extends Model
         };
     }
 
+    /**
+     * Get the feature's Persian color name.
+     *
+     * @return string
+     */
     public function getFeatureColor()
     {
         return match ($this->properties->karbari) {
@@ -142,6 +243,11 @@ class Feature extends Model
         };
     }
 
+    /**
+     * Get the feature's Persian title.
+     *
+     * @return string
+     */
     public function getApplicationTitle()
     {
         return match ($this->properties->karbari) {

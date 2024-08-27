@@ -8,7 +8,6 @@ use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
 use App\Models\Feature\BuildingModel;
 use App\Models\Feature\FeatureLimit;
-use App\Models\FeatureProperties;
 use App\Models\Image;
 use App\Models\LimitedFeaturePurchase;
 use Illuminate\Auth\Access\HandlesAuthorization;
