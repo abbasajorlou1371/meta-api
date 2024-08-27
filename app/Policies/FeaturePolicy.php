@@ -96,19 +96,19 @@ class FeaturePolicy
     {
         if ($featureLimitation->verified_kyc_limit && !$user->verified()) {
             return Response::deny(
-                'جهت خرید ملک از طرح ' . $featureLimitation->name . ' باید احراز هویت خود را کامل کرده باشید.'
+                'جهت خرید ملک از طرح ' . $featureLimitation->title . ' باید احراز هویت خود را کامل کرده باشید.'
             );
         } elseif ($featureLimitation->under_18_limit && !$user->isUnderEighteen()) {
             return Response::deny(
-                'جهت خرید ملک از طرح ' . $featureLimitation->name . ' باید زیر 18 سال سن داشته باشید.'
+                'جهت خرید ملک از طرح ' . $featureLimitation->title . ' باید زیر 18 سال سن داشته باشید.'
             );
         } elseif ($featureLimitation->more_than_18_limit && $user->isUnderEighteen()) {
             return Response::deny(
-                'جهت خرید ملک از طرح ' . $featureLimitation->name . ' باید بالای 18 سال سن داشته باشید.'
+                'جهت خرید ملک از طرح ' . $featureLimitation->title . ' باید بالای 18 سال سن داشته باشید.'
             );
         } elseif ($featureLimitation->dynasty_owner_limit && is_null($user->dynasty)) {
             return Response::deny(
-                'جهت خرید ملک از طرح ' . $featureLimitation->name . ' باید سلسله خود را تاسیس کرده باشید.'
+                'جهت خرید ملک از طرح ' . $featureLimitation->title . ' باید سلسله خود را تاسیس کرده باشید.'
             );
         } elseif ($featureLimitation->individual_buy_limit) {
             $limitedFeaturePurchuseCount = LimitedFeaturePurchase::where('user_id', $user->id)
@@ -117,7 +117,7 @@ class FeaturePolicy
 
             if ($limitedFeaturePurchuseCount >= $featureLimitation->individual_buy_count) {
                 return Response::deny(
-                    'شما قبلا از طرح ' . $featureLimitation->name . ' ' . $featureLimitation->individual_buy_count . ' ملک خریداری کرده اید.'
+                    'شما قبلا از طرح ' . $featureLimitation->title . ' ' . $featureLimitation->individual_buy_count . ' ملک خریداری کرده اید.'
                 );
             }
         }
