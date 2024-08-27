@@ -8,6 +8,7 @@ use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
 use App\Models\Feature\BuildingModel;
 use App\Models\Feature\FeatureLimit;
+use App\Models\FeatureProperties;
 use App\Models\Image;
 use App\Models\LimitedFeaturePurchase;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -72,7 +73,7 @@ class FeaturePolicy
             $featureLimitation = $this->getLimitation($feature);
 
             if ($featureLimitation) {
-                $this->handleLimitedFeature($user, $featureLimitation, $properties);
+                $this->handleLimitedFeature($user, $featureLimitation, $feature);
             }
         }
 
@@ -91,7 +92,7 @@ class FeaturePolicy
      * @param object $properties The properties of the feature.
      * @return Response Returns a response if the user cannot buy the feature.
      */
-    private function handleLimitedFeature(User $user, FeatureLimit $featureLimitation, $properties)
+    private function handleLimitedFeature(User $user, FeatureLimit $featureLimitation, Feature $feature)
     {
         if ($featureLimitation->verified_kyc_limit && !$user->verified()) {
             return Response::deny('جهت خرید با احراز هویت خود را انجام داده باشید.');
@@ -103,7 +104,7 @@ class FeaturePolicy
             return Response::deny('جهت خرید این ملک باید دارای سلسله باشید.');
         } elseif ($featureLimitation->individual_buy_limit) {
             $limitedFeaturePurchuseCount = LimitedFeaturePurchase::where('user_id', $user->id)
-                ->where('feature_id', $properties->feature->id)
+                ->where('feature_id', $feature->id)
                 ->count();
 
             if ($limitedFeaturePurchuseCount >= $featureLimitation->individual_buy_count) {
