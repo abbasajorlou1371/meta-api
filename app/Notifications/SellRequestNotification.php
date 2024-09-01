@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Mail\SellRequestMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -44,11 +45,13 @@ class SellRequestNotification extends KavenegarBaseNotification implements Shoul
      * @param  mixed  $notifiable
      * @return array
      */
-
     public function toMail($notifiable)
     {
-        return (new SellRequestMail($this->feature))
-            ->to($notifiable->email);
+        return (new MailMessage)
+            ->subject('درخواست فروش ملک')
+            ->view('mail.sell-request', [
+                'feature' => $this->feature
+            ]);
     }
 
     /**
@@ -60,9 +63,10 @@ class SellRequestNotification extends KavenegarBaseNotification implements Shoul
     public function toKavenegar($notifiable)
     {
         return (new KavenegarMessage())
-            ->verifyLookup('sell-land-metarang', [
-                'token' => $this->feature->properties->id,
-            ]);
+            ->verifyLookup(
+                'sell-land-metarang',
+                $this->feature->properties->id
+            );
     }
 
     /**

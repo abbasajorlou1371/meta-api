@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
-use App\Mail\EmailOtp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -47,9 +47,11 @@ class GetOtpNotification extends KavenegarBaseNotification implements ShouldQueu
      */
     public function toMail($notifiable)
     {
-        return (new EmailOtp($notifiable, $this->code))
-            ->to($this->email)
-            ->from('rgb-robot@irpsc.com');
+        return (new MailMessage)
+            ->subject('کد تایید')
+            ->view('mail.otp', [
+                'code' => $this->code
+            ]);
     }
 
     /**
@@ -61,9 +63,6 @@ class GetOtpNotification extends KavenegarBaseNotification implements ShouldQueu
     public function toKavenegar($notifiable)
     {
         return (new KavenegarMessage())
-            ->verifyLookup('verify', [
-                'token' => $this->code,
-                'template' => 'verify'
-            ]);
+            ->verifyLookup('verify', $this->code);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
-use App\Mail\logedInMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -45,9 +45,12 @@ class LogedInNotification extends KavenegarBaseNotification implements ShouldQue
      */
     public function toMail($notifiable)
     {
-        return (new logedInMail($notifiable, $this->ip))
-            ->to($notifiable->email)
-            ->subject('ورود به حساب کاربری');
+        return (new MailMessage)
+            ->subject('ورود به حساب کاربری')
+            ->view('mail.loged-in', [
+                'ip' => $this->ip,
+                'user' => $notifiable,
+            ]);
     }
 
     /**
@@ -59,9 +62,7 @@ class LogedInNotification extends KavenegarBaseNotification implements ShouldQue
     public function toKavenegar($notifiable)
     {
         return (new KavenegarMessage())
-            ->verifyLookup('login', [
-                'token' => $this->ip,
-            ]);
+            ->verifyLookup('login', $this->ip);
     }
 
     /**

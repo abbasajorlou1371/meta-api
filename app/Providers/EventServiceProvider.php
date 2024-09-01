@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Feature;
 use App\Models\User;
 use App\Observers\UserObserver;
-use App\Observers\FeatureObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;

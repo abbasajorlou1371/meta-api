@@ -2,10 +2,9 @@
 
 namespace App\Notifications;
 
-use App\Mail\BuyRequestRecievedMail;
-use App\Mail\BuyRequestSentMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -40,11 +39,27 @@ class BuyRequestNotification extends KavenegarBaseNotification implements Should
         }));
     }
 
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return MailMessage
+     */
     public function toMail($notifiable)
     {
-        return $this->data['type'] == 'buyer'
-            ? (new BuyRequestSentMail($this->data['buyRequest']))->to($notifiable->email)
-            : (new BuyRequestRecievedMail($this->data['buyRequest']))->to($notifiable->email);
+        if ($this->data['type'] == 'buyer') {
+            return (new MailMessage)
+                ->subject('درخواست خرید ارسال شد')
+                ->view('mail.buy-request-sent', [
+                    'buyRequest' => $this->data['buyRequest']
+                ]);
+        } else {
+            return (new MailMessage)
+                ->subject('درخواست خرید دریافت شد')
+                ->view('mail.buy-request-recieved', [
+                    'buyRequest' => $this->data['buyRequest']
+                ]);
+        }
     }
 
     /**

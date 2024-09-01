@@ -5,8 +5,8 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use App\Mail\FeatureBoughtMail;
 use App\Models\Trade;
+use Illuminate\Notifications\Messages\MailMessage;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
@@ -49,9 +49,11 @@ class BuyFeatureNotification extends KavenegarBaseNotification implements Should
      */
     public function toMail($notifiable)
     {
-        return (new FeatureBoughtMail($this->data['feature']))
-            ->to($notifiable->email)
-            ->subject('خریداری ملک');
+        return (new MailMessage)
+            ->subject('خریداری ملک')
+            ->view('mail.feature-bought', [
+                'feature' => $this->data['feature']
+            ]);
     }
 
     /**

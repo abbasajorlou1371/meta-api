@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use App\Mail\sellFeature as SellFeatureMail;
+use Illuminate\Notifications\Messages\MailMessage;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
@@ -48,8 +49,11 @@ class sellFeature extends KavenegarBaseNotification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new SellFeatureMail($this->trade->feature))
-            ->to($notifiable->email);
+        return (new MailMessage)
+            ->subject('فروش ملک')
+            ->view('mail.sell-feature', [
+                'feature' => $this->data['feature']
+            ]);
     }
 
     /**

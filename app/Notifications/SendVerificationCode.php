@@ -45,8 +45,7 @@ class SendVerificationCode extends KavenegarBaseNotification implements ShouldQu
     public function toKavenegar($notifiable)
     {
         return (new KavenegarMessage())
-            ->verifyLookup('verify', [
-                'token' => $this->code,
-            ])->to($this->phone);
+            ->verifyLookup('verify', $this->code)
+            ->to($this->phone);
     }
 }

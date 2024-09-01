@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Mail\PasswordResetMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class sendPasswordResetNotification extends Notification implements ShouldQueue
@@ -40,7 +41,11 @@ class sendPasswordResetNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new PasswordResetMail($this->url, $this->user))
-            ->to($notifiable->getEmailForPasswordReset());
+        return (new MailMessage)
+            ->subject('تغییر رمز عبور')
+            ->view('mail.password-reset', [
+                'url' => $this->url,
+                'user' => $this->user
+            ]);
     }
 }

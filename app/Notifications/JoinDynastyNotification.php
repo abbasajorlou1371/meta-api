@@ -2,14 +2,9 @@
 
 namespace App\Notifications;
 
-use App\Mail\Dynasty\RecieverConfirmationMail;
-use App\Mail\Dynasty\SenderConfirmationMail;
-use App\Mail\RecieverAcceptMail;
-use App\Mail\RecieverRejectMail;
-use App\Mail\SenderAcceptMail;
-use App\Mail\SenderRejectMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -51,12 +46,36 @@ class JoinDynastyNotification extends KavenegarBaseNotification implements Shoul
     public function toMail($notifiable)
     {
         return match ($this->data['type']) {
-            'requester_confirmation_message' => (new SenderConfirmationMail($this->data['request']))->to($notifiable->email),
-            'reciever_message' => (new RecieverConfirmationMail($this->data['request']))->to($notifiable->email),
-            'requester_accept_message' => (new SenderAcceptMail($this->data['request']))->to($notifiable->email),
-            'reciever_accept_message' => (new RecieverAcceptMail($this->data['request']))->to($notifiable->email),
-            'requester_reject_message' => (new SenderRejectMail($this->data['request']))->to($notifiable->email),
-            'reciever_reject_message' => (new RecieverRejectMail($this->data['request']))->to($notifiable->email),
+            'requester_confirmation_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله ارسال شد')
+                ->view('mail.dynasty.join-request-sent', [
+                    'request' => $this->data['request']
+                ]),
+            'reciever_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله دریافت شد')
+                ->view('mail.dynasty.join-request-received', [
+                    'request' => $this->data['request']
+                ]),
+            'requester_accept_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله پذیرفته شد')
+                ->view('mail.dynasty.join-request-accepted', [
+                    'request' => $this->data['request']
+                ]),
+            'reciever_accept_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله پذیرفته شد')
+                ->view('mail.dynasty.join-request-accepted', [
+                    'request' => $this->data['request']
+                ]),
+            'requester_reject_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله رد شد')
+                ->view('mail.dynasty.join-request-rejected', [
+                    'request' => $this->data['request']
+                ]),
+            'reciever_reject_message' => (new MailMessage)
+                ->subject('درخواست پیوستن به سلسله رد شد')
+                ->view('mail.dynasty.join-request-rejected', [
+                    'request' => $this->data['request']
+                ]),
         };
     }
 
@@ -71,10 +90,10 @@ class JoinDynastyNotification extends KavenegarBaseNotification implements Shoul
         $message = $this->messageData();
 
         return (new KavenegarMessage())
-        ->verifyLookup($message['template'], [
-            'token' => $message['token'],
-            'token10' => $message['token10'],
-        ]);
+            ->verifyLookup($message['template'], [
+                'token' => $message['token'],
+                'token10' => $message['token10'],
+            ]);
     }
 
     /**

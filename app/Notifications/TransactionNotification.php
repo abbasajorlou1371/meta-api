@@ -2,11 +2,11 @@
 
 namespace App\Notifications;
 
-use App\Mail\TransactionMail;
 use App\Models\Order;
 use App\Models\Variable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Kavenegar\Laravel\Message\KavenegarMessage;
 use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
@@ -47,9 +47,12 @@ class TransactionNotification extends KavenegarBaseNotification implements Shoul
      */
     public function toMail($notifiable)
     {
-        return (new TransactionMail($this->order, $notifiable))
-            ->to($notifiable->email)
-            ->subject('خریددارایی');
+        return (new MailMessage)
+            ->subject('تراکنش مالی')
+            ->view('mail.transaction', [
+                'order' => $this->order,
+                'user' => $notifiable
+            ]);
     }
 
     /**

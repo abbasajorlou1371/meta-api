@@ -90,7 +90,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      */
     public function routeNotificationForKavenegar($driver, $notification = null)
     {
-        return $this->mobile;
+        return $this->phone;
     }
 
     /**
