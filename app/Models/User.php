@@ -84,6 +84,16 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     ];
 
     /**
+     * Get route notifications for the Kavenegar channel.
+     *
+     * @return string
+     */
+    public function routeNotificationForKavenegar($driver, $notification = null)
+    {
+        return $this->mobile;
+    }
+
+    /**
      * Get site map tags for the model.
      *
      * @return Url|string|array

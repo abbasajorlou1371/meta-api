@@ -7,8 +7,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use App\Mail\FeatureBoughtMail;
 use App\Models\Trade;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class BuyFeatureNotification extends Notification implements ShouldQueue
+class BuyFeatureNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -52,15 +54,20 @@ class BuyFeatureNotification extends Notification implements ShouldQueue
             ->subject('خریداری ملک');
     }
 
-    public function toSms($notifiable)
+    /**
+     * Get the Kavenegar / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Kavenegar\Laravel\Message\KavenegarMessage
+     */
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->data['id'],
-            'token20' => $this->data['buyer'],
-            'token10' => $this->data['seller'],
-            'template' => $this->data['template']
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('buy-land-metarang', [
+                'token' => $this->data['id'],
+                'token20' => $this->data['buyer'],
+                'token10' => $this->data['seller'],
+            ]);
     }
 
     /**

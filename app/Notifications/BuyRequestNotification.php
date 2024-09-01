@@ -7,8 +7,10 @@ use App\Mail\BuyRequestSentMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class BuyRequestNotification extends Notification implements ShouldQueue
+class BuyRequestNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -45,15 +47,20 @@ class BuyRequestNotification extends Notification implements ShouldQueue
             : (new BuyRequestRecievedMail($this->data['buyRequest']))->to($notifiable->email);
     }
 
-    public function toSms($notifiable)
+    /**
+     * Get the Kavenegar / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return KavenegarMessage
+     */
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->data['id'],
-            'token2' => $this->data['price_psc'] == 0 ? 0 : number_format($this->data['price_psc'], 0, '.', ','),
-            'token3' => $this->data['price_irr'] == 0 ? 0 : number_format($this->data['price_irr'], 0, '.', ','),
-            'template' => 'buy-land-request',
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('buy-land-request', [
+                'token' => $this->data['id'],
+                'token2' => $this->data['price_psc'] == 0 ? 0 : number_format($this->data['price_psc'], 0, '.', ','),
+                'token3' => $this->data['price_irr'] == 0 ? 0 : number_format($this->data['price_irr'], 0, '.', ','),
+            ]);
     }
 
     /**

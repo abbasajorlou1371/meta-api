@@ -162,7 +162,6 @@ class BuyFeatureController extends Controller
             'id' => $feature->properties->id,
             'buyer' => $buyer->name,
             'seller' => "",
-            'template' => 'buy-land-metarang'
         ], $trade));
 
         broadcast(new FeatureStatusChanged([
@@ -247,7 +246,6 @@ class BuyFeatureController extends Controller
             'id' => $feature->properties->id,
             'buyer' => $buyer->name,
             'seller' => "",
-            'template' => 'buy-land-metarang'
         ], $trade));
 
         broadcast(new FeatureStatusChanged([
@@ -386,7 +384,6 @@ class BuyFeatureController extends Controller
             'id' => $feature->properties->id,
             'buyer' => $buyer->name,
             'seller' => $seller->name,
-            'template' => 'buy-land-user',
         ], $trade));
 
         $seller->notify(new sellFeature([
@@ -394,7 +391,6 @@ class BuyFeatureController extends Controller
             'id' => $feature->properties->id,
             'buyer' => $buyer->name,
             'seller' => $seller->name,
-            'template' => 'sell-land',
         ], $trade));
 
         broadcast(new FeatureStatusChanged([

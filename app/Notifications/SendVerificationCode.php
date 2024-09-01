@@ -5,8 +5,10 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class SendVerificationCode extends Notification implements ShouldQueue
+class SendVerificationCode extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -31,14 +33,20 @@ class SendVerificationCode extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['sms'];
+        return ['kavenegar'];
     }
 
-    public function toSms($notifiable) {
-        return [
-            'phone' => $this->phone,
-            'token' => $this->code,
-            'template' => 'verify'
-        ];
+    /**
+     * Get the Kavenegar / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return KavenegarMessage
+     */
+    public function toKavenegar($notifiable)
+    {
+        return (new KavenegarMessage())
+            ->verifyLookup('verify', [
+                'token' => $this->code,
+            ])->to($this->phone);
     }
 }

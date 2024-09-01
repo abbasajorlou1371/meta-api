@@ -6,8 +6,10 @@ use App\Mail\logedInMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class LogedInNotification extends Notification implements ShouldQueue
+class LogedInNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -16,11 +18,10 @@ class LogedInNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    protected $ip;
-
-    public function __construct($ip)
-    {
-        $this->ip = $ip;
+    public function __construct(
+        private string $ip
+    ) {
+        //
     }
 
     /**
@@ -49,16 +50,27 @@ class LogedInNotification extends Notification implements ShouldQueue
             ->subject('ورود به حساب کاربری');
     }
 
-    public function toSms($notifiable)
+    /**
+     * Get the Kavenegar / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Kavenegar\Laravel\Message\KavenegarMessage
+     */
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->ip,
-            'template' => 'login'
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('login', [
+                'token' => $this->ip,
+            ]);
     }
 
-    public function toArray(): array
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function toArray($notifiable): array
     {
         return [
             'related-to' => 'events',

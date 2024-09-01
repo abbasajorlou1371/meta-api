@@ -142,7 +142,7 @@ class Setting extends Model
 
         return [
             'mail' => $settings->notifications[$type . '_email'],
-            'sms' => $user->hasVerifiedPhone() ? $settings->notifications[$type . '_sms'] : 0,
+            'kavenegar' => $user->hasVerifiedPhone() ? $settings->notifications[$type . '_sms'] : 0,
             'broadcast' => 1
         ];
     }

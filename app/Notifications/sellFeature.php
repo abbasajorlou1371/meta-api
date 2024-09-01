@@ -7,17 +7,20 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use App\Mail\sellFeature as SellFeatureMail;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class sellFeature extends Notification implements ShouldQueue
+class sellFeature extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
+
+    private $data, $trade;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    private $data, $trade;
     public function __construct($data, Trade $trade)
     {
         $this->data = $data;
@@ -50,20 +53,19 @@ class sellFeature extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the sms representation of the notification.
+     * Get the Kavenegar / SMS representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return array
+     * @return KavenegarMessage
      */
-    public function toSms($notifiable): array
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->data['id'],
-            'token20' => $this->data['seller'],
-            'token10' => $this->data['buyer'],
-            'template' => $this->data['template']
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('sell-land-metarang', [
+                'token' => $this->data['id'],
+                'token20' => $this->data['seller'],
+                'token10' => $this->data['buyer'],
+            ]);
     }
 
     /**

@@ -5,8 +5,10 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class DynastyCreatedNotification extends Notification implements ShouldQueue
+class DynastyCreatedNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -15,8 +17,9 @@ class DynastyCreatedNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(private string $featureId)
-    {
+    public function __construct(
+        private string $featureId
+    ) {
         //
     }
 
@@ -28,26 +31,25 @@ class DynastyCreatedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return $notifiable->hasVerifiedPhone() ? ['sms', 'broadcast'] : ['broadcast'];
+        return $notifiable->hasVerifiedPhone() ? ['kavenegar', 'broadcast'] : ['broadcast'];
     }
 
     /**
-     * Get the sms representation of the notification.
+     * Get the Kavenegar / SMS representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return array
+     * @return KavenegarMessage
      */
-    public function toSms($notifiable)
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->featureId,
-            'token10' => $notifiable->name,
-            'template' => 'dynasty-created'
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('dynasty-created', [
+                'token' => $this->featureId,
+                'token10' => $notifiable->name,
+            ]);
     }
 
-     /**
+    /**
      * Get the array representation of the notification.
      *
      * @param  mixed  $notifiable

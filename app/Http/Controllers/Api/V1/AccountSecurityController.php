@@ -90,7 +90,7 @@ class AccountSecurityController extends Controller
                 'device' => $request->userAgent(),
                 'status' => 1,
             ]);
-            
+
             return response()->noContent(200);
         } else {
             throw ValidationException::withMessages([

@@ -8,8 +8,10 @@ use App\Models\Variable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class TransactionNotification extends Notification implements ShouldQueue
+class TransactionNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -50,15 +52,20 @@ class TransactionNotification extends Notification implements ShouldQueue
             ->subject('خریددارایی');
     }
 
-    public function toSms($notifiable)
+    /**
+     * Get the Kavenegar / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return KavenegarMessage
+     */
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->order->amount,
-            'token2' => $this->order->transaction->amount * Variable::getRate($this->order->asset) / 10,
-            'token10' => 'عدد ' .  $this->order->getTitle(),
-            'template' => 'transaction'
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('transaction', [
+                'token' => $this->order->amount,
+                'token2' => $this->order->transaction->amount * Variable::getRate($this->order->asset) / 10,
+                'token10' => 'عدد ' .  $this->order->getTitle(),
+            ]);
     }
 
     /**

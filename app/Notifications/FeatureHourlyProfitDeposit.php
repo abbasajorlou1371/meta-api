@@ -15,8 +15,9 @@ class FeatureHourlyProfitDeposit extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(private array $data)
-    {
+    public function __construct(
+        private array $data
+    ) {
         //
     }
 

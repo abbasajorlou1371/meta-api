@@ -2,28 +2,27 @@
 
 namespace App\Notifications;
 
-use App\Channels\SmsChannel;
 use App\Mail\SellRequestMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class SellRequestNotification extends Notification implements ShouldQueue
+class SellRequestNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
+
+    public $feature;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-
-    public $feature;
-
     public function __construct($feature)
     {
         $this->feature = $feature;
-        $this->afterCommit();
     }
 
     /**
@@ -53,19 +52,17 @@ class SellRequestNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Send SMS Notification.
+     * Get the Kavenegar / SMS representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return array
+     * @return KavenegarMessage
      */
-
-    public function toSms($notifiable)
+    public function toKavenegar($notifiable)
     {
-        return [
-            'phone' => $notifiable->phone,
-            'token' => $this->feature->properties->id,
-            'template' => 'sell-request',
-        ];
+        return (new KavenegarMessage())
+            ->verifyLookup('sell-land-metarang', [
+                'token' => $this->feature->properties->id,
+            ]);
     }
 
     /**

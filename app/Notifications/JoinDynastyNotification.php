@@ -11,8 +11,10 @@ use App\Mail\SenderRejectMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Kavenegar\Laravel\Message\KavenegarMessage;
+use Kavenegar\Laravel\Notification\KavenegarBaseNotification;
 
-class JoinDynastyNotification extends Notification implements ShouldQueue
+class JoinDynastyNotification extends KavenegarBaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -37,7 +39,7 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail', 'database', 'sms', 'broadcast'];
+        return ['mail', 'database', 'kavenegar', 'broadcast'];
     }
 
     /**
@@ -59,51 +61,20 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the Kavenegar / SMS representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return array
+     * @return KavenegarMessage
      */
-    public function toSms($notifiable)
+    public function toKavenegar($notifiable)
     {
-        return match ($this->data['type']) {
-            'requester_confirmation_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->toUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-sent',
-            ],
-            'reciever_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->fromUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-received',
-            ],
-            'requester_accept_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->toUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-accepted',
-            ],
-            'reciever_accept_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->toUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-accepted',
-            ],
-            'requester_reject_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->toUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-rejected',
-            ],
-            'reciever_reject_message' => [
-                'phone' => $notifiable->phone,
-                'token10' => $this->data['request']->toUser->name,
-                'token' => getRelationshipTitle($this->data['request']->relationship),
-                'template' => 'dynasty-join-request-rejected',
-            ],
-        };
+        $message = $this->messageData();
+
+        return (new KavenegarMessage())
+        ->verifyLookup($message['template'], [
+            'token' => $message['token'],
+            'token10' => $message['token10'],
+        ]);
     }
 
     /**
@@ -120,5 +91,46 @@ class JoinDynastyNotification extends Notification implements ShouldQueue
             'sender-name' => 'متارنگ',
             'message' => $this->data['message']
         ];
+    }
+
+    /**
+     * Prepare the data for the notification.
+     *
+     * @return array
+     */
+    private function messageData()
+    {
+        return match ($this->data['type']) {
+            'requester_confirmation_message' => [
+                'token10' => $this->data['request']->toUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-sent',
+            ],
+            'reciever_message' => [
+                'token10' => $this->data['request']->fromUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-received',
+            ],
+            'requester_accept_message' => [
+                'token10' => $this->data['request']->toUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-accepted',
+            ],
+            'reciever_accept_message' => [
+                'token10' => $this->data['request']->toUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-accepted',
+            ],
+            'requester_reject_message' => [
+                'token10' => $this->data['request']->toUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-rejected',
+            ],
+            'reciever_reject_message' => [
+                'token10' => $this->data['request']->toUser->name,
+                'token' => getRelationshipTitle($this->data['request']->relationship),
+                'template' => 'dynasty-join-request-rejected',
+            ],
+        };
     }
 }
