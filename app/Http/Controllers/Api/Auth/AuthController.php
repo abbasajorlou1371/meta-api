@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RedirectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\AuthenticatedUserResource;
@@ -32,8 +31,12 @@ class AuthController extends Controller
         return response()->json(['url' => $url]);
     }
 
-    public function redirect(RedirectRequest $request)
+    public function redirect(Request $request)
     {
+        $request->validate([
+            'redirect_to' => 'required|url',
+        ]);
+
         cache()->put('state', $state = Str::random(40), now()->addMinutes(5));
 
         cache()->put('redirect_to', $request->query('redirect_to'), now()->addMinutes(5));
@@ -44,7 +47,6 @@ class AuthController extends Controller
             'response_type' => 'code',
             'scope' => '',
             'state' => $state,
-            // 'prompt' => '', // "none", "consent", or "login"
         ]);
 
         $url = config('app.oauth_server_url') . '/oauth/authorize?' . $query;
@@ -95,6 +97,7 @@ class AuthController extends Controller
         );
 
         $this->guard()->login($user);
+
         $request->session()->regenerate();
 
         return $this->authenticated($request, $user);
@@ -124,7 +127,7 @@ class AuthController extends Controller
             'expires_at' => now()->diffInMinutes($tokenExpiresAt),
         ]);
 
-        $url = cache()->pull('redirect_to') . '/auth?' . $query;
+        $url = cache()->pull('redirect_to') . '/?' . $query;
 
         return redirect()->away($url);
     }

@@ -22,7 +22,7 @@ class TransactionController extends Controller
         $request->validate([
             'ref_id' => 'required|integer'
         ]);
-        
+
         $transactions = Transaction::whereBelongsTo(auth()->user())
             ->where('ref_id', $request->ref_id)
             ->latest()->simplePaginate();
