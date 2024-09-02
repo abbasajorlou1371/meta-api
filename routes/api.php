@@ -82,7 +82,7 @@ Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.'
     Route::post('/events/{event}/dislike', 'dislikeEvent')->name('dislike');
 });
 
-Route::controller(UserController::class)->prefix('users')->group(function () {
+Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('users')->group(function () {
     Route::get('/', 'index')->withoutMiddleware('auth', 'verified');
     Route::get('/{user}/profile', 'getProfile');
     Route::get('/{user}/wallet', 'getWallet');
@@ -104,6 +104,7 @@ Route::controller(HomeController::class)->group(function () {
 Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
 
     Route::controller(TransactionController::class)->prefix('user')->group(function () {
+        Route::get('/wallet', 'getWallet');
         Route::get('/transactions', 'index');
         Route::get('/transactions/latest', 'latestTransaction');
     });

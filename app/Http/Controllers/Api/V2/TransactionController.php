@@ -7,6 +7,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Resources\LatestTransactionResource;
+use App\Http\Resources\WalletResource;
 
 class TransactionController extends Controller
 {
@@ -83,5 +84,16 @@ class TransactionController extends Controller
     {
         $user = $request->user()->load(['latestPayment', 'latestTransaction', 'latestOrder']);
         return new LatestTransactionResource($user);
+    }
+
+    /**
+     * Get the wallet of the current user.
+     *
+     * @return WalletResource
+     */
+    public function getWallet()
+    {
+        $user = auth()->user();
+        return new WalletResource($user->wallet);
     }
 }
