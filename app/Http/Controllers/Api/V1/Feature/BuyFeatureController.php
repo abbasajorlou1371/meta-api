@@ -377,6 +377,7 @@ class BuyFeatureController extends Controller
             'user_id' => $buyer->id,
             'amount' => 0,
             'dead_line' => now()->addSeconds($buyer->variables->withdraw_profit * 86400),
+            'is_active' => true,
         ]);
 
         $buyer->notify(new BuyFeatureNotification([
