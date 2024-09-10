@@ -20,25 +20,28 @@ class FixFeaturesRgb extends Seeder
         FeatureProperties::where('id_prefix', $startId[0])
             ->where('id_postfix', '>=', $startId[1])
             ->where('id_postfix', '<=', $endId[1])
-            ->whereHas('feature', function($query) {
+            ->whereHas('feature', function ($query) {
                 $query->where('owner_id', 1);
             })
+            ->with('feature')
             ->chunk(100, function ($featureProperties) {
-                if ($featureProperties->feature->hasPendingRequests()) {
-                    $featureProperties->update([
-                        'rgb' => $this->pricedFeatureRgb($featureProperties)
-                    ]);
-                } else {
-                    $featureProperties->update([
-                        'rgb' => $this->notPricedFeatureRgb($featureProperties)
-                    ]);
+                foreach ($featureProperties as $featureProperty) {
+                    if ($featureProperty->feature->hasPendingRequests()) {
+                        $featureProperty->update([
+                            'rgb' => $this->pricedFeatureRgb($featureProperty)
+                        ]);
+                    } else {
+                        $featureProperty->update([
+                            'rgb' => $this->notPricedFeatureRgb($featureProperty)
+                        ]);
+                    }
                 }
             });
     }
 
-    public function pricedFeatureRgb($featureProperties)
+    public function pricedFeatureRgb($featureProperty)
     {
-        return match ($featureProperties->karbari) {
+        return match ($featureProperty->karbari) {
             'm' => 'a',
             't' => 'h',
             'a' => 'o',
