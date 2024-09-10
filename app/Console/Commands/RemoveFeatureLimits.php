@@ -37,7 +37,9 @@ class RemoveFeatureLimits extends Command
                 FeatureProperties::where('id_prefix', $startId[0])
                     ->where('id_postfix', '>=', $startId[1])
                     ->where('id_postfix', '<=', $endId[1])
-                    ->where('owner_id', 1)
+                    ->whereHas('feature', function($query) {
+                        $query->where('owner_id', 1);
+                    })
                     ->chunk(100, function ($featureProperties) {
                         foreach ($featureProperties as $featureProperty) {
                             $featureProperty->update([
