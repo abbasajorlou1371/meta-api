@@ -21,7 +21,7 @@ class FixFeaturesRgb extends Seeder
             ->where('id_postfix', '>=', $startId[1])
             ->where('id_postfix', '<=', $endId[1])
             ->whereHas('feature', function ($query) {
-                $query->where('owner_id', 1);
+                $query->where('owner_id', '!=' , 1);
             })
             ->with('feature')
             ->chunk(100, function ($featureProperties) {
