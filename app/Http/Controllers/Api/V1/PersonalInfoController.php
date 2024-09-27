@@ -20,20 +20,19 @@ class PersonalInfoController extends Controller
         $personalInfo = request()->user()->personalInfo;
 
         return response()->json([
-            'data' => is_null($personalInfo) ? [] : $personalInfo->map(function ($info) {
-                return [
-                    'occupation' => $info->occupation,
-                    'education' => $info->education,
-                    'memory' => $info->memory,
-                    'loved_city' => $info->loved_city,
-                    'loved_country' => $info->loved_country,
-                    'loved_language' => $info->loved_language,
-                    'problem_solving' => $info->problem_solving,
-                    'prediction' => $info->prediction,
-                    'about' => $info->about,
-                    'passions' => $info->passions,
-                ];
-            }),
+            'data' => is_null($personalInfo) ? [] :
+                [
+                    'occupation' => $personalInfo->occupation,
+                    'education' => $personalInfo->education,
+                    'memory' => $personalInfo->memory,
+                    'loved_city' => $personalInfo->loved_city,
+                    'loved_country' => $personalInfo->loved_country,
+                    'loved_language' => $personalInfo->loved_language,
+                    'problem_solving' => $personalInfo->problem_solving,
+                    'prediction' => $personalInfo->prediction,
+                    'about' => $personalInfo->about,
+                    'passions' => $personalInfo->passions,
+                ]
         ]);
     }
 
