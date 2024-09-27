@@ -44,22 +44,22 @@ class PersonalInfo extends Model
      * @var array
      */
     protected $attributes = [
-        'passions' => [
-            'music' => false,
-            'sport_health' => false,
-            'art' => false,
-            'language_culture' => false,
-            'philosophy' => false,
-            'animals_nature' => false,
-            'aliens' => false,
-            'food_cooking' => false,
-            'travel_leature' => false,
-            'manufacturing' => false,
-            'science_technology' => false,
-            'space_time' => false,
-            'history' => false,
-            'politics_economy' => false,
-        ],
+        'passions' => '{
+            "music": false,
+            "sport_health": false,
+            "art": false,
+            "language_culture": false,
+            "philosophy": false,
+            "animals_nature": false,
+            "aliens": false,
+            "food_cooking": false,
+            "travel_leature": false,
+            "manufacturing": false,
+            "science_technology": false,
+            "space_time": false,
+            "history": false,
+            "politics_economy": false
+        }',
     ];
 
     /**
