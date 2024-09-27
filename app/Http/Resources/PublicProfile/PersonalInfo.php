@@ -66,42 +66,41 @@ class PersonalInfo extends JsonResource
             ]),
 
             $this->whenLoaded('personalInfo', [
-                'customs' => array_merge(
-                    collect([
-                        'occupation',
-                        'education',
-                        'loved_city',
-                        'loved_country',
-                        'loved_language',
-                        'prediction',
-                        'memory',
-                        'about'
-                    ])->mapWithKeys(function ($field) {
-                        return $this->checkFilter($field) ? [$field => $this->personalInfo->$field] : [];
-                    })->toArray(),
-                    [
-                        'passions' => $this->checkFilter('passions') ? [
-                            'passions' => collect([
-                                'music',
-                                'sport_health',
-                                'art',
-                                'language_culture',
-                                'philosophy',
-                                'animals_nature',
-                                'aliens',
-                                'food_cooking',
-                                'travel_leature',
-                                'manufacturing',
-                                'science_technology',
-                                'space_time',
-                                'history',
-                                'politics_economy'
-                            ])->mapWithKeys(function ($passion) {
-                                return $this->personalInfo->passions[$passion] ? [$passion => url("/uploads/favorites/{$passion}.png")] : [];
-                            })->toArray()
-                        ] : []
-                    ]
-                )
+                'customs' =>
+                collect([
+                    'occupation',
+                    'education',
+                    'loved_city',
+                    'loved_country',
+                    'loved_language',
+                    'prediction',
+                    'memory',
+                    'about'
+                ])->mapWithKeys(function ($field) {
+                    return $this->checkFilter($field) ? [$field => $this->personalInfo->$field] : [];
+                })->toArray(),
+                [
+                    'passions' => $this->checkFilter('passions') ? [
+                        collect([
+                            'music',
+                            'sport_health',
+                            'art',
+                            'language_culture',
+                            'philosophy',
+                            'animals_nature',
+                            'aliens',
+                            'food_cooking',
+                            'travel_leature',
+                            'manufacturing',
+                            'science_technology',
+                            'space_time',
+                            'history',
+                            'politics_economy'
+                        ])->mapWithKeys(function ($passion) {
+                            return $this->personalInfo->passions[$passion] ? [$passion => url("/uploads/favorites/{$passion}.png")] : [];
+                        })->toArray()
+                    ] : []
+                ]
             ]),
 
             $this->mergeWhen($this->checkFilter('score'), [
