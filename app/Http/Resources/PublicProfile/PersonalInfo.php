@@ -17,35 +17,37 @@ class PersonalInfo extends JsonResource
     {
         return [
             'profilePhotos' => ProfilePhotoResource::collection($this->whenLoaded('profilePhotos')),
-            'kyc' => $this->whenLoaded('kyc', [
-                $this->mergeWhen($this->checkFilter('nationality'), [
-                    'nationality' => url('/uploads/flags/iran.svg'),
-                ]),
+            'kyc' => $this->whenLoaded('kyc', function () {
+                return [
+                    $this->mergeWhen($this->checkFilter('nationality'), [
+                        'nationality' => url('/uploads/flags/iran.svg'),
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('fname'), [
-                    'fname' => $this->kyc?->fname,
-                ]),
+                    $this->mergeWhen($this->checkFilter('fname'), [
+                        'fname' => $this->kyc?->fname,
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('lname'), [
-                    'lname' => $this->kyc?->lname,
-                ]),
+                    $this->mergeWhen($this->checkFilter('lname'), [
+                        'lname' => $this->kyc?->lname,
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('birthdate'), [
-                    'birth_date' => jdate($this->kyc?->birthdate)->format('Y/m/d'),
-                ]),
+                    $this->mergeWhen($this->checkFilter('birthdate'), [
+                        'birth_date' => jdate($this->kyc?->birthdate)->format('Y/m/d'),
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('phone'), [
-                    'phone' => $this?->phone,
-                ]),
+                    $this->mergeWhen($this->checkFilter('phone'), [
+                        'phone' => $this?->phone,
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('email'), [
-                    'email' => $this?->email,
-                ]),
+                    $this->mergeWhen($this->checkFilter('email'), [
+                        'email' => $this?->email,
+                    ]),
 
-                $this->mergeWhen($this->checkFilter('address'), [
-                    'address' => $this->kyc?->address,
-                ]),
-            ]),
+                    $this->mergeWhen($this->checkFilter('address'), [
+                        'address' => $this->kyc?->address,
+                    ]),
+                ];
+            }),
 
             $this->mergeWhen($this->checkFilter('code'), [
                 'code' => $this->code,
@@ -63,87 +65,47 @@ class PersonalInfo extends JsonResource
                 'registered_at' => jdate($this->email_verified_at)->format('Y/m/d'),
             ]),
 
-            $this->mergeWhen($this->customs, [
-                'customs' => [
-                    $this->mergeWhen($this->checkFilter('occupation'), [
-                        'occupation' => $this->customs?->occupation,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('education'), [
-                        'education' => $this->customs?->education,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('loved_city'), [
-                        'loved_city' => $this->customs?->loved_city,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('loved_country'), [
-                        'loved_country' => $this->customs?->loved_country,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('loved_language'), [
-                        'loved_language' => $this->customs?->loved_language,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('prediction'), [
-                        'prediction' => $this->customs?->prediction,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('memory'), [
-                        'memory' => $this->customs?->memory,
-                    ]),
-
-                    $this->mergeWhen($this->checkFilter('about'), [
-                        'about' => $this->customs?->about,
-                    ]),
-
-                    $this->mergeWhen($this->customs?->passions && $this->checkFilter('passions'), [
-                        'passions' => [
-                            $this->mergeWhen($this->customs?->passions?->music, [
-                                "music" => url('/uploads/favorites/music.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->sport_health, [
-                                "sport_health" => url('/uploads/favorites/sport_health.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->art, [
-                                "art" => url('/uploads/favorites/art.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->language_culture, [
-                                "language_culture" => url('/uploads/favorites/language_culture.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->philosophy, [
-                                "philosophy" => url('/uploads/favorites/philosophy.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->animals_nature, [
-                                "animals_nature" => url('/uploads/favorites/animals_nature.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->aliens, [
-                                "aliens" => url('/uploads/favorites/aliens.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->food_cooking, [
-                                "food_cooking" => url('/uploads/favorites/food_cooking.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->travel_leature, [
-                                "travel_leature" => url('/uploads/favorites/travel_leature.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->manufacturing, [
-                                "manufacturing" => url('/uploads/favorites/manufacturing.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->science_technology, [
-                                "science_technology" => url('/uploads/favorites/science_technology.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->space_time, [
-                                "space_time" => url('/uploads/favorites/space_time.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->history, [
-                                "history" => url('/uploads/favorites/history.png'),
-                            ]),
-                            $this->mergeWhen($this->customs?->passions?->politics_economy, [
-                                "politics_economy" => url('/uploads/favorites/politics_economy.png'),
-                            ])
-                        ]
-                    ]),
-                ]
+            $this->whenLoaded('personalInfo', [
+                'personalInfo' => array_merge(
+                    collect([
+                        'occupation',
+                        'education',
+                        'loved_city',
+                        'loved_country',
+                        'loved_language',
+                        'prediction',
+                        'memory',
+                        'about'
+                    ])->mapWithKeys(function ($field) {
+                        return $this->mergeWhen($this->checkFilter($field), [
+                            $field => $this->personalInfo->$field,
+                        ]);
+                    })->toArray(),
+                    [
+                        'passions' => $this->mergeWhen($this->checkFilter('passions'), [
+                            'passions' => collect([
+                                'music',
+                                'sport_health',
+                                'art',
+                                'language_culture',
+                                'philosophy',
+                                'animals_nature',
+                                'aliens',
+                                'food_cooking',
+                                'travel_leature',
+                                'manufacturing',
+                                'science_technology',
+                                'space_time',
+                                'history',
+                                'politics_economy'
+                            ])->mapWithKeys(function ($passion) {
+                                return $this->mergeWhen($this->personalInfo->passions[$passion], [
+                                    $passion => url("/uploads/favorites/{$passion}.png"),
+                                ]);
+                            })->toArray()
+                        ])
+                    ]
+                )
             ]),
 
             $this->mergeWhen($this->checkFilter('score'), [
