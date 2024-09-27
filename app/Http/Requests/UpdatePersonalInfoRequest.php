@@ -50,6 +50,7 @@ class UpdatePersonalInfoRequest extends FormRequest
             'passions.science_technology' => 'nullable|boolean',
             'passions.space_time' => 'nullable|boolean',
             'passions.history' => 'nullable|boolean',
+            'passions.politics_economy' => 'nullable|boolean',
         ];
     }
 }

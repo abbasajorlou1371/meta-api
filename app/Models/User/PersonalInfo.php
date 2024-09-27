@@ -58,7 +58,7 @@ class PersonalInfo extends Model
             "science_technology": false,
             "space_time": false,
             "history": false,
-            "politics_economy": false
+            "politics_economy": false,
         }',
     ];
 
