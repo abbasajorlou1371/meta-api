@@ -13,10 +13,7 @@ class UpdatePersonalInfoRequest extends FormRequest
      */
     public function authorize()
     {
-        $user = $this->user();
-        $personalInfo = $user->personalInfo;
-
-        return $personalInfo === null || ($personalInfo->user->is($user) && $user->personalInfo->updated_at < now()->subMonth());
+        return true;
     }
 
     /**

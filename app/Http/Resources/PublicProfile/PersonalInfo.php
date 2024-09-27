@@ -77,12 +77,10 @@ class PersonalInfo extends JsonResource
                         'memory',
                         'about'
                     ])->mapWithKeys(function ($field) {
-                        return $this->mergeWhen($this->checkFilter($field), [
-                            $field => $this->personalInfo->$field,
-                        ]);
+                        return $this->checkFilter($field) ? [$field => $this->personalInfo->$field] : [];
                     })->toArray(),
                     [
-                        'passions' => $this->mergeWhen($this->checkFilter('passions'), [
+                        'passions' => $this->checkFilter('passions') ? [
                             'passions' => collect([
                                 'music',
                                 'sport_health',
@@ -99,11 +97,9 @@ class PersonalInfo extends JsonResource
                                 'history',
                                 'politics_economy'
                             ])->mapWithKeys(function ($passion) {
-                                return $this->mergeWhen($this->personalInfo->passions[$passion], [
-                                    $passion => url("/uploads/favorites/{$passion}.png"),
-                                ]);
+                                return $this->personalInfo->passions[$passion] ? [$passion => url("/uploads/favorites/{$passion}.png")] : [];
                             })->toArray()
-                        ])
+                        ] : []
                     ]
                 )
             ]),
