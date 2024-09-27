@@ -78,9 +78,9 @@ class CustomController extends Controller
     public function update(Request $request, Custom $custom)
     {
         $this->authorize('update', $custom);
+
         $custom->update([
             'user_id' => $request->user()->id,
-            'profile_code' => $request->profile_code,
             'occupation' => $request->occupation,
             'education' => $request->education,
             'memory' => $request->memory,
