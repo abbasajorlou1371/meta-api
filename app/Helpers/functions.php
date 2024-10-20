@@ -100,19 +100,20 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
  * @param User $user The user object.
  * @return int The hourly profit information.
  */
-function hourlyProfitInfo(User $user): int
+function hourlyProfitInfo(User $user): float
 {
     $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
 
-    if (is_null($profit)) {
-        return 0;
+    if (!$profit) {
+        return 0.0;
     }
 
-    $totalDays = $profit->updated_at->diffInDays($profit->dead_line);
-    $daysPassed = $profit->updated_at->diffInDays(now());
-    $elapsedPercentage = ($daysPassed / ($totalDays > 0 ? $totalDays : 1)) * 100;
+    $totalSeconds = $profit->updated_at->diffInSeconds($profit->dead_line);
+    $secondsPassed = $profit->updated_at->diffInSeconds(now());
 
-    return ($daysPassed > $totalDays) ? 100 : $elapsedPercentage;
+    $elapsedPercentage = ($secondsPassed / $totalSeconds) * 100.0;
+
+    return min($elapsedPercentage, 100.0);
 }
 
 /**
