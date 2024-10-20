@@ -2,9 +2,6 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\V1\AccountSecurityController;
-use App\Http\Controllers\Api\V1\Auth\ChangePasswordController;
-use App\Http\Controllers\Api\V1\Auth\LoginController;
-use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\BankAccountController;
 use App\Http\Controllers\Api\V1\CalendarController;
 use App\Http\Controllers\Api\V1\ChallengeController;
@@ -60,11 +57,6 @@ Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(fun
     Route::post('/me', 'me')->middleware('auth:sanctum')->name('me');
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('logout');
 });
-
-Route::post('register', [RegisterController::class, 'register'])->middleware('guest');
-Route::post('login', [LoginController::class, 'login'])->middleware('guest');
-
-Route::post('logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.')->group(function () {
     Route::prefix('events')->as('events.')->group(function () {
@@ -193,7 +185,6 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
             Route::post('/', 'sendVerifyCode')->name('email');
             Route::post('/verify', 'verify');
         });
-        Route::post('/password', ChangePasswordController::class);
     });
 
     Route::prefix('dynasty')->group(function () {

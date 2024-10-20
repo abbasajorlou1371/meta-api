@@ -16,29 +16,28 @@ class TicketResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => (string)$this->id,
+            'id' => $this->id,
             'title' => $this->title,
-            'sender' => $this->sender->name,
-            $this->mergeWhen($this->reciever, [
-                'reciever' => $this->reciever?->name,
-            ]),
-            $this->mergeWhen($this->department, [
-                'reciever' => $this->department
-            ]),
+            'sender' => $this->whenLoaded('sender', function () {
+                return [
+                    'name' => $this->sender->name,
+                    'profile-photo' => $this->sender->latestProfilePhoto?->url,
+                ];
+            }),
+            'reciever' => $this->whenLoaded('reciever', function () {
+                return [
+                    'name' => $this->reciever->name,
+                    'profile-photo' => $this->reciever->latestProfilePhoto?->url,
+                ];
+            }),
+            'department' => $this->whenNotNull($this->department),
             'code' => $this->code,
-            $this->mergeWhen(
-                $this->responses
-                    && request()->routeIs('tickets.show')
-                    || request()->routeIs('tickets.response'),
-                [
-                    'content' => $this->content,
-                    'attachment' => $this->attachment,
-                    'responses' => TicketResponseResource::collection($this->responses),
-                ]
-            ),
+            'attachment' => $this->attachment,
+            'content' => $this->content,
             'status' => $this->status,
             'date' => jdate($this->updated_at)->format('Y/m/d'),
             'time' => jdate($this->updated_at)->format('H:m:s'),
+            'responses' => TicketResponseResource::collection($this->whenLoaded('responses')),
         ];
     }
 }

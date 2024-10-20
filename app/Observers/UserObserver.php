@@ -23,6 +23,8 @@ class UserObserver
      */
     public function created(User $user)
     {
+        $user->update(['email_verified_at' => now()]);
+
         $user->wallet()->create();
 
         $user->settings()->create();

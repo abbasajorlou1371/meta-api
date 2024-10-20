@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Constants\TicketStatus;
 use App\Http\Requests\CreateTicketRequest;
 use App\Http\Requests\TicketResponseRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Models\TicketResponse;
-use App\Models\User;
 use App\Notifications\TicketRecieved;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,46 +20,46 @@ class TicketController extends Controller
     }
 
     /**
-     * @return AnonymousResourceCollection
+     * Display a listing of the tickets.
+     *
+     * Retrieves a paginated collection of tickets for the authenticated user.
+     * Includes related sender and receiver profile photos and orders by the most recently updated.
+     * Filters tickets where the user is the receiver if 'recieved' parameter is present, otherwise filters where the user is the sender.
+     *
+     * @return App\Http\Resources\TicketResource
      */
     public function index(): AnonymousResourceCollection
     {
-        return TicketResource::collection(
-            Ticket::whereBelongsTo(request()->user())
-                ->orderByDesc('updated_at')
-                ->simplePaginate(10)
-        );
+        $tickets = Ticket::with('sender.latestProfilePhoto', 'reciever.latestProfilePhoto')
+            ->when(request()->boolean('recieved') === true, function ($query) {
+                $query->whereBelongsTo(request()->user(), 'reciever');
+            }, function ($query) {
+                $query->whereBelongsTo(request()->user(), 'sender');
+            })
+            ->orderByDesc('updated_at')
+            ->simplePaginate(10);
+
+        return TicketResource::collection($tickets);
     }
 
     /**
-     * @return AnonymousResourceCollection
-     */
-    public function recieved(): AnonymousResourceCollection
-    {
-        return TicketResource::collection(
-            Ticket::whereRecieverId(request()->user()->id)->orderByDesc('updated_at')->simplePaginate(10)
-        );
-    }
-
-    /**
-     * @param User $user
+     * Display the specified ticket.
+     *
      * @param Ticket $ticket
      * @return TicketResource
      */
     public function show(Ticket $ticket): TicketResource
     {
-        return new TicketResource($ticket);
-    }
+        $ticket->load('sender.latestProfilePhoto', 'reciever.latestProfilePhoto', 'responses');
 
-    public function view(Ticket $ticket): TicketResource
-    {
         return new TicketResource($ticket);
     }
 
     /**
-     * @param CreateTicketRequest $request
-     * @param User $user
-     * @return TicketResource
+     * Store a newly created ticket in storage.
+     *
+     * @param CreateTicketRequest $request The request object containing the ticket details.
+     * @return TicketResource The resource representation of the created ticket.
      */
     public function store(CreateTicketRequest $request)
     {
@@ -79,17 +77,20 @@ class TicketController extends Controller
             'code' => random_int(100000, 999999),
         ]);
 
-        if (isset($ticket->reciever)) {
+        if ($request->has('reciever')) {
             $ticket->reciever->notify(new TicketRecieved($ticket));
         }
 
         return new TicketResource($ticket);
     }
 
+
     /**
-     * @param CreateTicketRequest $request
-     * @param User $user
-     * @return TicketResource
+     * Updates an existing ticket with the provided data.
+     *
+     * @param CreateTicketRequest $request The request object containing the ticket data.
+     * @param Ticket $ticket The ticket instance to be updated.
+     * @return TicketResource The updated ticket resource.
      */
     public function update(CreateTicketRequest $request, Ticket $ticket)
     {
@@ -101,15 +102,17 @@ class TicketController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'attachment' => $attachment,
-            'status' => TicketStatus::NEW,
+            'status' => Ticket::NEW,
         ]);
         return new TicketResource($ticket->refresh());
     }
 
     /**
-     * @param TicketResponseRequest $request
-     * @param Ticket $ticket
-     * @return TicketResource|JsonResponse
+     * Add a response to the specified ticket.
+     *
+     * @param TicketResponseRequest $request The request object containing the response details.
+     * @param Ticket $ticket The ticket instance to which the response is being added.
+     * @return TicketResource|JsonResponse The updated ticket resource or a JSON response.
      */
     public function response(TicketResponseRequest $request, Ticket $ticket)
     {
@@ -126,7 +129,7 @@ class TicketController extends Controller
             'responser_id' => $request->user()->id,
         ]);
 
-        $ticket->update(['status' => TicketStatus::ANSWERED]);
+        $ticket->update(['status' => Ticket::ANSWERED]);
 
         $ticket->sender->notify(new TicketRecieved($ticket));
 
@@ -134,13 +137,15 @@ class TicketController extends Controller
     }
 
     /**
-     * @param Ticket $ticket
-     * @return JsonResponse
+     * Close the specified ticket.
+     *
+     * @param Ticket $ticket The ticket instance to be closed.
+     * @return JsonResponse The response indicating the ticket has been closed.
      */
     public function close(Ticket $ticket)
     {
         $this->authorize('close', $ticket);
-        $ticket->update(['status' => TicketStatus::CLOSED]);
+        $ticket->update(['status' => Ticket::CLOSED]);
         return new TicketResource($ticket->refresh());
     }
 }

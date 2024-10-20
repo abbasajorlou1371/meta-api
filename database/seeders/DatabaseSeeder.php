@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,12 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call([
-        //     ChangeTransactionStatus::class,
-        //     AttachPreviouslyAchievedLevelsToUser::class,
-        //     FixLevelsImages::class,
-        //     TransferPrivacyAndGeneralSettingData::class,
-        //     CreatePrivacySetting::class,
-        // ]);
+        User::chunk(100, function ($users) {
+            foreach ($users as $user) {
+                $user->update([
+                    'email_verified_at' => $user->created_at,
+                ]);
+            }
+        });
     }
 }

@@ -103,16 +103,16 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
 function hourlyProfitInfo(User $user): int
 {
     $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
-    $userDeadLine = $user->variables->withdraw_profit;
 
     if (is_null($profit)) {
         return 0;
     }
 
-    $daysDiff = $profit->dead_line->diffInDays(now());
-    $remainingPercentage = ($userDeadLine - $daysDiff) / $userDeadLine * 100;
+    $totalDays = $profit->updated_at->diffInDays($profit->dead_line);
+    $daysPassed = $profit->updated_at->diffInDays(now());
+    $elapsedPercentage = ($daysPassed / $totalDays) * 100;
 
-    return ($daysDiff > $userDeadLine) ? 100 : $remainingPercentage;
+    return ($daysPassed > $totalDays) ? 100 : $elapsedPercentage;
 }
 
 /**

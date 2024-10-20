@@ -108,7 +108,6 @@ class AuthController extends Controller
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'phone' => $user['mobile'],
-                'email_verified_at' => now(),
                 'password' => Hash::make(Str::random(10)),
                 'referral' => $user['referral'],
                 'code' => $user['code'],
