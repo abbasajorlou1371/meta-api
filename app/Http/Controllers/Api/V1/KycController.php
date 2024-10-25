@@ -48,6 +48,7 @@ class KycController extends Controller
         }
 
         $kyc->errors = null;
+        $kyc->status = 0;
 
         $kyc->fill($request->only(['fname', 'lname', 'melli_code', 'birthdate', 'province', 'verify_text_id']));
 
