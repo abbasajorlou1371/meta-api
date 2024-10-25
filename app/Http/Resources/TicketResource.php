@@ -21,12 +21,14 @@ class TicketResource extends JsonResource
             'sender' => $this->whenLoaded('sender', function () {
                 return [
                     'name' => $this->sender->name,
+                    'code' => $this->sender->code,
                     'profile-photo' => $this->sender->latestProfilePhoto?->url,
                 ];
             }),
             'reciever' => $this->whenLoaded('reciever', function () {
                 return [
                     'name' => $this->reciever->name,
+                    'code' => $this->sender->code,
                     'profile-photo' => $this->reciever->latestProfilePhoto?->url,
                 ];
             }),
