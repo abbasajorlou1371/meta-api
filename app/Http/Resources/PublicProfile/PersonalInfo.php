@@ -132,6 +132,6 @@ class PersonalInfo extends JsonResource
      */
     private function checkFilter(string $name)
     {
-        return $this->privacy->where('name', $name)->pluck('display')->first();
+        return $this->settings->privacy[$name] ?? false;
     }
 }
