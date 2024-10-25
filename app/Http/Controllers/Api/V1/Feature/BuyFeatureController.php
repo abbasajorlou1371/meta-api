@@ -62,7 +62,7 @@ class BuyFeatureController extends Controller
             'images',
             'latestTraded',
             'hourlyProfit:id,feature_id,is_active',
-            'geometry.coordinates'
+            'geometry.coordinates',
         ]));
     }
 

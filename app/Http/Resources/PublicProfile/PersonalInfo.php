@@ -96,7 +96,7 @@ class PersonalInfo extends JsonResource
                         'history',
                         'politics_economy'
                     ])->mapWithKeys(function ($passion) {
-                        return $this->personalInfo->passions[$passion] ? [$passion => url("/uploads/favorites/{$passion}.png")] : [];
+                        return $this->personalInfo->passions[$passion] ?? null ? [$passion => url("/uploads/favorites/{$passion}.png")] : [];
                     })->toArray()
                     : [];
 

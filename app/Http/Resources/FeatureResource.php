@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
 
 
 class FeatureResource extends JsonResource
@@ -51,6 +50,7 @@ class FeatureResource extends JsonResource
                 'is_hourly_profit_active' => $this->hourlyProfit?->is_active,
             ]),
             'geometry' => $this->geometry->coordinates,
+
         ];
     }
 }

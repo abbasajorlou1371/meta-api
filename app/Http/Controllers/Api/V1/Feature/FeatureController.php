@@ -61,7 +61,7 @@ class FeatureController extends Controller
      * @param Image $image
      * @return JsonResponse
      */
-    public function removeّFeatureImage(User $user, Feature $feature, Image $image)
+    public function removeFeatureImage(User $user, Feature $feature, Image $image)
     {
         $this->authorize('removeImage', [$feature, $image]);
         $image->delete();
