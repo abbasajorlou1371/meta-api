@@ -170,9 +170,10 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     Route::apiResources([
         'tickets' => TicketController::class,
         'notes' => NoteController::class,
-        'kyc' => KycController::class,
         'bank-accounts' => BankAccountController::class,
     ]);
+
+    Route::apiSingleton('kyc', KycController::class);
 
     Route::post('order', [OrderController::class, 'store']);
 

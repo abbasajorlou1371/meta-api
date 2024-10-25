@@ -9,6 +9,11 @@ class Kyc extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
     protected $fillable = [
         'melli_card',
         'fname',
@@ -23,31 +28,61 @@ class Kyc extends Model
         'birthdate'
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'birthdate' => 'date',
         'errors' => 'array'
     ];
 
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
     public function getFullNameAttribute(): string
     {
         return $this->fname . ' ' . $this->lname;
     }
 
+    /**
+     * Get the user that owns the kyc.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Determine whether the kyc is rejected.
+     *
+     * @return bool
+     */
     public function rejected(): bool
     {
         return $this->status === -1;
     }
 
+    /**
+     * Check if the KYC status is approved.
+     *
+     * @return bool True if the status is approved, false otherwise.
+     */
     public function approved(): bool
     {
         return $this->status === 1;
     }
 
+    /**
+     * Check if the KYC status is pending.
+     *
+     * @return bool True if the status is pending, false otherwise.
+     */
     public function pending(): bool
     {
         return $this->status === 0;
