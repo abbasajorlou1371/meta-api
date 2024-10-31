@@ -83,6 +83,15 @@ class Ticket extends Model
     }
 
     /**
+     * Check if the ticket is open.
+     *
+     * @return bool
+     */
+    public function isOpen() {
+        return $this->status !== static::CLOSED;
+    }
+
+    /**
      * Close the ticket.
      *
      * @return void

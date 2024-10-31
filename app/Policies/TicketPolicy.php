@@ -91,7 +91,7 @@ class TicketPolicy
      */
     public function respond(User $user, Ticket $ticket)
     {
-        return $ticket->reciever?->is($user) || $ticket->sender->is($user) && !$ticket->isClosed();
+        return $ticket->reciever?->is($user) || $ticket->sender->is($user) && $ticket->isOpen();
     }
 
     /**
@@ -103,6 +103,6 @@ class TicketPolicy
      */
     public function close(User $user, Ticket $ticket)
     {
-        return $ticket->responses()->count() > 0;
+        return $ticket->user->is($user) && $ticket->isOpen();
     }
 }

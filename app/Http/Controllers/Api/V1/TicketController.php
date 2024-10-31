@@ -104,6 +104,7 @@ class TicketController extends Controller
             'attachment' => $attachment,
             'status' => Ticket::NEW,
         ]);
+
         return new TicketResource($ticket->refresh());
     }
 
@@ -145,7 +146,9 @@ class TicketController extends Controller
     public function close(Ticket $ticket)
     {
         $this->authorize('close', $ticket);
+
         $ticket->update(['status' => Ticket::CLOSED]);
+
         return new TicketResource($ticket->refresh());
     }
 }

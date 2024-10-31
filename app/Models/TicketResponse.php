@@ -9,6 +9,11 @@ class TicketResponse extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'response',
         'attachment',
@@ -17,6 +22,11 @@ class TicketResponse extends Model
         'responser_id',
     ];
 
+    /**
+     * The ticket that the response belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function ticket() {
         return $this->belongsTo(Ticket::class);
     }

@@ -18,9 +18,7 @@ class TicketResponseResource extends JsonResource
             'id' => $this->id,
             'ticket_id' => (string)$this->ticket->id,
             'response' => $this->response,
-            $this->mergeWhen($this->attachment, [
-                'attachment' => $this->attachment,
-            ]),
+            'attachment' => $this->attachment,
             'responser_id' => $this->responser_id,
             'responser_name' => $this->responser_name,
             'date' => jdate($this->created_at)->format('Y/m/d'),
