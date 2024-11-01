@@ -17,6 +17,11 @@ class ConvertPersianNumbersToLatin
     public function handle(Request $request, Closure $next)
     {
         $input = $request->all();
+
+        if(count($input) == 0) {
+            return $next($request);
+        }
+
         $converted = $this->convertPersianNumbersToLatin($input);
         $request->merge($converted);
 
