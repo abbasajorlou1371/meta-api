@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class ConvertPersianNumbersToLatin
 {
@@ -13,7 +13,7 @@ class ConvertPersianNumbersToLatin
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): JsonResponse
     {
         $request->merge(array_map(function ($value) {
             return is_string($value) ? $this->convertPersianNumbersToLatin($value) : $value;
