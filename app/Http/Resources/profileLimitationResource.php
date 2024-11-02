@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class profileLimitationResource extends JsonResource
+class ProfileLimitationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

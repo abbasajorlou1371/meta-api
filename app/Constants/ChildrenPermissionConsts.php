@@ -2,8 +2,6 @@
 
 namespace App\Constants;
 
-use App\Constants\Enum;
-
 class ChildrenPermissions extends Enum {
     const BuyFormRgb = "BFR";
     const SelleFeature = "SF" ;
