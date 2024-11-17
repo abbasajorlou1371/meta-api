@@ -23,14 +23,4 @@ class Image extends Model
     {
         return $this->morphTo();
     }
-
-    /**
-     * Get the full url of the image.
-     *
-     * @return string
-     */
-    public function getFullUrlAttribute()
-    {
-        return asset('uploads/' . $this->url);
-    }
 }
