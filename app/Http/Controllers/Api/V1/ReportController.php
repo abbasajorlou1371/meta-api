@@ -32,7 +32,7 @@ class ReportController extends Controller
      */
     public function show(Report $report)
     {
-        $report->load('image');
+        $report->load('images');
 
         return new ReportResource($report);
     }
@@ -52,8 +52,8 @@ class ReportController extends Controller
             'url'
         ]));
 
-        if ($request->hasFile('attachment')) {
-            foreach ($request->file('attachment') as $file) {
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
                 $url = $file->store('reports', 'public');
                 $report->images()->create(['url' => $url]);
             }

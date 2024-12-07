@@ -20,9 +20,6 @@ class ReportResource extends JsonResource
             'url' => $this->whenNotNull($this->url),
             'subject' => $this->subject,
             'content' => $this->whenNotNull($this->content),
-            'attachment' => $this->whenLoaded('image', function () {
-                return url('uploads/' . $this->image->url);
-            }),
             'attachments' => $this->whenLoaded('images', function () {
                 return $this->images->map(function ($image) {
                     return url('uploads/' . $image->url);
