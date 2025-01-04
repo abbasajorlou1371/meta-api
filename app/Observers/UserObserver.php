@@ -8,8 +8,6 @@ use App\Notifications\LogedInNotification;
 use Illuminate\Support\Facades\DB;
 use App\Models\Levels\Level;
 use App\Models\Variable;
-use Illuminate\Auth\Events\Registered;
-use App\Models\Referral;
 
 class UserObserver
 {
@@ -40,14 +38,8 @@ class UserObserver
 
         if (request()->referral) {
             $reference_user = User::where('code', request()->referral)->select('id')->first();
-
-            Referral::create([
-                'reference_id' => $reference_user->id,
-                'referrer_id' => $user->id,
-            ]);
+            $user->update(['referrer_id' => $reference_user->id]);
         }
-
-        event(new Registered($user));
     }
 
     /**
