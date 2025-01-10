@@ -17,9 +17,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -229,55 +227,41 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     /**
      * Get referals of the user.
      *
-     * @return HasManyThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function referrals(): HasManyThrough
+    public function referrals()
     {
-        return $this->hasManyThrough(
-            __CLASS__,
-            Referral::class,
-            'reference_id',
-            'id',
-            'id',
-            'referrer_id'
-        );
+        return $this->hasMany(User::class, 'referrer_id');
     }
 
     /**
-     * Get referer of the user.
+     * Get referred users of the user.
      *
-     * @return bool
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function has_reference(): bool
+    public function referred()
     {
-        return isset($this->reference);
+        return $this->belongsTo(User::class, 'referrer_id');
     }
 
     /**
-     * Get referer of the user.
+     * Get the user's referral.
      *
-     * @return HasOneThrough
+     * @return HasOne
      */
-    public function reference(): HasOneThrough
+    public function referralOrders()
     {
-        return $this->hasOneThrough(
-            __CLASS__,
-            Referral::class,
-            'referrer_id',
-            'id',
-            'id',
-            'reference_id'
-        );
+        return $this->hasManyThrough(ReferralOrderHistory::class, User::class, 'referrer_id', 'referral_id', 'id', 'id');
     }
 
     /**
-     * Get referral orders of the user.
+     * Get the user's referrer orders.
      *
      * @return HasMany
      */
-    public function referralOrderHistories(): HasMany
+    public function referrerOrders()
     {
-        return $this->hasMany(ReferralOrderHistory::class, 'referrer_id');
+        return $this->hasMany(ReferralOrderHistory::class, 'referral_id');
     }
 
     /**

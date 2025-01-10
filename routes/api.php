@@ -260,6 +260,8 @@ Route::post('/parsian/callback', [OrderController::class, 'callback'])->name('pa
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');
+    Route::get('/{user:code}/referrals', 'referrals');
+    Route::get('/{user:code}/referrals/chart', 'referralChart');
 });
 
 Route::controller(SearchController::class)->prefix('search')->group(function () {
