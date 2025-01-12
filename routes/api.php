@@ -75,7 +75,7 @@ Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.'
 });
 
 Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('users')->group(function () {
-    Route::get('/', 'index')->withoutMiddleware('auth', 'verified');
+    Route::get('/', 'index')->withoutMiddleware('auth:sanctum', 'verified');
     Route::get('/{user}/profile', 'getProfile')->middleware('check.profile.limitation');
     Route::get('/{user}/wallet', 'getWallet');
     Route::get('/{user}/features/count', 'getFeaturesCount');
