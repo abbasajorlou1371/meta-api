@@ -22,12 +22,7 @@ class KycController extends Controller
             return new KycResource($kyc);
         }
 
-        return response()->json([
-            'data' => [
-                'message' => 'No kyc found for the current user.',
-                'status' => 404
-            ]
-        ]);
+        return response()->json([], 204);
     }
 
     /**
