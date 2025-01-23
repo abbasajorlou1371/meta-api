@@ -15,7 +15,7 @@ class AccountSecurityRequest extends FormRequest
     public function authorize()
     {
         $accountSecurity = $this->user()->accountSecurity;
-        return $accountSecurity && $accountSecurity->until > time() ? false : true;
+        return $accountSecurity && $accountSecurity->user->is($this->user());
     }
 
     /**
