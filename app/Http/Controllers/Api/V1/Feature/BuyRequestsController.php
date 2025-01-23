@@ -421,7 +421,7 @@ class BuyRequestsController extends Controller
         $this->authorize('addGracePeriod', $buyFeatureRequest);
 
         $buyFeatureRequest->update([
-            'requested_grace_period' => time() + ($request->grace_period * 86400)
+            'requested_grace_period' => now()->addDays($request->grace_period)
         ]);
 
         return response()->json([], 200);
