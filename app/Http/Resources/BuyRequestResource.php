@@ -26,7 +26,7 @@ class BuyRequestResource extends JsonResource
             'feature_properties' => new FeaturePropertiesResource($this->whenLoaded('feature.properties')),
             'feature_coordinates' => new CoordinatesResource($this->whenLoaded('feature.coordinates')),
             'created_at' => jdate($this->created_at)->format('Y/m/d'),
-            'requested_grace_period' => $this->requested_grace_period,
+            'requested_grace_period' => jdate($this->requested_grace_period)->format('Y/m/d H:i:s'),
         ];
     }
 }
