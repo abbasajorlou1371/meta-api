@@ -38,7 +38,7 @@ class UpdateKycRequest extends FormRequest
                 'ir_national_code',
                 Rule::unique('kycs', 'melli_code')->where(function ($query) {
                     return $query->where('user_id', $this->user()->id);
-                })->ignore($this->user(), 'user_id'),
+                })->ignore($this->user()->id, 'user_id'),
             ],
             'birthdate' => 'required|shamsi_date',
             'province' => 'required|string|max:255',
