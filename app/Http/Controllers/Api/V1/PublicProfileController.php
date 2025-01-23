@@ -80,19 +80,27 @@ class PublicProfileController extends Controller
             return $referral->referrerOrders->sum('amount');
         });
 
+        $referralsData = $groupedReferrals->map(function ($group) use ($range) {
+            return $group->map(function ($referral) use ($range) {
+                $createdAt = $referral->created_at;
+                if ($range === 'yearly') {
+                    $createdAt = jdate($createdAt)->format('Y');
+                } else {
+                    $createdAt = jdate($createdAt)->format('Y-m-d H:i:s');
+                }
+                return [
+                    'id' => $referral->id,
+                    'name' => $referral->name,
+                    'created_at' => $createdAt,
+                    'total_order_amount' => $referral->referrerOrders->sum('amount'),
+                ];
+            });
+        });
+
         return response()->json(['data' => [
             'total_referrals' => $totalReferrals,
             'total_referrer_order_amount' => $totalReferrerOrderAmount,
-            'referrals' => $groupedReferrals->map(function ($group) {
-                return $group->map(function ($referral) {
-                    return [
-                        'id' => $referral->id,
-                        'name' => $referral->name,
-                        'created_at' => jdate($referral->created_at)->format('Y-m-d H:i:s'),
-                        'total_order_amount' => $referral->referrerOrders->sum('amount'),
-                    ];
-                });
-            }),
+            'referrals' => $referralsData,
         ]]);
     }
 
