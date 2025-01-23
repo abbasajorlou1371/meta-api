@@ -84,9 +84,13 @@ class PublicProfileController extends Controller
             return $group->map(function ($referral) use ($range) {
                 $createdAt = $referral->created_at;
                 if ($range === 'yearly') {
-                    $createdAt = jdate($createdAt)->format('Y');
+                    $createdAt = $createdAt->format('Y');
+                } elseif ($range === 'monthly') {
+                    $createdAt = $createdAt->format('Y-m');
+                } elseif ($range === 'weekly') {
+                    $createdAt = $createdAt->format('Y-m-d');
                 } else {
-                    $createdAt = jdate($createdAt)->format('Y-m-d H:i:s');
+                    $createdAt = $createdAt->format('Y-m-d H:i:s');
                 }
                 return [
                     'id' => $referral->id,
@@ -108,8 +112,8 @@ class PublicProfileController extends Controller
     {
         return match ($range) {
             'weekly' => now()->subWeek(),
-            'monthly' => now()->subMonth(),
-            'yearly' => now()->subYear(),
+            'monthly' => now()->subMonths(12),
+            'yearly' => now()->subYears(1),
             'daily' => now()->subDay(),
             default => now()->subDay(),
         };
@@ -117,25 +121,11 @@ class PublicProfileController extends Controller
 
     private function groupReferralsByRange($referrals, $range)
     {
-        $persianMonths = [
-            '01' => 'Farvardin',
-            '02' => 'Ordibehesht',
-            '03' => 'Khordad',
-            '04' => 'Tir',
-            '05' => 'Mordad',
-            '06' => 'Shahrivar',
-            '07' => 'Mehr',
-            '08' => 'Aban',
-            '09' => 'Azar',
-            '10' => 'Dey',
-            '11' => 'Bahman',
-            '12' => 'Esfand',
-        ];
-
         return match ($range) {
             'daily' => $referrals->groupBy(fn($date) => $date->created_at->format('Y-m-d H:00')),
-            'weekly', 'monthly' => $referrals->groupBy(fn($date) => $date->created_at->format('Y-m-d')),
-            'yearly' => $referrals->groupBy(fn($date) => $persianMonths[$date->created_at->format('m')]),
+            'weekly' => $referrals->groupBy(fn($date) => $date->created_at->format('Y-m-d')),
+            'monthly' => $referrals->groupBy(fn($date) => $date->created_at->format('Y-m')),
+            'yearly' => $referrals->groupBy(fn($date) => $date->created_at->format('Y')),
             default => $referrals->groupBy(fn($date) => $date->created_at->format('Y-m-d H:00')),
         };
     }
