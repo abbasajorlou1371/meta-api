@@ -251,7 +251,7 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     });
 });
 
-Route::post('/upload', [FileUploadController::class, 'upload']);
+Route::post('upload', [FileUploadController::class, 'upload']);
 
 Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial']);
 
