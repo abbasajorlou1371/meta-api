@@ -14,5 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         '/api/parsian/callback',
         '/api/upload',
+        '/uploads/*',
+        '/upload',
     ];
 }
