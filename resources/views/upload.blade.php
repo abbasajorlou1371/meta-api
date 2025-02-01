@@ -41,11 +41,11 @@
             event.preventDefault();
             const fileInput = document.getElementById('file-input');
             const resumable = new Resumable({
-                target: '{{ route('upload') }}',
-                chunkSize: 1 * 1024 * 1024, // 1MB
+                target: 'https://api.rgb.irpsc.com/upload',
+                chunkSize: 100 * 1024 * 1024, // 1MB
                 headers: {
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    // 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 },
                 testChunks: false,
                 maxFiles: 1,

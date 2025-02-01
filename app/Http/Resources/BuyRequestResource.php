@@ -20,12 +20,14 @@ class BuyRequestResource extends JsonResource
                 return [
                     'id' => $this->buyer->id,
                     'code' => $this->buyer->code,
+                    'profile_photo' => $this->buyer->latestProfilePhoto?->url,
                 ];
             }),
             'seller' => $this->whenLoaded('seller', function() {
                 return [
                     'id' => $this->seller->id,
                     'code' => $this->seller->code,
+                    'profile_photo' => $this->seller->latestProfilePhoto?->url,
                 ];
             }),
             'feature_id' => $this->feature_id,

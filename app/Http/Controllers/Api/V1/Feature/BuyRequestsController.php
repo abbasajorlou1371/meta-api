@@ -38,7 +38,8 @@ class BuyRequestsController extends Controller
     public function index()
     {
         $buyRequests = BuyFeatureRequest::whereBelongsTo(request()->user(), 'buyer')
-            ->with('feature.coordinates', 'feature.properties', 'seller:id,code')
+            ->with('feature.coordinates', 'feature.properties', 'seller:id,code', 'seller.latestProfilePhoto')
+            ->latest()
             ->get();
 
         return BuyRequestResource::collection($buyRequests);
@@ -155,7 +156,8 @@ class BuyRequestsController extends Controller
     public function recievedBuyRequests()
     {
         $receivedBuyRequests = BuyFeatureRequest::whereBelongsTo(request()->user(), 'seller')
-            ->with('feature.coordinates', 'feature.properties', 'buyer:id,code')
+            ->with('feature.coordinates', 'feature.properties', 'buyer:id,code', 'buyer.latestProfilePhoto')
+            ->latest()
             ->get();
 
         return BuyRequestResource::collection($receivedBuyRequests);
