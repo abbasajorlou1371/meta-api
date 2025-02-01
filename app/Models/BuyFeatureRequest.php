@@ -37,6 +37,7 @@ class BuyFeatureRequest extends Model
             'feature_id' => 'int',
             'buyer_id' => 'int',
             'status' => 'int',
+            'requested_grace_period' => 'datetime',
         ];
     }
 

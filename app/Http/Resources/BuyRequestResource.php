@@ -16,18 +16,17 @@ class BuyRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'buyer' => $this->whenLoaded('buyer', function() {
+            'buyer' => $this->whenLoaded('buyer', function () {
                 return [
                     'id' => $this->buyer->id,
                     'code' => $this->buyer->code,
                     'profile_photo' => $this->buyer->latestProfilePhoto?->url,
                 ];
             }),
-            'seller' => $this->whenLoaded('seller', function() {
+            'seller' => $this->whenLoaded('seller', function () {
                 return [
                     'id' => $this->seller->id,
                     'code' => $this->seller->code,
-                    'profile_photo' => $this->seller->latestProfilePhoto?->url,
                 ];
             }),
             'feature_id' => $this->feature_id,
@@ -35,14 +34,16 @@ class BuyRequestResource extends JsonResource
             'note' => $this->note,
             'price_psc' => $this->price_psc,
             'price_irr' => $this->price_irr,
-            'feature_properties' => new FeaturePropertiesResource($this->whenLoaded('feature', function() {
+            'feature_properties' => new FeaturePropertiesResource($this->whenLoaded('feature', function () {
                 return $this->feature->properties;
             })),
-            'feature_coordinates' => CoordinatesResource::collection($this->whenLoaded('feature', function() {
+            'feature_coordinates' => CoordinatesResource::collection($this->whenLoaded('feature', function () {
                 return $this->feature->coordinates;
             })),
             'created_at' => jdate($this->created_at)->format('Y/m/d'),
-            'requested_grace_period' => jdate($this->requested_grace_period)->format('Y/m/d H:i:s'),
+            'requested_grace_period' => $this->whenNotNull($this->requested_grace_period, function () {
+                return jdate($this->requested_grace_period)->format('Y/m/d');
+            }),
         ];
     }
 }

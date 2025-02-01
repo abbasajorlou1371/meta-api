@@ -38,7 +38,7 @@ class BuyRequestsController extends Controller
     public function index()
     {
         $buyRequests = BuyFeatureRequest::whereBelongsTo(request()->user(), 'buyer')
-            ->with('feature.coordinates', 'feature.properties', 'seller:id,code', 'seller.latestProfilePhoto')
+            ->with('feature.coordinates', 'feature.properties', 'seller:id,code')
             ->latest()
             ->get();
 
