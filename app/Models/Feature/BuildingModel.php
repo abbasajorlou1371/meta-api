@@ -29,13 +29,16 @@ class BuildingModel extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @return array<string, string>
      */
-    protected $casts = [
-        'images' => 'array',
-        'attributes' => 'array',
-        'file' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'images' => 'array',
+            'attributes' => 'array',
+            'file' => 'array',
+        ];
+    }
 
     /**
      * The features that belong to the building model.
@@ -47,4 +50,13 @@ class BuildingModel extends Model
         return $this->belongsToMany(Feature::class, 'building', 'model_id', 'feature_id');
     }
 
+    /**
+     * Get the three dimentional environments for the building model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function threeDimentionalEnvironment()
+    {
+        return $this->hasMany(ThreeDimentionalEnvironment::class);
+    }
 }

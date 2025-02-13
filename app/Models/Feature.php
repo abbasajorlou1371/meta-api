@@ -32,6 +32,15 @@ class Feature extends Model
     {
         return $this->belongsToMany(BuildingModel::class, 'buildings', 'feature_id', 'model_id')
             ->using(Building::class)
+            ->withPivot([
+                'construction_start_date',
+                'construction_end_date',
+                'launched_satisfaction',
+                'information',
+                'rotation',
+                'position',
+                'bubble_diameter'
+            ])
             ->as('building');
     }
 
@@ -294,6 +303,21 @@ class Feature extends Model
             FeatureIndicators::Tejari => 0.2,
             FeatureIndicators::Maskoni => 0.1,
             default => 1
+        };
+    }
+
+    /**
+     * Get the feature's karbari.
+     *
+     * @return string
+     */
+    public function getKarbariAttribute()
+    {
+        return match ($this->properties->karbari) {
+            FeatureIndicators::Amozeshi => 'Educational',
+            FeatureIndicators::Tejari => 'Commercial',
+            FeatureIndicators::Maskoni => 'Residential',
+            default => 'Unknown'
         };
     }
 }

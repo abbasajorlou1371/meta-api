@@ -27,15 +27,18 @@ class Building extends Pivot
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @return array<string, string>
      */
-    protected $casts = [
-        'information' => 'array',
-        'position' => 'array',
-        'construction_start_date' => 'datetime',
-        'construction_end_date' => 'datetime',
-        'bubble_diameter' => 'float'
-    ];
+    protected function casts()
+    {
+        return [
+            'information' => 'array',
+            'position' => 'array',
+            'construction_start_date' => 'datetime',
+            'construction_end_date' => 'datetime',
+            'bubble_diameter' => 'float'
+        ];
+    }
 
     /**
      * Indicates if the model should be timestamped.
