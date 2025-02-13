@@ -36,8 +36,8 @@ class UserObserver
             'ip' => request()->ip(),
         ]);
 
-        if (request()->referral) {
-            $reference_user = User::where('code', request()->referral)->select('id')->first();
+        if ($user->referral) {
+            $reference_user = User::where('code', $user->referral)->select('id')->first();
             $user->update(['referrer_id' => $reference_user->id]);
         }
     }
