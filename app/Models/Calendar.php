@@ -9,46 +9,96 @@ class Calendar extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $guarded = [];
 
-    protected $casts = [
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
-    ];
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @return array
+     */
+    protected function casts(): array
+    {
+        return [
+            'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
+        ];
+    }
 
+    /**
+     * Get all of the likes for the calendar event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function likes()
     {
         return $this->morphMany(Interaction::class, 'likeable')->where('liked', 1);
     }
 
+    /**
+     * Get all of the dislikes for the calendar event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function dislikes()
     {
         return $this->morphMany(Interaction::class, 'likeable')->where('liked', 0);
     }
 
+    /**
+     * Get all of the interactions for the calendar event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function interactions()
     {
         return $this->morphMany(Interaction::class, 'likeable');
     }
 
+    /**
+     * Get all of the views for the calendar event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function views()
     {
         return $this->morphMany(View::class, 'viewable');
     }
 
+    /**
+     * Increment the view count for the calendar event.
+     *
+     * @return void
+     */
     public function incrementViews()
     {
         $this->views()->create(['ip_address' => request()->ip()]);
     }
 
+    /**
+     * Scope a query to only include current events.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeCurrentEvents($query)
     {
-        return $query->where('is_version', 0)
-            ->whereDate('ends_at', '>', now());
+        return $query->where('is_version', 0)->whereDate('ends_at', '>', now())
+            ->orderBy('starts_at', 'desc');
     }
 
+    /**
+     * Scope a query to only include version events.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeVersionEvents($query)
     {
-        return $query->where('is_version', 1);
+        return $query->where('is_version', 1)->orderBy('created_at', 'desc');
     }
 }

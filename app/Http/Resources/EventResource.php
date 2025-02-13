@@ -17,20 +17,20 @@ class EventResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            $this->mergeWhen(request()->routeIs('calendar.events.show') || request()->routeIs('calendar.versions.show'), [
+            $this->mergeWhen($request->query('type') == 'event', [
                 'description' => $this->content,
                 'btn_name' => $this->btn_name,
                 'btn_link' => $this->btn_link,
                 'color' => $this->color,
             ]),
-            'image' => $this->image,
+            'image' => $this->whenNotNull('image'),
             'starts_at' => jdate($this->starts_at)->format('Y/m/d H:i'),
             $this->mergeWhen(!$this->is_version, [
                 'ends_at' => jdate($this->ends_at)->format('Y/m/d H:i'),
             ]),
-            'views' => $this->views->count(),
-            'likes' => $this->likes->count(),
-            'dislikes' => $this->dislikes->count(),
+            'views' => $this->whenCounted('views'),
+            'likes' => $this->whenCounted('likes'),
+            'dislikes' => $this->whenCounted('dislikes'),
 
             $this->mergeWhen($this->is_version, [
                 'version_title' => $this->version_title,

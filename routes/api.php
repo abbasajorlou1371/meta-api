@@ -58,20 +58,11 @@ Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(fun
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('logout');
 });
 
-Route::controller(CalendarController::class)->prefix('calendar')->as('calendar.')->group(function () {
-    Route::prefix('events')->as('events.')->group(function () {
-        Route::get('/', 'getEvents')->name('index');
-        Route::get('/{event}', 'getSingleEvent')->name('show');
-    });
-
-    Route::prefix('versions')->as('versions.')->group(function () {
-        Route::get('/', 'getVersionsEvents')->name('index');
-        Route::get('/latest', 'getLatestVersionEvent')->name('latest');
-        Route::get('/{versionEvent}', 'getVersionEvent')->name('show');
-    });
-
-    Route::post('/events/{event}/like', 'likeEvent')->name('like');
-    Route::post('/events/{event}/dislike', 'dislikeEvent')->name('dislike');
+Route::controller(CalendarController::class)->prefix('calendar')->group(function () {
+    Route::get('/', 'index');
+    Route::get('/{event}', 'show');
+    Route::post('/events/{event}/interact', 'interact');
+    Route::get('/latest-version', 'getLatestVersion');
 });
 
 Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('users')->group(function () {

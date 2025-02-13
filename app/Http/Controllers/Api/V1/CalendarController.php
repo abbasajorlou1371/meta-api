@@ -11,97 +11,80 @@ class CalendarController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except([
-            'getEvents',
-            'getSingleEvent',
-            'getVersionsEvents',
-            'getVersionEvent',
-            'getLatestVersionEvent'
-        ]);
+        $this->middleware('auth:sanctum')->only('interact');
     }
 
     /**
      * Display a listing of the events.
+     *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function getEvents()
+    public function index(Request $request)
     {
-        $events = Calendar::currentEvents()->with(['interactions', 'views'])
-            ->orderBy('starts_at', 'desc')
-            ->get();
+        $type = $request->query('type', 'event');
+        $eventsQuery = Calendar::query();
+
+        switch ($type) {
+            case 'version':
+                $eventsQuery = $eventsQuery->versionEvents();
+                break;
+            case 'event':
+            default:
+                $eventsQuery = $eventsQuery->currentEvents();
+                break;
+        }
+
+        $events = $eventsQuery->withCount(['views', 'likes', 'dislikes'])->simplePaginate();
+
         return EventResource::collection($events);
     }
 
     /**
      * Display the specified resource.
+     *
      * @param  \App\Models\Calendar  $event
      * @return \Illuminate\Http\Response
      */
-    public function getSingleEvent(Calendar $event)
+    public function show(Calendar $event)
     {
         $event->incrementViews();
+        $event->loadCount(['likes', 'dislikes']);
+
         return new EventResource($event);
     }
 
     /**
-     * Display a listing of the resource.
-     * @return \Illuminate\Http\Response
-     */
-    public function getVersionsEvents()
-    {
-        $events = Calendar::versionEvents()->with(['interactions', 'views'])
-            ->orderBy('starts_at', 'desc')
-            ->paginate(20);
-        return EventResource::collection($events);
-    }
-
-    /**
-     * Display the specified resource.
-     * @param  \App\Models\Calendar  $versionEvent
-     * @return \Illuminate\Http\Response
-     */
-    public function getVersionEvent(Calendar $versionEvent)
-    {
-        $versionEvent->incrementViews();
-        return new EventResource($versionEvent);
-    }
-
-    /**
-     * Like the event
+     * Interact with the event (like or dislike)
+     *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Calendar  $event
      * @return \Illuminate\Http\Response
      */
-    public function likeEvent(Request $request, Calendar $event)
+    public function interact(Request $request, Calendar $event)
     {
+        $liked = $request->input('liked');
+
         $event->interactions()->updateOrCreate(
             ['user_id' => $request->user()->id],
-            ['liked' => 1]
+            ['liked' => $liked]
         );
+
         return new EventResource($event->refresh());
     }
 
     /**
-     * Dislike the event
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Calendar  $event
+     * Get the version title of the latest version event.
+     *
      * @return \Illuminate\Http\Response
      */
-    public function dislikeEvent(Request $request, Calendar $event)
+    public function getLatestVersion()
     {
-        $event->interactions()->updateOrCreate(
-            ['user_id' => $request->user()->id],
-            ['liked' => 0]
-        );
-        return new EventResource($event->refresh());
-    }
+        $versionTitle = Calendar::versionEvents()->latest('starts_at')->value('version_title');
 
-    public function getLatestVersionEvent()
-    {
-        $event = Calendar::versionEvents()->latest('starts_at')->pluck('version_title')->first();
         return response()->json([
             'data' => [
-                'version_title' => $event
+                'version_title' => $versionTitle
             ]
         ]);
     }
