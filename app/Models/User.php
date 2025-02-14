@@ -63,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         'ip',
         'last_seen',
         'code',
-        'referral',
+        'referrer_id',
         'score',
         'phone_verified_at',
         'email_verified_at',

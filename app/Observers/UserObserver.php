@@ -35,11 +35,6 @@ class UserObserver
             'start' => now(),
             'ip' => request()->ip(),
         ]);
-
-        if ($user->referral) {
-            $reference_user = User::where('code', $user->referral)->select('id')->first();
-            $user->update(['referrer_id' => $reference_user->id]);
-        }
     }
 
     /**

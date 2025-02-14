@@ -111,6 +111,7 @@ class AuthController extends Controller
                 'password' => Hash::make(Str::random(10)),
                 'code' => $user['code'],
                 'ip' => $request->ip(),
+                'referrer_id' => $this->getReferrerId($user['referral']),
                 'access_token' => $response['access_token'],
                 'refresh_token' => $response['refresh_token'],
                 'expires_in' => $response['expires_in'],
@@ -201,5 +202,16 @@ class AuthController extends Controller
     protected function guard()
     {
         return Auth::guard('web');
+    }
+
+    /**
+     * Get referrer id
+     *
+     * @param string $code
+     * @return int|null
+     */
+    protected function getReferrerId($code)
+    {
+        return $code ? User::where('code', $code)->value('id') : null;
     }
 }
