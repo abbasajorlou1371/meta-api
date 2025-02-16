@@ -60,9 +60,9 @@ Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(fun
 
 Route::controller(CalendarController::class)->prefix('calendar')->group(function () {
     Route::get('/', 'index');
+    Route::get('/latest-version', 'getLatestVersion');
     Route::get('/{event}', 'show');
     Route::post('/events/{event}/interact', 'interact');
-    Route::get('/latest-version', 'getLatestVersion');
 });
 
 Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('users')->group(function () {
