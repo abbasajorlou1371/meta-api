@@ -82,7 +82,7 @@ class CalendarController extends Controller
      */
     public function getLatestVersion()
     {
-        $versionTitle = Calendar::versionEvents()->latest('starts_at')->value('version_title');
+        $versionTitle = Calendar::versions()->latest('starts_at')->value('version_title');
 
         return response()->json([
             'data' => [
