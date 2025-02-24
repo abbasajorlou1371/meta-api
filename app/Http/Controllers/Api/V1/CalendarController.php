@@ -21,17 +21,10 @@ class CalendarController extends Controller
         $search = $request->query('search', '');
         $eventsQuery = Calendar::query();
 
-        switch ($type) {
-            case 'version':
-                $eventsQuery = $eventsQuery->versions();
-                break;
-            case 'event':
-                $eventsQuery = $eventsQuery->events();
-                break;
-            default:
-                $eventsQuery = $eventsQuery->events();
-                break;
-        }
+        $eventsQuery = match ($type) {
+            'version' => $eventsQuery->versions(),
+            'event' => $eventsQuery->events(),
+        };
 
         if ($search) {
             $eventsQuery->where('title', 'like', '%' . $search . '%');
