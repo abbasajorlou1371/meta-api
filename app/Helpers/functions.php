@@ -75,21 +75,19 @@ function getRelationshipTitle(string $relationsip)
  */
 function getScorePercentageToNextLevel(?Level $level, int $score): int
 {
+    // If user has no level yet
     if (!$level) {
-        if ($score == 0) {
+        if ($score === 0) {
             return 0;
         }
-
-        $firstLevelScore = Level::min('score');
-        return ($score / $firstLevelScore) * 100;
+        return (int)(($score / Level::min('score')) * 100);
     }
 
-    $nextLevel = Level::where('score', '>', $level->score)->orderBy('score')->first();
-    if (!$nextLevel) {
-        return 0;
-    }
+    // Find next level score
+    $nextLevelScore = Level::where('score', '>', $level->score)
+        ->min('score');
 
-    return ($score / $nextLevel->score) * 100;
+    return $nextLevelScore ? (int)(($score / $nextLevelScore) * 100) : 0;
 }
 
 /**
@@ -98,24 +96,25 @@ function getScorePercentageToNextLevel(?Level $level, int $score): int
  * @param User $user The user object.
  * @return string
  */
-function hourlyProfitInfo(User $user)
+function hourlyProfitInfo(User $user): string
 {
-    $profit = FeatureHourlyProfit::whereUserId($user->id)->oldest('dead_line')->first();
+    $profit = FeatureHourlyProfit::whereUserId($user->id)
+        ->oldest('dead_line')
+        ->first();
 
     if (!$profit) {
-        return 0.0;
+        return '0.0';
     }
 
+    $now = now();
     $totalSeconds = $profit->updated_at->diffInSeconds($profit->dead_line);
-    $secondsPassed = $profit->updated_at->diffInSeconds(now());
+    $secondsPassed = $profit->updated_at->diffInSeconds($now);
 
-    if($secondsPassed >= $totalSeconds) {
-        return 0.0;
+    if ($secondsPassed >= $totalSeconds) {
+        return '0.0';
     }
 
-    $elapsedPercentage = ($secondsPassed / $totalSeconds) * 100.0;
-
-    return number_format($elapsedPercentage, 2);
+    return number_format(($secondsPassed / $totalSeconds) * 100, 2);
 }
 
 /**
@@ -136,4 +135,26 @@ function getSubLevels($userLevel): array
                 'image' => config('app.admin_panel_url') . '/uploads/' . $level->image?->url,
             ];
         })->toArray() : [];
+}
+
+/**
+ * Format a number to a compact representation (e.g., 1.1K, 1.1M).
+ *
+ * @param float|int $number The number to format
+ * @return string The formatted number
+ */
+function formatCompactNumber($number): string
+{
+    if ($number < 1000) {
+        return (string) $number;
+    }
+
+    $units = ['K', 'M', 'B', 'T'];
+    $power = floor(log($number, 1000));
+
+    if ($power > count($units)) {
+        $power = count($units);
+    }
+
+    return number_format($number / pow(1000, $power), 1) . $units[$power - 1];
 }

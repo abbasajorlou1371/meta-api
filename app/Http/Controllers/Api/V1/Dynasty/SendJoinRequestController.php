@@ -16,16 +16,13 @@ use Morilog\Jalali\Jalalian;
 
 class SendJoinRequestController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('account.security')->only(['store', 'destroy']);
     }
 
     /**
-     * Get all sent join requests
-     * @param Request $request
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * Return all sent join requests.
      */
     public function index(Request $request)
     {
@@ -33,9 +30,7 @@ class SendJoinRequestController extends Controller
     }
 
     /**
-     * Get a join request
-     * @param JoinRequest $joinRequest
-     * @return SentRequestsResource
+     * Return a specific join request.
      */
     public function show(JoinRequest $joinRequest)
     {
@@ -44,145 +39,109 @@ class SendJoinRequestController extends Controller
     }
 
     /**
-     * Send a join request
-     * @param AddFamilyMemberRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * Create and send a join request.
      */
     public function store(AddFamilyMemberRequest $request)
     {
         $user = $request->user();
-
-        // Get the user to add
         $userToAdd = User::findOrFail($request->user);
+        $relationship = $request->relationship;
 
-        // Prevent user from setting permissions for the user who is older than 18
-        abort_if(
-            $request->relationship === 'offspring' && !$userToAdd->isUnderEighteen() && $request->has('permissions'),
-            403,
-            'شما مجاز به تعریف دسترسی برای فرزند بالای 18 سال نیستید.'
-        );
+        $this->validateOffspringPermissions($userToAdd, $relationship, $request);
+        $this->authorize('addFamilyMember', [$userToAdd, $relationship]);
 
-        // Check if the user is authorized to add the user
-        $this->authorize('addFamilyMember', [$userToAdd, $request->relationship]);
+        $date = Jalalian::forge(now())->format('Y/m/d');
+        $messages = $this->prepareMessages($user, $userToAdd, $relationship, $date);
 
-        // Get the sender confirmation message and reciever message
-        $senderConfirmationMessage = DynastyMessage::where('type', 'requester_confirmation_message')->pluck('message')->first();
-        $recieverMessage = DynastyMessage::where('type', 'reciever_message')->pluck('message')->first();
+        $joinRequest = $this->createJoinRequest($user, $userToAdd, $relationship, $messages['receiver']);
 
-        // Replace the placeholders with the actual values
-        $senderConfirmationMessage = str_replace(
-            [
-                '[sender-code]',
-                '[relationship]',
-                '[reciever-code]',
-                '[created_at]',
-                '[sender-name]',
-                '[reciever-name]',
-            ],
-            [
-                $user->code,
-                getRelationshipTitle($request->relationship),
-                $userToAdd->code,
-                Jalalian::forge(now())->format('Y/m/d'),
-                $user->name,
-                $userToAdd->name,
-            ],
-            $senderConfirmationMessage
-        );
-
-        // Replace the placeholders with the actual values
-        $recieverMessage = str_replace(
-            [
-                '[reciever-code]',
-                '[sender-code]',
-                '[relationship]',
-                '[relationship]',
-                '[sender-code]',
-                '[created_at]',
-                '[sender-name]',
-                '[reciever-name]',
-            ],
-            [
-                $userToAdd->code,
-                $user->code,
-                getRelationshipTitle($request->relationship),
-                getRelationshipTitle($request->relationship),
-                $user->code,
-                Jalalian::forge(now())->format('Y/m/d'),
-                $user->name,
-                $user->name,
-            ],
-            $recieverMessage
-        );
-
-        // Create a join request
-        $joinRequest = JoinRequest::create([
-            'from_user' => $user->id,
-            'to_user' => $userToAdd->id,
-            'status' => 0,
-            'relationship' => $request->relationship,
-            'message' => $recieverMessage
-        ]);
-
-        // Add permissions if the relationship is offspring and the destination user is under 18
-        if ($request->relationship === 'offspring' && $userToAdd->isUnderEighteen()) {
-            $permissions = $request->permissions;
-            $joinRequest->toUser->permissions()->create([
-                'verified' => false,
-                'BFR'      => $permissions['BFR'],
-                'SF'       => $permissions['SF'],
-                'W'        => $permissions['W'],
-                'JU'       => $permissions['JU'],
-                'DM'       => $permissions['DM'],
-                'PIUP'     => $permissions['PIUP'],
-                'PITC'     => $permissions['PITC'],
-                'PIC'      => $permissions['PIC'],
-                'ESOO'     => $permissions['ESOO'],
-                'COTB'     => $permissions['COTB']
-            ]);
+        if ($this->shouldSetOffspringPermissions($relationship, $userToAdd)) {
+            $this->setOffspringPermissions($joinRequest, $request->permissions);
         }
 
-        // Notify the user that the join request has been sent
-        $user->notify(new JoinDynastyNotification([
-            'type' => 'requester_confirmation_message',
-            'request' => $joinRequest,
-            'message' => $senderConfirmationMessage
-        ]));
+        $this->sendNotifications($user, $userToAdd, $joinRequest, $messages);
 
-        // Notify the user that the join request has been recieved
-        $userToAdd->notify(new JoinDynastyNotification([
-            'type' => 'reciever_message',
-            'request' => $joinRequest,
-            'message' => $recieverMessage
-        ]));
-
-        // Return the join request
         return new SentRequestsResource($joinRequest);
     }
 
+    private function validateOffspringPermissions(User $userToAdd, string $relationship, Request $request): void
+    {
+        if ($relationship === 'offspring' && !$userToAdd->isUnderEighteen() && $request->has('permissions')) {
+            abort(403, 'شما مجاز به تعریف دسترسی برای فرزند بالای 18 سال نیستید.');
+        }
+    }
+
+    private function prepareMessages(User $sender, User $receiver, string $relationship, string $date): array
+    {
+        $senderMessage = DynastyMessage::where('type', 'requester_confirmation_message')->value('message') ?? '';
+        $receiverMessage = DynastyMessage::where('type', 'reciever_message')->value('message') ?? '';
+
+        $replacements = [
+            '[sender-code]' => $sender->code,
+            '[reciever-code]' => $receiver->code,
+            '[relationship]' => getRelationshipTitle($relationship),
+            '[created_at]' => $date,
+            '[sender-name]' => $sender->name,
+            '[reciever-name]' => $receiver->name
+        ];
+
+        return [
+            'sender' => str_replace(array_keys($replacements), array_values($replacements), $senderMessage),
+            'receiver' => str_replace(array_keys($replacements), array_values($replacements), $receiverMessage)
+        ];
+    }
+
+    private function createJoinRequest(User $from, User $to, string $relationship, string $message): JoinRequest
+    {
+        return JoinRequest::create([
+            'from_user' => $from->id,
+            'to_user' => $to->id,
+            'status' => 0,
+            'relationship' => $relationship,
+            'message' => $message,
+        ]);
+    }
+
+    private function shouldSetOffspringPermissions(string $relationship, User $user): bool
+    {
+        return $relationship === 'offspring' && $user->isUnderEighteen();
+    }
+
+    private function setOffspringPermissions(JoinRequest $joinRequest, array $permissions): void
+    {
+        $joinRequest->toUser->permissions()->create(array_merge(
+            ['verified' => false],
+            $permissions
+        ));
+    }
+
+    private function sendNotifications(User $sender, User $receiver, JoinRequest $joinRequest, array $messages): void
+    {
+        $sender->notify(new JoinDynastyNotification([
+            'type' => 'requester_confirmation_message',
+            'request' => $joinRequest,
+            'message' => $messages['sender']
+        ]));
+
+        $receiver->notify(new JoinDynastyNotification([
+            'type' => 'reciever_message',
+            'request' => $joinRequest,
+            'message' => $messages['receiver']
+        ]));
+    }
+
     /**
-     * Delete a join request
-     * @param JoinRequest $joinRequest
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * Remove a join request.
      */
     public function destrory(JoinRequest $joinRequest)
     {
-        // Check if the user is authorized to delete the join request
         $this->authorize('delete', $joinRequest);
-
-        // Delete the join request
         $joinRequest->delete();
-
-        // Return a 200 response
         return response()->noContent(200);
     }
 
     /**
-     * Get the permissions
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Retrieve default permissions.
      */
     public function getPermissions(Request $request)
     {
@@ -192,38 +151,32 @@ class SendJoinRequestController extends Controller
     }
 
     /**
-     * Search for a user
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * Search for a user.
      */
     public function search(Request $request)
     {
         $request->validate(['searchTerm' => 'required|string']);
+        $searchTerm = '%' . $request->searchTerm . '%';
 
-        // Search for the user
-        $user = User::select(['id', 'code'])
-            ->where('name', 'like', '%' . $request->searchTerm . '%')
-            ->orWhere('code', 'like', '%' . $request->searchTerm . '%')
-            ->orWhere(function ($query) {
-                $query->whereHas('kyc', function ($query) {
-                    $query->where('fname', 'like', '%' . request()->searchTerm . '%')
-                        ->orWhere('lname', 'like', '%' . request()->searchTerm . '%');
-                });
+        $users = User::select(['id', 'code', 'name'])
+            ->where('name', 'like', $searchTerm)
+            ->orWhere('code', 'like', $searchTerm)
+            ->orWhereHas('kyc', function ($query) use ($searchTerm) {
+                $query->where('fname', 'like', $searchTerm)
+                      ->orWhere('lname', 'like', $searchTerm);
             })
-            ->with(['kyc', 'profilePhotos'])
-            ->first();
+            ->with(['kyc:id,user_id,fname,lname,birthdate', 'latestProfilePhoto:id,user_id,url'])
+            ->get();
 
-        // Throw an exception if the user is not found
-        if (is_null($user)) throw new ModelNotFoundException();
-
-        return response()->json([
-            'id' => $user->id,
-            'code' => $user->code,
-            'name' => optional($user->kyc)->fname . ' ' . optional($user->kyc)->lname,
-            'image' => optional($user->profilePhotos->last())->url,
-            'verified' => $user->verified(),
-            'age' => $user->verified() ? $user->kyc->birthdate->diffInYears(now()) : null,
-        ]);
+        return response()->json($users->map(function ($user) {
+            return [
+                'id'       => $user->id,
+                'code'     => $user->code,
+                'name'     => $user->verified() ? $user->kyc->full_name : $user->name,
+                'image'    => $user->latestProfilePhoto?->url,
+                'verified' => $user->verified(),
+                'age'      => $user->verified() ? $user->kyc->birthdate->diffInYears(now()) : null,
+            ];
+        }));
     }
 }

@@ -142,26 +142,42 @@ class UserObserver
      */
     public function traded(User $user): void
     {
-        $psc_value = Variable::getRate('psc');
-        $psc_count = 7000000 / $psc_value;
-
-        $trades = DB::table('trades')
-            ->where('buyer_id', $user->id)
-            ->where(function ($query) use ($psc_count) {
-                $query->where('irr_amount', '>', 7000000)
-                    ->orWhere('psc_amount', '>', $psc_count);
-            })
-            ->orWhere('seller_id', $user->id)
-            ->where(function ($query) use ($psc_count) {
-                $query->where('irr_amount', '>', 7000000)
-                    ->orWhere('psc_amount', '>', $psc_count);
-            })->count();
+        $trades = $this->getSignificantTradeCount($user);
 
         $user->log->update([
             'transactions_count' => $trades * 2
         ]);
 
         $this->calculateScore($user);
+    }
+
+    private function getSignificantTradeCount(User $user): int
+    {
+        $minIrrAmount = 7000000;
+        $minPscAmount = $this->calculateMinPscAmount();
+
+        return DB::table('trades')
+            ->where(function ($query) use ($user, $minIrrAmount, $minPscAmount) {
+                $query->where('buyer_id', $user->id)
+                      ->where(function ($q) use ($minIrrAmount, $minPscAmount) {
+                          $q->where('irr_amount', '>', $minIrrAmount)
+                            ->orWhere('psc_amount', '>', $minPscAmount);
+                      });
+            })
+            ->orWhere(function ($query) use ($user, $minIrrAmount, $minPscAmount) {
+                $query->where('seller_id', $user->id)
+                      ->where(function ($q) use ($minIrrAmount, $minPscAmount) {
+                          $q->where('irr_amount', '>', $minIrrAmount)
+                            ->orWhere('psc_amount', '>', $minPscAmount);
+                      });
+            })
+            ->count();
+    }
+
+    private function calculateMinPscAmount(): float
+    {
+        $psc_value = Variable::getRate('psc');
+        return 7000000 / $psc_value;
     }
 
     /**
@@ -203,7 +219,7 @@ class UserObserver
 
             if ($user->can('recievePrize', $levelPrize)) {
                 $wallet = $user->wallet;
-                $wallet->increment('psc', $levelPrize->psc);
+                $wallet->increment('psc', ($levelPrize->psc / Variable::getRate('psc')));
                 $wallet->increment('blue', $levelPrize->blue);
                 $wallet->increment('red', $levelPrize->red);
                 $wallet->increment('yellow', $levelPrize->yellow);
