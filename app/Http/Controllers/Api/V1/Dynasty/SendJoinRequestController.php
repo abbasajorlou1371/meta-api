@@ -175,7 +175,7 @@ class SendJoinRequestController extends Controller
                 'name'     => $user->verified() ? $user->kyc->full_name : $user->name,
                 'image'    => $user->latestProfilePhoto?->url,
                 'verified' => $user->verified(),
-                'age'      => $user->verified() ? $user->kyc->birthdate->diffInYears(now()) : null,
+                'age'      => $user->verified() ? (int)$user->kyc->birthdate->diffInYears(now()) : null,
             ];
         }));
     }
