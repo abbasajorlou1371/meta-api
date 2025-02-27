@@ -48,7 +48,8 @@ class AuthController extends Controller
     public function redirect(Request $request)
     {
         $request->validate([
-            'redirect_to' => 'required|url',
+            'redirect_to' => 'nullable|url',
+            'back_url' => 'nullable|url',
         ]);
 
         cache()->put('state', $state = Str::random(40), now()->addMinutes(5));
@@ -56,6 +57,12 @@ class AuthController extends Controller
         cache()->put(
             'redirect_to',
             $request->query('redirect_to'),
+            now()->addMinutes(5)
+        );
+
+        cache()->put(
+            'back_url',
+            $request->query('back_url'),
             now()->addMinutes(5)
         );
 
@@ -150,7 +157,10 @@ class AuthController extends Controller
             'expires_at' => now()->diffInMinutes($tokenExpiresAt),
         ]);
 
-        $url = cache()->pull('redirect_to') . '/?' . $query;
+        $redirectTo = cache()->pull('redirect_to');
+        $backUrl = cache()->pull('back_url');
+
+        $url = ($redirectTo ?: $backUrl) . '/?' . $query;
 
         return redirect()->away($url);
     }
