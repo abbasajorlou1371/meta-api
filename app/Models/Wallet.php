@@ -9,11 +9,38 @@ class Wallet extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
     protected $guarded = [];
 
+    /**
+     * The attributes with default values.
+     *
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'effect' => 0,
     ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @return array<string, string>
+     */
+    protected function casts() {
+        return [
+            'psc' => 'float',
+            'irr' => 'float',
+            'effect' => 'float',
+            'satisfaction' => 'float',
+            'red' => 'float',
+            'blue' => 'float',
+            'yellow' => 'float',
+        ];
+    }
 
     /**
      * Get the user that owns the wallet.
@@ -23,25 +50,5 @@ class Wallet extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Format a number to a string representation with a suffix.
-     *
-     * @param int|float $number The number to format.
-     * @return string The formatted number with a suffix.
-     */
-    public function format_number($number): string
-    {
-        if ($number >= 1000 && $number < 1000000) {
-            $number = number_format($number / 1000, ($number * 1000) % 1000 > 0 ? 3 : 0);
-            return $number . 'K';
-        } elseif ($number >= 1000000 && $number < 1000000000) {
-            $number = number_format($number / 1000000, ($number * 1000000) % 1000000 > 0 ? 3 : 0);
-            return $number . 'M';
-        } elseif ($number < 1000) {
-            $number = number_format($number, ($number * 1000) % 1000 > 0 ? 3 : 0);
-            return $number;
-        }
     }
 }
