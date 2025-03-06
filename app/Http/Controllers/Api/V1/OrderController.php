@@ -152,6 +152,6 @@ class OrderController extends Controller
             ]);
         }
 
-        return redirect()->to('https://rgb.irpsc.com/metaverse/payment/verify?' . $params);
+        return redirect()->away('https://rgb.irpsc.com/metaverse/payment/verify?' . $params);
     }
 }
