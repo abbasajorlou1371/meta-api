@@ -9,14 +9,32 @@ class Setting extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $guarded = [];
 
-    protected $casts = [
-        'automatic_logout' => 'integer',
-        'privacy' => 'array',
-        'notifications' => 'array',
-    ];
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @return array<string, string>
+     */
+    protected function casts()
+    {
+        return [
+            'automatic_logout' => 'integer',
+            'privacy' => 'array',
+            'notifications' => 'array',
+        ];
+    }
 
+    /**
+     * The attributes with default values.
+     *
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'automatic_logout' => 60,
         'notifications' => '{
@@ -129,6 +147,7 @@ class Setting extends Model
             "code": 1
         }',
     ];
+
     /**
      * Get the notification channels for a user and type.
      *
@@ -138,11 +157,12 @@ class Setting extends Model
      */
     public static function getChannels(User $user, string $type): array
     {
-        $settings = self::where('user_id', $user->id)->select('id', 'user_id', 'notifications')->first();
+        $settings = self::where('user_id', $user->id)->value('notifications');
+        $notifications = json_decode($settings, true);
 
         return [
-            'mail' => $settings->notifications[$type . '_email'],
-            'kavenegar' => $user->hasVerifiedPhone() ? $settings->notifications[$type . '_sms'] : 0,
+            'mail' => $notifications[$type . '_email'] ?? 0,
+            'kavenegar' => $user->hasVerifiedPhone() ? ($notifications[$type . '_sms'] ?? 0) : 0,
             'broadcast' => 1
         ];
     }
