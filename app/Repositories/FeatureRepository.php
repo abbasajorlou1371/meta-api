@@ -44,7 +44,7 @@ class FeatureRepository extends Repository
             'points' => 'required|array|min:4',
             'points.*' => 'required|regex:/^([0-9]+(\.[0-9]+)?,[0-9]+(\.[0-9]+)?)$/',
             'load_buildings' => 'nullable|boolean',
-            'auth_user_features' => 'nullable|boolean',
+            'user_features_location' => 'nullable|boolean',
         ]);
 
         $points = array_map(function ($point) {

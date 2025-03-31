@@ -169,23 +169,40 @@ function formatCompactNumber($number): string
 function calculatePolygonCentroid(array $points): array
 {
     $numPoints = count($points);
-    $centroid = ['x' => 0, 'y' => 0];
-    $signedArea = 0;
-
-    for ($i = 0; $i < $numPoints; $i++) {
-        $x0 = $points[$i]['x'];
-        $y0 = $points[$i]['y'];
-        $x1 = $points[($i + 1) % $numPoints]['x'];
-        $y1 = $points[($i + 1) % $numPoints]['y'];
-        $a = $x0 * $y1 - $x1 * $y0;
-        $signedArea += $a;
-        $centroid['x'] += ($x0 + $x1) * $a;
-        $centroid['y'] += ($y0 + $y1) * $a;
+    if ($numPoints < 3) {
+        return ['x' => 0, 'y' => 0];
     }
 
-    $signedArea *= 0.5;
-    $centroid['x'] /= (6 * $signedArea);
-    $centroid['y'] /= (6 * $signedArea);
+    $totalArea = 0;
+    $centroid = ['x' => 0, 'y' => 0];
+
+    // Use triangulation method - break polygon into triangles
+    $p0 = $points[0]; // Use first point as the pivot
+    for ($i = 1; $i < $numPoints - 1; $i++) {
+        $p1 = $points[$i];
+        $p2 = $points[$i + 1];
+
+        // Calculate area of this triangle
+        $area = (($p1['x'] - $p0['x']) * ($p2['y'] - $p0['y']) -
+                ($p2['x'] - $p0['x']) * ($p1['y'] - $p0['y'])) / 2;
+
+        // Calculate centroid of this triangle
+        $cx = ($p0['x'] + $p1['x'] + $p2['x']) / 3;
+        $cy = ($p0['y'] + $p1['y'] + $p2['y']) / 3;
+
+        // Add weighted centroid to total
+        $totalArea += $area;
+        $centroid['x'] += $area * $cx;
+        $centroid['y'] += $area * $cy;
+    }
+
+    if (abs($totalArea) < 1e-10) {
+        return ['x' => 0, 'y' => 0];
+    }
+
+    // Divide by total weight (area) to get final centroid
+    $centroid['x'] = round($centroid['x'] / $totalArea, 4);
+    $centroid['y'] = round($centroid['y'] / $totalArea, 4);
 
     return $centroid;
 }

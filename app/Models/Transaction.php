@@ -88,8 +88,8 @@ class Transaction extends Model
     private function generateId(): string
     {
         do {
-            $id = 'TR-' . random_int(100000000, 999999999);
-        } while ($this->where('id', $id)->exists());
+            $id = 'TR-' . bin2hex(random_bytes(4));
+        } while (self::where('id', $id)->exists());
 
         return $id;
     }
