@@ -158,7 +158,6 @@ class Setting extends Model
     public static function getChannels(User $user, string $type): array
     {
         $settings = self::where('user_id', $user->id)->value('notifications');
-        $notifications = json_decode($settings, true);
 
         return [
             'mail' => $notifications[$type . '_email'] ?? 0,
