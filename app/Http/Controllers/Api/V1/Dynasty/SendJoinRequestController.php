@@ -10,13 +10,15 @@ use App\Models\Dynasty\JoinRequest;
 use App\Models\DynastyPermission;
 use App\Models\User;
 use App\Notifications\JoinDynastyNotification;
+use App\Services\UserSearchService;
 use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 
 class SendJoinRequestController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private UserSearchService $userSearchService
+    ) {
         $this->middleware('account.security')->only(['store', 'destroy']);
     }
 
@@ -149,67 +151,17 @@ class SendJoinRequestController extends Controller
         return response()->json(['permissions' => $permissions]);
     }
 
-    private function searchUsers(string $searchTerm): \Illuminate\Database\Eloquent\Collection
-    {
-        return User::select(['id', 'code', 'name'])
-            ->where('name', 'like', $searchTerm)
-            ->orWhere('code', 'like', $searchTerm)
-            ->orWhereHas('kyc', function ($query) use ($searchTerm) {
-                $query->where('fname', 'like', $searchTerm)
-                    ->orWhere('lname', 'like', $searchTerm);
-            })
-            ->with(['kyc', 'levels' => function ($query) {
-                $query->orderBy('id', 'desc')->with('gem');
-            }, 'latestProfilePhoto'])
-            ->get();
-    }
-
-    private function formatLevelData(\Illuminate\Database\Eloquent\Collection $levels): array
-    {
-        return $levels->map(function ($level, $index) use ($levels) {
-            $previousLevelScore = $index > 0 ? $levels[$index - 1]->score : 0;
-            return [
-                'id' => $level->id,
-                'name' => $level->name,
-                'score' => $level->score,
-                'score_gap' => $level->score - $previousLevelScore,
-                'slug' => $level->slug,
-                'image' => $level->image->url,
-                'gem' => [
-                    'id' => $level->gem->id,
-                    'name' => $level->gem->name,
-                    'image' => $level->gem->png_file,
-                ],
-            ];
-        })->toArray();
-    }
-
-    private function transformUserData(User $user): array
-    {
-        $levels = $user->levels()->with('gem')->get();
-
-        return [
-            'id' => $user->id,
-            'code' => $user->code,
-            'name' => $user->verified() ? $user->kyc->full_name : $user->name,
-            'image' => $user->latestProfilePhoto?->url,
-            'verified' => $user->verified(),
-            'age' => $user->verified() ? (int)$user->kyc->birthdate->diffInYears(now()) : null,
-            'levels' => $this->formatLevelData($levels),
-        ];
-    }
-
     /**
      * Search for a user.
      */
-    public function search(Request $request): \Illuminate\Http\JsonResponse
+    public function search(Request $request)
     {
         $request->validate(['searchTerm' => 'required|string']);
         $searchTerm = '%' . $request->searchTerm . '%';
 
-        $users = $this->searchUsers($searchTerm);
-        $transformedUsers = $users->map(fn($user) => $this->transformUserData($user));
+        $users = $this->userSearchService->searchUsers($searchTerm);
+        $transformedUsers = $users->map(fn($user) => $this->userSearchService->transformUserData($user));
 
-        return response()->json($transformedUsers);
+        return response()->json(['date' => $transformedUsers]);
     }
 }
