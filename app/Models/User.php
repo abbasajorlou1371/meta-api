@@ -361,7 +361,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      */
     public function levels()
     {
-        return $this->belongsToMany(Level::class)->using(LevelUser::class)->orderByDesc('id');
+        return $this->belongsToMany(Level::class)->using(LevelUser::class);
     }
 
     /**
@@ -373,7 +373,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     {
         $this->loadMissing('levels');
 
-        return $this->levels()->first();
+        return $this->levels()->orderByDesc('id')->first();
     }
 
     /**

@@ -10,7 +10,6 @@ use App\Models\Dynasty\JoinRequest;
 use App\Models\DynastyPermission;
 use App\Models\User;
 use App\Notifications\JoinDynastyNotification;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 
@@ -150,15 +149,9 @@ class SendJoinRequestController extends Controller
         return response()->json(['permissions' => $permissions]);
     }
 
-    /**
-     * Search for a user.
-     */
-    public function search(Request $request)
+    private function searchUsers(string $searchTerm): \Illuminate\Database\Eloquent\Collection
     {
-        $request->validate(['searchTerm' => 'required|string']);
-        $searchTerm = '%' . $request->searchTerm . '%';
-
-        $users = User::select(['id', 'code', 'name'])
+        return User::select(['id', 'code', 'name'])
             ->where('name', 'like', $searchTerm)
             ->orWhere('code', 'like', $searchTerm)
             ->orWhereHas('kyc', function ($query) use ($searchTerm) {
@@ -167,35 +160,54 @@ class SendJoinRequestController extends Controller
             })
             ->with(['kyc:id,user_id,fname,lname,birthdate,status', 'latestProfilePhoto'])
             ->get();
+    }
 
-        return response()->json($users->map(function ($user) {
-            $levels = $user->levels()->with('gem')->get();
-            $user->levels = $levels->map(function ($level, $index) use ($levels) {
-                $previousLevelScore = $index > 0 ? $levels[$index - 1]->score : 0;
-                return [
-                    'id' => $level->id,
-                    'name' => $level->name,
-                    'score' => $level->score,
-                    'score_gap' => $previousLevelScore - $level->score,
-                    'slug' => $level->slug,
-                    'image' => $level->image->url,
-                    'gem' => [
-                        'id' => $level->gem->id,
-                        'name' => $level->gem->name,
-                        'image' => $level->gem->png_file,
-                    ],
-                ];
-            });
-
+    private function formatLevelData(\Illuminate\Database\Eloquent\Collection $levels): array
+    {
+        return $levels->map(function ($level, $index) use ($levels) {
+            $previousLevelScore = $index > 0 ? $levels[$index - 1]->score : 0;
             return [
-                'id'       => $user->id,
-                'code'     => $user->code,
-                'name'     => $user->verified() ? $user->kyc->full_name : $user->name,
-                'image'    => $user->latestProfilePhoto?->url,
-                'verified' => $user->verified(),
-                'age'      => $user->verified() ? (int)$user->kyc->birthdate->diffInYears(now()) : null,
-                'levels'   => $user->levels,
+                'id' => $level->id,
+                'name' => $level->name,
+                'score' => $level->score,
+                'score_gap' => $level->score - $previousLevelScore,
+                'slug' => $level->slug,
+                'image' => $level->image->url,
+                'gem' => [
+                    'id' => $level->gem->id,
+                    'name' => $level->gem->name,
+                    'image' => $level->gem->png_file,
+                ],
             ];
-        }));
+        })->toArray();
+    }
+
+    private function transformUserData(User $user): array
+    {
+        $levels = $user->levels()->with('gem')->get();
+
+        return [
+            'id' => $user->id,
+            'code' => $user->code,
+            'name' => $user->verified() ? $user->kyc->full_name : $user->name,
+            'image' => $user->latestProfilePhoto?->url,
+            'verified' => $user->verified(),
+            'age' => $user->verified() ? (int)$user->kyc->birthdate->diffInYears(now()) : null,
+            'levels' => $this->formatLevelData($levels),
+        ];
+    }
+
+    /**
+     * Search for a user.
+     */
+    public function search(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate(['searchTerm' => 'required|string']);
+        $searchTerm = '%' . $request->searchTerm . '%';
+
+        $users = $this->searchUsers($searchTerm);
+        $transformedUsers = $users->map(fn($user) => $this->transformUserData($user));
+
+        return response()->json($transformedUsers);
     }
 }
