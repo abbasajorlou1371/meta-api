@@ -159,7 +159,7 @@ class SendJoinRequestController extends Controller
                     ->orWhere('lname', 'like', $searchTerm);
             })
             ->with(['kyc', 'levels' => function ($query) {
-                $query->with('gem')->orderBy('score', 'desc');
+                $query->with('gem')->orderBy('id', 'desc');
             }, 'latestProfilePhoto'])
             ->get();
     }
