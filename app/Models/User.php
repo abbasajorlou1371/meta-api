@@ -371,6 +371,8 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
      */
     public function getLatestLevelAttribute(): Level|null
     {
+        $this->loadMissing('levels');
+
         return $this->levels()->first();
     }
 

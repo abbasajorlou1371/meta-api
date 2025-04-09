@@ -169,12 +169,15 @@ class SendJoinRequestController extends Controller
             ->get();
 
         return response()->json($users->map(function ($user) {
-            $latestThreeLevels = $user->levels()->with('gem')->take(3)->get();
-            $user->levels = $latestThreeLevels->map(function ($level) {
+            $levels = $user->levels()->with('gem')->get();
+            $user->levels = $levels->map(function ($level, $index) use ($levels) {
+                $previousLevelScore = $index > 0 ? $levels[$index - 1]->score : 0;
                 return [
                     'id' => $level->id,
                     'name' => $level->name,
                     'score' => $level->score,
+                    'score_gap' => $level->score - $previousLevelScore,
+                    'slug' => $level->slug,
                     'image' => $level->image->url,
                     'gem' => [
                         'id' => $level->gem->id,
