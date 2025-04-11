@@ -158,6 +158,25 @@ class BuildFeatureController extends Controller
         return response()->json([], 200);
     }
 
+    /**
+     * Remove the specified building from the feature.
+     *
+     * @param Feature $feature
+     * @param BuildingModel $buildingModel
+     * @return \Illuminate\Http\JsonResponse
+     * @throws AuthorizationException
+     */
+    public function destroyBuilding(Feature $feature, BuildingModel $buildingModel)
+    {
+        $this->authorize('build', [$feature, $buildingModel]);
+
+        $feature->buildingModels()->detach($buildingModel);
+
+        FeatureHourlyProfit::where('feature_id', $feature->id)->update(['is_active' => true]);
+
+        return response()->json([], 200);
+    }
+
     private function updateOrCreateModels(array $data): void
     {
         $models = [];

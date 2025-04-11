@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/{feature}/build/{buildingModel:model_id}', 'buildFeature')->withoutScopedBindings();
         Route::get('/{feature}/build/buildings', 'getBuildings');
         Route::put('/{feature}/build/buildings/{buildingModel:model_id}', 'updateBuilding');
+        Route::delete('/{feature}/build/buildings/{buildingModel:model_id}', 'destroyBuilding');
     });
 });
 
