@@ -16,11 +16,11 @@ class RecievedJoinRequest extends JsonResource
     {
         return [
             'id' => $this->id,
-            'from_user' => [
+            'from_user' => $this->whenLoaded('fromUser', [
                 'id' => $this->fromUser->id,
                 'code' => $this->fromUser->code,
                 'name' => $this->fromUser->name,
-            ],
+            ]),
             'status' => $this->status,
             'relationship' => $this->getRelationShipTitle(),
             'date' => jdate($this->created_at)->format('Y/m/d'),

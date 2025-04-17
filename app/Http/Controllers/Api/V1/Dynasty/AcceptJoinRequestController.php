@@ -26,7 +26,12 @@ class AcceptJoinRequestController extends Controller
      */
     public function index()
     {
-        return RecievedJoinRequest::collection(Auth::user()->recievedJoinRequests);
+        $requests = Auth::user()->recievedJoinRequests()
+            ->with('fromUser')
+            ->where('status', 0)
+            ->latest()
+            ->simplePaginate(10);
+        return RecievedJoinRequest::collection($requests);
     }
 
     /**
@@ -36,6 +41,7 @@ class AcceptJoinRequestController extends Controller
      */
     public function show(JoinRequest $joinRequest)
     {
+        $joinRequest->load('fromUser');
         $this->authorize('view', $joinRequest);
         return new RecievedJoinRequest($joinRequest);
     }
