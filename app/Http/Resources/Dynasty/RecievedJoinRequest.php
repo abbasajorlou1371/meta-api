@@ -2,9 +2,7 @@
 
 namespace App\Http\Resources\Dynasty;
 
-use App\Constants\FamilyMembersType;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Constants\JoinRequestStatus;
 
 class RecievedJoinRequest extends JsonResource
 {

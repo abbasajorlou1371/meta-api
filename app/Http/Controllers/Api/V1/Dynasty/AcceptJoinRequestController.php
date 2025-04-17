@@ -9,8 +9,8 @@ use App\Models\Dynasty\DynastyPrize;
 use App\Models\Dynasty\JoinRequest;
 use App\Models\DynastyPermission;
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Notifications\JoinDynastyNotification;
+use Illuminate\Support\Facades\Auth;
 use Morilog\Jalali\Jalalian;
 
 class AcceptJoinRequestController extends Controller
@@ -26,7 +26,7 @@ class AcceptJoinRequestController extends Controller
      */
     public function index()
     {
-        return RecievedJoinRequest::collection(request()->user()->recievedJoinRequests);
+        return RecievedJoinRequest::collection(Auth::user()->recievedJoinRequests);
     }
 
     /**

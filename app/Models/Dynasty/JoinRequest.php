@@ -29,7 +29,7 @@ class JoinRequest extends Model
         return $this->belongsTo(User::class,'to_user', 'id');
     }
 
-    public function scopelatestSentJoinRequest($query, $from_user, $to_user)
+    public function scopeLatestSentJoinRequest($query, $from_user, $to_user)
     {
         return $query->where('from_user', $from_user)->where('to_user', $to_user)->latest()->first();
     }
