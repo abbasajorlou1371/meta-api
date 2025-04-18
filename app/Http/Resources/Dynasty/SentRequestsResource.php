@@ -16,15 +16,18 @@ class SentRequestsResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'to_user' => [
-                'id' => $this->toUser->id,
-                'code' => $this->toUser->code,
-                'name' => $this->toUser->name,
-            ],
+            'to_user' => $this->whenLoaded('toUser', function () {
+                return [
+                    'id' => $this->toUser->id,
+                    'code' => $this->toUser->code,
+                    'name' => $this->toUser->name,
+                ];
+            }),
             'status' => $this->status,
             'relationship' => $this->getRelationShipTitle(),
             'date' => jdate($this->created_at)->format('Y/m/d'),
             'time' => jdate($this->created_at)->format('H:i'),
+            'prize' => new DynastyPrizeResource($this->whenLoaded('requestPrize')),
             $this->mergeWhen(request()->routeIs('dynasty.requests.sent.show'), [
                 'message' => $this->message,
             ]),

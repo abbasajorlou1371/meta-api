@@ -46,4 +46,14 @@ class JoinRequest extends Model
             'wife' => 'زن',
         };
     }
+
+    /**
+     * Get the prize associated with the join request.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function requestPrize()
+    {
+        return $this->hasOne(DynastyPrize::class, 'member', 'relationship');
+    }
 }

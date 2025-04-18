@@ -27,7 +27,11 @@ class SendJoinRequestController extends Controller
      */
     public function index(Request $request)
     {
-        return SentRequestsResource::collection($request->user()->sentJoinRequests);
+        $requests = $request->user()->sentJoinRequests()
+            ->with('toUser', 'requestPrize')
+            ->latest()
+            ->simplePaginate(10);
+        return SentRequestsResource::collection($requests);
     }
 
     /**
