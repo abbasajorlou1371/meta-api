@@ -36,10 +36,7 @@ class UserSearchService
         return $levels->map(function ($level) {
             return [
                 'id' => $level->id,
-                'name' => $level->name,
-                'score' => $level->score,
                 'slug' => $level->slug,
-                'image' => $level->image->url,
                 'gem' => [
                     'id' => $level->gem->id,
                     'name' => $level->gem->name,
@@ -59,7 +56,6 @@ class UserSearchService
         return [
             'id' => $user->id,
             'code' => $user->code,
-            'score' => $user->score,
             'name' => $user->verified() ? $user->kyc->full_name : $user->name,
             'image' => $user->latestProfilePhoto?->url,
             'verified' => $user->verified(),
