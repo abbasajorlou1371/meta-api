@@ -41,7 +41,7 @@ class AcceptJoinRequestController extends Controller
      */
     public function show(JoinRequest $joinRequest)
     {
-        $joinRequest->load('fromUser');
+        $joinRequest->load('fromUser', 'latestProfilePhoto');
         $this->authorize('view', $joinRequest);
         return new RecievedJoinRequest($joinRequest);
     }

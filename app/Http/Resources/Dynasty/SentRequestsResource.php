@@ -21,6 +21,7 @@ class SentRequestsResource extends JsonResource
                     'id' => $this->toUser->id,
                     'code' => $this->toUser->code,
                     'name' => $this->toUser->name,
+                    'profile_photo' => $this->toUser->latestProfilePhoto?->url,
                 ];
             }),
             'status' => $this->status,

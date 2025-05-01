@@ -20,6 +20,7 @@ class RecievedJoinRequest extends JsonResource
                 'id' => $this->fromUser->id,
                 'code' => $this->fromUser->code,
                 'name' => $this->fromUser->name,
+                'profile_photo' => $this->fromUser->latestProfilePhoto?->url,
             ]),
             'status' => $this->status,
             'relationship' => $this->getRelationShipTitle(),

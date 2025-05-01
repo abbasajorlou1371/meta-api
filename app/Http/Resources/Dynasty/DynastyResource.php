@@ -39,7 +39,7 @@ class DynastyResource extends JsonResource
                     return [
                         'id' => $feature->id,
                         'properties_id' => $feature->properties->id,
-                        'stability' => $feature->properties->stability
+                        'density' => $feature->properties->density,
                     ];
                 })
         ];
