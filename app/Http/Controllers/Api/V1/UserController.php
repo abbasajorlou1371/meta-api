@@ -110,9 +110,9 @@ class UserController extends Controller
             $query->where('status', 1)->select('id', 'user_id', 'fname', 'lname');
         }])->loadCount(['followers', 'following']);
 
-        if ($profileLimitation && $profileLimitation->options['view_profile_images'] == 1) {
-            $user->load('profilePhotos');
-        }
+        // if ($profileLimitation && $profileLimitation->options['view_profile_images'] == 1) {
+        $user->load('profilePhotos');
+        // }
 
         return new ProfileResource($user);
     }
