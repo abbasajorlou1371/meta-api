@@ -49,7 +49,9 @@ class DynastyController extends Controller
                     return [
                         'id' => $feature->id,
                         'properties_id' => $feature->properties->id,
-                        'stability' => $feature->properties->stability
+                        'stability' => $feature->properties->stability,
+                        'area' => $feature->properties->area,
+                        'density' => $feature->properties->density,
                     ];
                 });
 
