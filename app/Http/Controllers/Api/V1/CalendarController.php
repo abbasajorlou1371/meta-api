@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Calendar;
 use App\Http\Resources\EventResource;
+use Illuminate\Support\Facades\Auth;
 
 class CalendarController extends Controller
 {
@@ -33,33 +34,33 @@ class CalendarController extends Controller
         $events = $eventsQuery->withCount(['views', 'likes', 'dislikes']);
 
         // Load user interaction if user is authenticated
-        if ($request->user()) {
+        if (Auth::check()) {
             $events->with('userInteraction');
         }
 
         $events = $events->latest()->simplePaginate();
 
         return EventResource::collection($events);
-    }
+        }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Calendar  $event
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, Calendar $event)
-    {
+        /**
+         * Display the specified resource.
+         *
+         * @param  \App\Models\Calendar  $event
+         * @return \Illuminate\Http\Response
+         */
+        public function show(Request $request, Calendar $event)
+        {
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes']);
 
         // Load user interaction if user is authenticated
-        if ($request->user()) {
+        if (Auth::check()) {
             $event->load('userInteraction');
         }
 
         return new EventResource($event);
-    }
+        }
 
     /**
      * Interact with the event (like or dislike)
