@@ -30,7 +30,14 @@ class CalendarController extends Controller
             $eventsQuery->where('title', 'like', '%' . $search . '%');
         }
 
-        $events = $eventsQuery->withCount(['views', 'likes', 'dislikes'])->simplePaginate();
+        $events = $eventsQuery->withCount(['views', 'likes', 'dislikes']);
+
+        // Load user interaction if user is authenticated
+        if ($request->user()) {
+            $events->with('userInteraction');
+        }
+
+        $events = $events->latest()->simplePaginate();
 
         return EventResource::collection($events);
     }
@@ -41,10 +48,15 @@ class CalendarController extends Controller
      * @param  \App\Models\Calendar  $event
      * @return \Illuminate\Http\Response
      */
-    public function show(Calendar $event)
+    public function show(Request $request, Calendar $event)
     {
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes']);
+
+        // Load user interaction if user is authenticated
+        if ($request->user()) {
+            $event->load('userInteraction');
+        }
 
         return new EventResource($event);
     }
@@ -65,7 +77,10 @@ class CalendarController extends Controller
             ['liked' => $liked]
         );
 
-        return new EventResource($event->refresh());
+        $event->loadCount(['likes', 'dislikes']);
+        $event->load('userInteraction');
+
+        return new EventResource($event);
     }
 
     /**
@@ -102,7 +117,7 @@ class CalendarController extends Controller
 
         $events = Calendar::whereBetween('starts_at', [$startDate, $endDate])
             ->events()
-            ->select(['id', 'title', 'color', 'starts_at'])
+            ->latest()
             ->get();
 
         $events = $events->map(function ($event) {

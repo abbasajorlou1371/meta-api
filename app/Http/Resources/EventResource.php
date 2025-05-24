@@ -14,13 +14,15 @@ class EventResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->content,
             'starts_at' => jdate($this->starts_at)->format('Y/m/d H:i'),
 
-            $this->mergeWhen($request->query('type') == 'event', [
+            $this->mergeWhen(!$this->is_version, [
                 'ends_at' => jdate($this->ends_at)->format('Y/m/d H:i'),
                 'views' => $this->whenCounted('views'),
                 'btn_name' => $this->btn_name,
@@ -29,6 +31,16 @@ class EventResource extends JsonResource
                 'image' => $this->whenNotNull('image'),
                 'likes' => $this->whenCounted('likes'),
                 'dislikes' => $this->whenCounted('dislikes'),
+                'user_interaction' => $user ? [
+                    'has_liked' => $this->whenLoaded('userInteraction',
+                        fn() => $this->userInteraction && $this->userInteraction->liked === 1,
+                        false
+                    ),
+                    'has_disliked' => $this->whenLoaded('userInteraction',
+                        fn() => $this->userInteraction && $this->userInteraction->liked === 0,
+                        false
+                    ),
+                ] : null,
             ]),
 
             $this->mergeWhen($this->is_version, [

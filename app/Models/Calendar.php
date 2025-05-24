@@ -100,4 +100,17 @@ class Calendar extends Model
     {
         return $query->where('is_version', 1)->orderBy('created_at', 'desc');
     }
+
+    /**
+     * Get the current user's interaction with this calendar event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function userInteraction()
+    {
+        $userId = request()->user()->id ?? null;
+
+        return $this->morphOne(Interaction::class, 'likeable')
+            ->where('user_id', $userId);
+    }
 }
