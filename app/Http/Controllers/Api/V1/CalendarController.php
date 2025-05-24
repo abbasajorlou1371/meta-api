@@ -52,7 +52,7 @@ class CalendarController extends Controller
         public function show(Request $request, Calendar $event)
         {
         $event->incrementViews();
-        $event->loadCount(['likes', 'dislikes']);
+        $event->loadCount(['likes', 'dislikes', 'views']);
 
         // Load user interaction if user is authenticated
         if (Auth::check()) {
