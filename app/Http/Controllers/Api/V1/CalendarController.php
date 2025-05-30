@@ -55,9 +55,9 @@ class CalendarController extends Controller
         $event->loadCount(['likes', 'dislikes', 'views']);
 
         // Load user interaction if user is authenticated
-        // if (Auth::check()) {
+        if (Auth::check()) {
             $event->load('userInteraction');
-        // }
+        }
 
         return new EventResource($event);
         }
