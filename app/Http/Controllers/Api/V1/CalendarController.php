@@ -49,15 +49,15 @@ class CalendarController extends Controller
          * @param  \App\Models\Calendar  $event
          * @return \Illuminate\Http\Response
          */
-        public function show(Request $request, Calendar $event)
+        public function show(Calendar $event)
         {
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes', 'views']);
 
         // Load user interaction if user is authenticated
-        if (Auth::check()) {
+        // if (Auth::check()) {
             $event->load('userInteraction');
-        }
+        // }
 
         return new EventResource($event);
         }
