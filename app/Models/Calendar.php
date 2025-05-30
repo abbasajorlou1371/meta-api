@@ -109,7 +109,7 @@ class Calendar extends Model
      */
     public function userInteraction()
     {
-        $userId = Auth::id();
+        $userId = request()->user()->id;
 
         return $this->morphOne(Interaction::class, 'likeable')
             ->where('user_id', $userId);
