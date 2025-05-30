@@ -34,7 +34,7 @@ class CalendarController extends Controller
         $events = $eventsQuery->withCount(['views', 'likes', 'dislikes']);
 
         // Load user interaction if user is authenticated
-        if (Auth::check()) {
+        if ($request->user()) {
             $events->with('userInteraction');
         }
 
@@ -46,16 +46,17 @@ class CalendarController extends Controller
         /**
          * Display the specified resource.
          *
+         * @param \Illuminate\Http\Request $request
          * @param  \App\Models\Calendar  $event
          * @return \Illuminate\Http\Response
          */
-        public function show(Calendar $event)
+        public function show(Request $request, Calendar $event)
         {
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes', 'views']);
 
         // Load user interaction if user is authenticated
-        if (Auth::check()) {
+        if ($request->user()) {
             $event->load('userInteraction');
         }
 
