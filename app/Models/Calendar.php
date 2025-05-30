@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class Calendar extends Model
 {
@@ -110,6 +111,10 @@ class Calendar extends Model
     public function userInteraction()
     {
         $userId = request()->user()->id;
+
+        Log::info('Fetching interaction for: ', [
+            'user_id' => $userId
+        ]);
 
         return $this->morphOne(Interaction::class, 'likeable')
             ->where('user_id', $userId);
