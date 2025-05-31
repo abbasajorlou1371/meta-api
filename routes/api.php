@@ -58,12 +58,12 @@ Route::controller(AuthController::class)->prefix('auth')->as('auth.')->group(fun
     Route::post('/logout', 'logout')->middleware('auth:sanctum')->name('logout');
 });
 
-Route::controller(CalendarController::class)->prefix('calendar')->group(function () {
+Route::controller(CalendarController::class)->prefix('calendar')->middleware('auth:sanctum')->group(function () {
     Route::get('/', 'index');
     Route::get('/latest-version', 'getLatestVersion');
     Route::get('/filter', 'filterByDateRange');
     Route::get('/{event}', 'show');
-    Route::post('/events/{event}/interact', 'interact')->middleware('auth:sanctum');
+    Route::post('/events/{event}/interact', 'interact');
 });
 
 Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('users')->group(function () {

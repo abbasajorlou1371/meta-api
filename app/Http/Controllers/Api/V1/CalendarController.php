@@ -41,27 +41,25 @@ class CalendarController extends Controller
         $events = $events->latest()->simplePaginate();
 
         return EventResource::collection($events);
-        }
+    }
 
-        /**
-         * Display the specified resource.
-         *
-         * @param \Illuminate\Http\Request $request
-         * @param  \App\Models\Calendar  $event
-         * @return \Illuminate\Http\Response
-         */
-        public function show(Request $request, Calendar $event)
-        {
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Calendar  $event
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Calendar $event)
+    {
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes', 'views']);
 
-        // Load user interaction if user is authenticated
-        if ($request->user()) {
-            $event->load('userInteraction');
-        }
+        $event->load(['userInteraction' => function($query) {
+            $query->where('user_id', Auth::id());
+        }]);
 
         return new EventResource($event);
-        }
+    }
 
     /**
      * Interact with the event (like or dislike)
