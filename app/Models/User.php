@@ -87,14 +87,17 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @return array
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_seen'         => 'datetime',
-        'code'              => 'string',
-        'score'             => 'integer',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'last_seen'         => 'datetime',
+            'code'              => 'string',
+            'score'             => 'integer',
+        ];
+    }
 
     /**
      * The attributes that should be hidden for arrays.
@@ -125,22 +128,37 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
     {
         $this->load('profilePhotos');
 
-        $faUrl =  Url::create('https://rgb.irpsc.com/fa/citizens/' . $this->code)
-            ->setLastModificationDate(Carbon::create($this->updated_at))
-            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(0.8);
+        $templates = json_decode(file_get_contents(storage_path('app/sitemap/templates.json')), true);
 
-        $enUrl =  Url::create('https://rgb.irpsc.com/en/citizens/' . $this->code)
-            ->setLastModificationDate(Carbon::create($this->updated_at))
-            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(0.8);
+        $urls = [];
 
-        foreach ($this->profilePhotos as $photo) {
-            $faUrl->addImage($photo->url);
-            $enUrl->addImage($photo->url);
+        // Check if citizens templates exist
+        if (isset($templates['citizens'])) {
+            $citizensTemplates = $templates['citizens'];
+
+            // Process each language template
+            foreach ($citizensTemplates as $language => $urlTemplates) {
+                foreach ($urlTemplates as $urlTemplate) {
+                    // Replace placeholders in the template
+                    $processedUrl = str_replace('[code]', $this->code, $urlTemplate);
+
+                    // Create the sitemap URL
+                    $sitemapUrl = Url::create($processedUrl)
+                        ->setLastModificationDate(Carbon::create($this->updated_at))
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+                        ->setPriority(0.8);
+
+                    // Add profile photos as images
+                    foreach ($this->profilePhotos as $photo) {
+                        $sitemapUrl->addImage($photo->url);
+                    }
+
+                    $urls[] = $sitemapUrl;
+                }
+            }
         }
 
-        return [$faUrl, $enUrl];
+        return $urls;
     }
 
     /**
