@@ -74,6 +74,18 @@ class FeatureRepository extends Repository
             }]);
         }
 
-        return $featuresQuery->get();
+        if($request->bearerToken()) {
+            $user = auth('sanctum')->user();
+        }
+
+        $features = $featuresQuery->get();
+
+        if($user) {
+            $features->each(function ($feature) use ($user) {
+                $feature['is_owned_by_auth_user'] = $feature->owner === $user->id;
+            });
+        }
+
+        return $features;
     }
 }

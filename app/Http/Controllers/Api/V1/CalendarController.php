@@ -70,12 +70,22 @@ class CalendarController extends Controller
      */
     public function interact(Request $request, Calendar $event)
     {
+        $request->validate([
+            'liked' => 'required|integer|in:0,1,-1',
+        ]);
+
         $liked = $request->input('liked');
 
-        $event->interactions()->updateOrCreate(
-            ['user_id' => $request->user()->id],
-            ['liked' => $liked]
-        );
+        if($liked === -1) {
+            // If -1, remove the interaction
+            $event->interactions()->where('user_id', $request->user()->id)->delete();
+        } else {
+            $event->interactions()->updateOrCreate(
+                ['user_id' => $request->user()->id],
+                ['liked' => $liked]
+            );
+        }
+
 
         $event->loadCount(['likes', 'dislikes']);
         $event->load('userInteraction');
