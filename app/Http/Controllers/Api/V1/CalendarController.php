@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Calendar;
 use App\Http\Resources\EventResource;
-use Illuminate\Support\Facades\Auth;
 
 class CalendarController extends Controller
 {
+    protected $user;
+
+    public function __construct()
+    {
+        $this->user = auth('sanctum')->user();
+    }
+
     /**
      * Display a listing of the events.
      *
@@ -34,7 +40,7 @@ class CalendarController extends Controller
         $events = $eventsQuery->withCount(['views', 'likes', 'dislikes']);
 
         // Load user interaction if user is authenticated
-        if ($request->user()) {
+        if ($this->user) {
             $events->with('userInteraction');
         }
 
@@ -54,9 +60,11 @@ class CalendarController extends Controller
         $event->incrementViews();
         $event->loadCount(['likes', 'dislikes', 'views']);
 
-        $event->load(['userInteraction' => function($query) {
-            $query->where('user_id', Auth::id());
-        }]);
+        if ($this->user) {
+            $event->load(['userInteraction' => function($query) {
+                $query->where('user_id', $this->user->id);
+            }]);
+        }
 
         return new EventResource($event);
     }
