@@ -17,9 +17,8 @@ class TutorialController extends Controller
 
     public function index()
     {
-        $videos = Video::
-            with(['subCategory.category', 'creator:id,code', 'creator.profilePhotos'])
-        ->latest()->paginate(18);
+        $videos = Video::with(['subCategory.category', 'creator:id,code', 'creator.profilePhotos'])
+            ->latest()->paginate(18);
 
         return VideoTutorialResource::collection($videos);
     }
@@ -104,13 +103,23 @@ class TutorialController extends Controller
         $request->validate(['searchTerm' => 'required|string']);
 
         $tutorials = Video::where('title', 'like', '%' . $request->searchTerm . '%')
-            ->with(['creator:id,code', 'creator.profilePhotos' => function ($query) {
+            ->with(['creator:id,code', 'subCategory.category', 'creator.profilePhotos' => function ($query) {
                 $query->limit(1);
             }])
             ->get();
 
         return response()->json([
             'data' => $tutorials->map(function ($tutorial) {
+                $category = $tutorial->subCategory->category ? [
+                    'name' => $tutorial->subCategory->category->name,
+                    'slug' => $tutorial->subCategory->category->slug,
+                ] : null;
+
+                $subCategory = $tutorial->subCategory ? [
+                    'name' => $tutorial->subCategory->name,
+                    'slug' => $tutorial->subCategory->slug,
+                ] : null;
+
                 return [
                     'id' => $tutorial->id,
                     'title' => $tutorial->title,
@@ -118,6 +127,8 @@ class TutorialController extends Controller
                     'likes_count' => $tutorial->likes_count,
                     'dislikes_count' => $tutorial->dislikes_count,
                     'views_count' => $tutorial->views_count,
+                    'category' => $category,
+                    'sub_category' => $subCategory,
                     'creator' => [
                         'code' => $tutorial->creator_code,
                         'image' => optional($tutorial->creator->profilePhotos->last())->url,
