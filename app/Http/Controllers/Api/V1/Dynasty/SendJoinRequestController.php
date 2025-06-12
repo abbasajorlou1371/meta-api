@@ -40,7 +40,7 @@ class SendJoinRequestController extends Controller
     public function show(JoinRequest $joinRequest)
     {
         $this->authorize('view', $joinRequest);
-        $joinRequest->load('toUser', 'requestPrize', 'latestProfilePhoto');
+        $joinRequest->load('toUser.latestProfilePhoto', 'requestPrize');
         return new SentRequestsResource($joinRequest);
     }
 
