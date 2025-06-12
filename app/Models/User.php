@@ -26,11 +26,8 @@ use App\Helpers\FeatureIndicators;
 use App\Models\Levels\LevelPrize;
 use App\Models\Levels\LevelUser;
 use App\Models\User\PersonalInfo;
-use Spatie\Sitemap\Contracts\Sitemapable;
-use Spatie\Sitemap\Tags\Url;
-use Carbon\Carbon;
 
-class User extends Authenticatable implements MustVerifyEmail, Sitemapable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable, HasFactory, HasApiTokens;
 
@@ -119,47 +116,7 @@ class User extends Authenticatable implements MustVerifyEmail, Sitemapable
         return $this->phone;
     }
 
-    /**
-     * Get site map tags for the model.
-     *
-     * @return Url|string|array
-     */
-    public function toSitemapTag(): Url|string|array
-    {
-        $this->load('profilePhotos');
 
-        $templates = json_decode(file_get_contents(storage_path('app/sitemap/templates.json')), true);
-
-        $urls = [];
-
-        // Check if citizens templates exist
-        if (isset($templates['citizens'])) {
-            $citizensTemplates = $templates['citizens'];
-
-            // Process each language template
-            foreach ($citizensTemplates as $language => $urlTemplates) {
-                foreach ($urlTemplates as $urlTemplate) {
-                    // Replace placeholders in the template
-                    $processedUrl = str_replace('[code]', $this->code, $urlTemplate);
-
-                    // Create the sitemap URL
-                    $sitemapUrl = Url::create($processedUrl)
-                        ->setLastModificationDate(Carbon::create($this->updated_at))
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-                        ->setPriority(0.8);
-
-                    // Add profile photos as images
-                    foreach ($this->profilePhotos as $photo) {
-                        $sitemapUrl->addImage($photo->url);
-                    }
-
-                    $urls[] = $sitemapUrl;
-                }
-            }
-        }
-
-        return $urls;
-    }
 
     /**
      * Get the user's account security.
