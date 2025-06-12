@@ -40,6 +40,8 @@ class DynastyResource extends JsonResource
                         'id' => $feature->id,
                         'properties_id' => $feature->properties->id,
                         'density' => $feature->properties->density,
+                        'stability' => $feature->properties->stability,
+                        'area' => $feature->properties->area,
                     ];
                 })
         ];
