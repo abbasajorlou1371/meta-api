@@ -31,11 +31,11 @@ class UserPolicy
             }
         }
 
-        if ($user->id == $userToAdd->id) return false;
+        if ($user->id == $userToAdd->id) return Response::deny('شما نمی توانید خودتان را درخواست داشته باشید.', 403);
 
         $dynasty = $user->dynasty;
 
-        if (is_null($dynasty)) return false;
+        if (is_null($dynasty)) return Response::deny('شما هیچ سلسله ای تاسیس نکرده اید.', 403);
 
         $family = $dynasty->family;
 
@@ -57,11 +57,11 @@ class UserPolicy
             return Response::deny('درخواست شما قبلا توسط این کاربر رد شده است.', 403);
         }
 
-        if (FamilyMember::where('user_id', $userToAdd->id)->whereNot('relationship', 'owner')->exists()) return false;
+        if (FamilyMember::where('user_id', $userToAdd->id)->whereNot('relationship', 'owner')->exists()) return Response::deny('این کاربر قبلا به سلسله شما اضافه شده است.', 403);
 
         $members = $family->familyMembers;
 
-        if ($members->count() >= 11) return false;
+        if ($members->count() >= 11) return Response::deny('شما قبلا بیش از 10 عضو در سلسله خود دارید.', 403);
 
         if (!$userToAdd->verified()) {
             return Response::deny(sprintf('کاربر %s احراز هویت نکرده است.', $userToAdd->code), 403);
@@ -69,27 +69,27 @@ class UserPolicy
 
         $members->each(function ($member) use ($relationship, $members) {
 
-            if ($relationship === 'father' && $member->relationship === $relationship) return false;
+            if ($relationship === 'father' && $member->relationship === $relationship) return Response::deny('شما پدر خود را قبلا اضافه کرده اید.', 403);
 
-            if ($relationship === 'mother' && $member->relationship === $relationship) return false;
+            if ($relationship === 'mother' && $member->relationship === $relationship) return Response::deny('شما مادر خود را قبلا اضافه کرده اید.', 403);
 
-            if ($relationship === 'husband' && $member->relationship === $relationship) return false;
+            if ($relationship === 'husband' && $member->relationship === $relationship) return Response::deny('شما قبلا همسر خود را قبلا اضافه کرده اید.', 403);
 
-            if ($relationship === 'wife' && $member->relationship === $relationship) return false;
+            if ($relationship === 'wife' && $member->relationship === $relationship) return Response::deny('شما قبلا همسر خود را قبلا اضافه کرده اید.', 403);
 
             if ($relationship === 'brother' || $relationship === 'sister') {
                 $sisters = $members->where('relationship', 'brother')->count();
                 $brothers = $members->where('relationship', 'brother')->count();
 
-                if (array_sum([$sisters, $brothers]) >= 4) return false;
+                if (array_sum([$sisters, $brothers]) >= 4) return Response::deny('شما قبلا بیش از 4 عضو در سلسله خود دارید.', 403);
             }
 
             if ($relationship === 'offspring') {
-                if ($members->where('relationship', 'offspring')->count() >= 4) return false;
+                if ($members->where('relationship', 'offspring')->count() >= 4) return Response::deny('شما قبلا بیش از 4 عضو در سلسله خود دارید.', 403);
             }
         });
 
-        return true;
+        return Response::allow();
     }
 
     public function follow(User $user, User $user_to_follow): Response
