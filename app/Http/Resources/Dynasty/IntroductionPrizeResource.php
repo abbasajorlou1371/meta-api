@@ -22,7 +22,7 @@ class IntroductionPrizeResource extends JsonResource
             "introduction_profit_increase" => (int)($this->introduction_profit_increase * 100),
             "accumulated_capital_reserve" => (int)($this->accumulated_capital_reserve * 100),
             "data_storage" => (int)($this->data_storage * 100),
-            "psc" => $this->psc / Variable::getRate('psc'),
+            "psc" => number_format($this->psc / Variable::getRate('psc'), 2),
         ];
     }
 }
