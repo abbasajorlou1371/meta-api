@@ -8,6 +8,8 @@ use Illuminate\Database\Seeder;
 
 class FixFeatureRgbSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     /**
      * Run the database seeds.
      */
@@ -17,10 +19,20 @@ class FixFeatureRgbSeeder extends Seeder
             ->whereHas('sellRequests', function ($query) {
                 $query->where('status', 0);
             })
-            ->chunk(100, function ($features) {
+            ->chunkById(100, function ($features) {
                 foreach ($features as $feature) {
                     $feature->properties->update([
                         'rgb' => $feature->changeStatusToSoldAndPriced(),
+                    ]);
+                }
+            });
+
+        Feature::with('properties')
+            ->where('owner_id', '!=', 1)
+            ->chunkById(100, function ($features) {
+                foreach ($features as $feature) {
+                    $feature->properties->update([
+                        'rgb' => $feature->changeStatusToSoldAndNotPriced(),
                     ]);
                 }
             });
