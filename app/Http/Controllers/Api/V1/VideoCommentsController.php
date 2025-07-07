@@ -22,13 +22,9 @@ class VideoCommentsController extends Controller
             ->whereNull('parent_id') // Only get parent comments
             ->with([
                 'user:id,name,code',
-                'user.profilePhotos' => function ($query) {
-                    $query->limit(1);
-                },
+                'user.latestProfilePhoto',
                 'replies' => function ($query) {
-                    $query->with(['user:id,name,code', 'user.profilePhotos' => function ($q) {
-                        $q->limit(1);
-                    }])->orderBy('created_at', 'asc');
+                    $query->with(['user:id,name,code', 'user.latestProfilePhoto'])->orderBy('created_at', 'asc');
                 }
             ])
             ->orderByDesc('likes_count')
@@ -74,9 +70,7 @@ class VideoCommentsController extends Controller
             'parent_id' => $parentComment->id
         ]);
 
-                $reply->load(['user:id,name,code', 'user.profilePhotos' => function ($query) {
-            $query->limit(1);
-        }]);
+        $reply->load(['user:id,name,code', 'user.latestProfilePhoto']);
 
         return (new VideoCommentResource($reply))->response()->setStatusCode(201);
     }
@@ -91,9 +85,7 @@ class VideoCommentsController extends Controller
     public function getReplies(Video $video, Comment $comment)
     {
         $replies = $comment->replies()
-            ->with(['user:id,name,code', 'user.profilePhotos' => function ($query) {
-                $query->limit(1);
-            }])
+            ->with(['user:id,name,code', 'user.latestProfilePhoto'])
             ->orderBy('created_at', 'asc')
             ->simplePaginate(10);
 

@@ -43,6 +43,7 @@ Route::controller(VideoCommentsController::class)->middleware(['auth:sanctum', '
     Route::post('/{video}/comments', 'store');
     Route::put('/{video}/comments/{comment}', 'update');
     Route::delete('/{video}/comments/{comment}', 'destroy');
+    Route::apiResource('videos.comments', VideoCommentsController::class);
     Route::post('/{video}/comments/{comment}/report', 'report');
     Route::post('/{video}/comments/{comment}/like', 'like');
     Route::post('/{video}/comments/{comment}/dislike', 'dislike');

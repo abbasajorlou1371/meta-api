@@ -22,7 +22,7 @@ class VideoCommentResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'code' => $this->user->code,
-                'image' => $this->user->profilePhotos->first()?->url
+                'image' => $this->user->latestProfilePhoto?->url
             ],
             'content' => $this->content,
             'likes' => $this->likes_count,
