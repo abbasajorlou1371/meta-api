@@ -126,8 +126,8 @@ class CalendarController extends Controller
     public function filterByDateRange(Request $request)
     {
         $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_date' => 'required|shamsi_date',
+            'end_date' => 'required|shamsi_date|after_or_equal:start_date',
         ]);
 
         $startDate = jalali_to_carbon($request->query('start_date'));
