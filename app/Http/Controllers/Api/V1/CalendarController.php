@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Calendar;
 use App\Http\Resources\EventResource;
+use Illuminate\Support\Arr;
 
 class CalendarController extends Controller
 {
@@ -52,21 +53,21 @@ class CalendarController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Calendar  $event
+     * @param  array $ids
      * @return \Illuminate\Http\Response
      */
-    public function show(Calendar $event)
+    public function show(array $ids)
     {
-        $event->incrementViews();
-        $event->loadCount(['likes', 'dislikes', 'views']);
+        $events = Calendar::whereIn('id', $ids)
+            ->withCount(['likes', 'dislikes', 'views'])
+            ->when($this->user, function ($query) {
+                $query->with(['userInteraction' => function ($query) {
+                    $query->where('user_id', $this->user->id);
+                }]);
+            })
+            ->get();
 
-        if ($this->user) {
-            $event->load(['userInteraction' => function($query) {
-                $query->where('user_id', $this->user->id);
-            }]);
-        }
-
-        return new EventResource($event);
+        return EventResource::collection($events);
     }
 
     /**
@@ -84,7 +85,7 @@ class CalendarController extends Controller
 
         $liked = $request->input('liked');
 
-        if($liked === -1) {
+        if ($liked === -1) {
             // If -1, remove the interaction
             $event->interactions()->where('user_id', $request->user()->id)->delete();
         } else {
