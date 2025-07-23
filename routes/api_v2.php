@@ -28,7 +28,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/{video}/dislike', 'dislike');
     });
 
-
     Route::controller(BuildFeatureController::class)->prefix('features')->group(function () {
         Route::get('/{feature}/build/package', 'getBuildPackage');
         Route::post('/{feature}/build/{buildingModel:model_id}', 'buildFeature')->withoutScopedBindings();
@@ -36,23 +35,23 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::put('/{feature}/build/buildings/{buildingModel:model_id}', 'updateBuilding');
         Route::delete('/{feature}/build/buildings/{buildingModel:model_id}', 'destroyBuilding');
     });
-});
 
-Route::controller(VideoCommentsController::class)->middleware(['auth:sanctum', 'verified'])->prefix('tutorials')->group(function () {
-    Route::get('/{video}/comments', 'index');
-    Route::post('/{video}/comments', 'store');
-    Route::put('/{video}/comments/{comment}', 'update');
-    Route::delete('/{video}/comments/{comment}', 'destroy');
-    // Route::post('/{video}/comments/{comment}/report', 'report');
-    // Route::post('/{video}/comments/{comment}/like', 'like');
-    // Route::post('/{video}/comments/{comment}/dislike', 'dislike');
+    Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
+        Route::get('/{video}/comments', 'index');
+        Route::post('/{video}/comments', 'store');
+        Route::put('/{video}/comments/{comment}', 'update');
+        Route::delete('/{video}/comments/{comment}', 'destroy');
+        Route::post('/{video}/comments/{comment}/report', 'report');
+        Route::post('/{video}/comments/{comment}/like', 'like');
+        Route::post('/{video}/comments/{comment}/dislike', 'dislike');
 
-    // // Reply routes
-    // Route::post('/{video}/comments/{comment}/reply', 'storeReply');
-    // Route::get('/{video}/comments/{comment}/replies', 'getReplies');
-    // Route::post('/{video}/comments/{comment}/replies/{reply}/like', 'likeReply');
-    // Route::post('/{video}/comments/{comment}/replies/{reply}/dislike', 'dislikeReply');
-    Route::apiResource('videos.comments', VideoCommentsController::class);
+        // Reply routes
+        Route::post('/{video}/comments/{comment}/reply', 'storeReply');
+        Route::get('/{video}/comments/{comment}/replies', 'getReplies');
+        Route::post('/{video}/comments/{comment}/replies/{reply}/like', 'likeReply');
+        Route::post('/{video}/comments/{comment}/replies/{reply}/dislike', 'dislikeReply');
+        Route::apiResource('videos.comments', VideoCommentsController::class);
+    });
 });
 
 Route::controller(LevelController::class)->prefix('levels')->group(function () {
