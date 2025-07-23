@@ -24,6 +24,7 @@ class VideoCommentsController extends Controller
                 'user:id,name,code',
                 'user.latestProfilePhoto',
             ])
+            ->withCount('likes')
             ->orderByDesc('likes_count')
             ->simplePaginate(10);
 
