@@ -18,22 +18,16 @@ class VideoCommentsController extends Controller
      */
     public function index(Video $video)
     {
-        return response()->json([
-            'success' => 'This is a success response'
-        ]);
+        $comments = $video->comments()
+            ->whereNull('parent_id') // Only get parent comments
+            ->with([
+                'user:id,name,code',
+                'user.latestProfilePhoto',
+            ])
+            ->orderByDesc('likes_count')
+            ->simplePaginate(10);
 
-        // $comments = $video->comments()
-        //     ->whereNull('parent_id') // Only get parent comments
-        //     ->with([
-        //         'user:id,name,code',
-        //         'user.latestProfilePhoto',
-        //         'replies' => function ($query) {
-        //             $query->with(['user:id,name,code', 'user.latestProfilePhoto'])->orderBy('created_at', 'asc');
-        //         }
-        //     ])
-        //     ->orderByDesc('likes_count')
-        //     ->simplePaginate(10);
-        // return VideoCommentResource::collection($comments);
+        return VideoCommentResource::collection($comments);
     }
 
     /**
@@ -45,11 +39,13 @@ class VideoCommentsController extends Controller
     public function store(Request $request, Video $video)
     {
         $request->validate(['content' => 'required|string|max:2000']);
+
         $comment = $video->comments()->create([
             'user_id' => $request->user()->id,
             'content' => $request->content
         ]);
-        return (new VideoCommentResource($comment))->response()->setStatusCode(201);
+
+        return new VideoCommentResource($comment);
     }
 
     /**
@@ -63,6 +59,7 @@ class VideoCommentsController extends Controller
     public function storeReply(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('reply', $comment);
+
         $request->validate(['content' => 'required|string|max:2000']);
 
         // Ensure we're replying to a parent comment, not a reply
@@ -76,7 +73,7 @@ class VideoCommentsController extends Controller
 
         $reply->load(['user:id,name,code', 'user.latestProfilePhoto']);
 
-        return (new VideoCommentResource($reply))->response()->setStatusCode(201);
+        return new VideoCommentResource($reply);
     }
 
     /**
@@ -106,11 +103,14 @@ class VideoCommentsController extends Controller
     public function update(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('update', $comment);
+
         $request->validate(['content' => 'required|string|max:2000']);
+
         $comment->update([
             'user_id' => $request->user()->id,
             'content' => $request->content
         ]);
+
         return new VideoCommentResource($comment->refresh());
     }
 
@@ -123,8 +123,11 @@ class VideoCommentsController extends Controller
     public function destroy(Video $video, Comment $comment)
     {
         $this->authorize('update', $comment);
+
         $comment->delete();
+
         $comment->interactions()->delete();
+
         return new JsonResponse([], 200);
     }
 
@@ -137,6 +140,7 @@ class VideoCommentsController extends Controller
     public function like(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('like', $comment);
+
         $comment->interactions()->updateOrCreate(
             [
                 'user_id' => $request->user()->id
@@ -146,6 +150,7 @@ class VideoCommentsController extends Controller
                 'ip_address' => $request->ip()
             ]
         );
+
         return new JsonResponse([], 200);
     }
 
@@ -159,6 +164,7 @@ class VideoCommentsController extends Controller
     public function dislike(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('dislike', $comment);
+
         $comment->interactions()->updateOrCreate(
             [
                 'user_id' => $request->user()->id
@@ -168,6 +174,7 @@ class VideoCommentsController extends Controller
                 'ip_address' => $request->ip()
             ]
         );
+
         return new JsonResponse([], 200);
     }
 
@@ -183,6 +190,7 @@ class VideoCommentsController extends Controller
     public function likeReply(Request $request, Video $video, Comment $comment, Comment $reply)
     {
         $this->authorize('like', $reply);
+
         $reply->interactions()->updateOrCreate(
             [
                 'user_id' => $request->user()->id
@@ -192,6 +200,7 @@ class VideoCommentsController extends Controller
                 'ip_address' => $request->ip()
             ]
         );
+
         return new JsonResponse([], 200);
     }
 
@@ -207,6 +216,7 @@ class VideoCommentsController extends Controller
     public function dislikeReply(Request $request, Video $video, Comment $comment, Comment $reply)
     {
         $this->authorize('dislike', $reply);
+
         $reply->interactions()->updateOrCreate(
             [
                 'user_id' => $request->user()->id
@@ -216,18 +226,22 @@ class VideoCommentsController extends Controller
                 'ip_address' => $request->ip()
             ]
         );
+
         return new JsonResponse([], 200);
     }
 
     public function report(Request $request, Video $video, Comment $comment)
     {
         $this->authorize('report', $comment);
+
         $request->validate(['content' => 'required|string|max:2000']);
+
         $video->reports()->create([
             'user_id' => $request->user()->id,
             'comment_id' => $comment->id,
             'content' => $request->content
         ]);
+
         return new JsonResponse([], 200);
     }
 }
