@@ -37,10 +37,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
-        Route::get('/{video}/comments', 'index');
-        Route::post('/{video}/comments', 'store');
-        Route::put('/{video}/comments/{comment}', 'update');
-        Route::delete('/{video}/comments/{comment}', 'destroy');
         Route::post('/{video}/comments/{comment}/report', 'report');
         Route::post('/{video}/comments/{comment}/like', 'like');
         Route::post('/{video}/comments/{comment}/dislike', 'dislike');
