@@ -43,15 +43,15 @@ Route::controller(VideoCommentsController::class)->middleware(['auth:sanctum', '
     Route::post('/{video}/comments', 'store');
     Route::put('/{video}/comments/{comment}', 'update');
     Route::delete('/{video}/comments/{comment}', 'destroy');
-    Route::post('/{video}/comments/{comment}/report', 'report');
-    Route::post('/{video}/comments/{comment}/like', 'like');
-    Route::post('/{video}/comments/{comment}/dislike', 'dislike');
+    // Route::post('/{video}/comments/{comment}/report', 'report');
+    // Route::post('/{video}/comments/{comment}/like', 'like');
+    // Route::post('/{video}/comments/{comment}/dislike', 'dislike');
 
-    // Reply routes
-    Route::post('/{video}/comments/{comment}/reply', 'storeReply');
-    Route::get('/{video}/comments/{comment}/replies', 'getReplies');
-    Route::post('/{video}/comments/{comment}/replies/{reply}/like', 'likeReply');
-    Route::post('/{video}/comments/{comment}/replies/{reply}/dislike', 'dislikeReply');
+    // // Reply routes
+    // Route::post('/{video}/comments/{comment}/reply', 'storeReply');
+    // Route::get('/{video}/comments/{comment}/replies', 'getReplies');
+    // Route::post('/{video}/comments/{comment}/replies/{reply}/like', 'likeReply');
+    // Route::post('/{video}/comments/{comment}/replies/{reply}/dislike', 'dislikeReply');
     Route::apiResource('videos.comments', VideoCommentsController::class);
 });
 
