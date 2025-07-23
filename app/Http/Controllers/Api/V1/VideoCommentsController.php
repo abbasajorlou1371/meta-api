@@ -21,16 +21,14 @@ class VideoCommentsController extends Controller
     {
 
         $comments = $video->comments()
-        ->whereNull('parent_id') // Only get parent comments
-        ->with([
-            'user:id,name,code',
-            'user.latestProfilePhoto',
+            ->whereNull('parent_id') // Only get parent comments
+            ->with([
+                'user.latestProfilePhoto',
             ])
             ->withCount('likes')
             ->orderByDesc('likes_count')
             ->simplePaginate(10);
 
-            Log::info('Request is going through comments query');
         return VideoCommentResource::collection($comments);
     }
 
