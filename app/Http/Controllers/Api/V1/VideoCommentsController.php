@@ -19,18 +19,18 @@ class VideoCommentsController extends Controller
      */
     public function index(Video $video)
     {
-        Log::info('Request is comming to index method');
-        
+
         $comments = $video->comments()
-            ->whereNull('parent_id') // Only get parent comments
-            ->with([
-                'user:id,name,code',
-                'user.latestProfilePhoto',
+        ->whereNull('parent_id') // Only get parent comments
+        ->with([
+            'user:id,name,code',
+            'user.latestProfilePhoto',
             ])
             ->withCount('likes')
             ->orderByDesc('likes_count')
             ->simplePaginate(10);
 
+            Log::info('Request is going through comments query');
         return VideoCommentResource::collection($comments);
     }
 
