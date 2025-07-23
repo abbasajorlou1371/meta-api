@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\VideoCommentResource;
 use App\Models\Comment;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class VideoCommentsController extends Controller
 {
@@ -18,6 +19,8 @@ class VideoCommentsController extends Controller
      */
     public function index(Video $video)
     {
+        Log::info('Request is comming to index method');
+        
         $comments = $video->comments()
             ->whereNull('parent_id') // Only get parent comments
             ->with([
