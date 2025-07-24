@@ -19,7 +19,7 @@ class VideoTutorialResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'image_url' => $this->image_url,
-            'description' => $this->when($request->routeIs('tutorials.show'), $this->description),
+            'description' => $this->description,
             'views_count' => $this->whenCounted('views'),
             'likes_count' => $this->whenCounted('likes'),
             'dislikes_count' => $this->whenCounted('dislikes'),
