@@ -22,13 +22,12 @@ class VideoCommentsController extends Controller
     public function index(Request $request, Video $video)
     {
         Log::info('Fetching comments for video', ['video_id' => $video->id]);
-        // $comments = $video->comments()
-        //     // ->with('user.latestProfilePhoto')
-        //     // ->withCount(['likes', 'dislikes', 'replies'])
-        //     // ->whereNull('parent_id') // Only get parent comments
-        //     // ->orderBy('created_at', 'desc')
-        //     ->simplePaginate(10);
-        $comments = Comment::all();
+        $comments = $video->comments()
+            ->with('user.latestProfilePhoto')
+            ->withCount(['likes', 'dislikes', 'replies'])
+            // ->whereNull('parent_id') // Only get parent comments
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(10);
         Log::info('Comments fetched successfully', ['count' => $comments->count()]);
 
         return VideoCommentResource::collection($comments);
