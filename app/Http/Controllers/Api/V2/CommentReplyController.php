@@ -81,6 +81,24 @@ class CommentReplyController extends Controller
     }
 
     /**
+     * Delete a reply to a comment.
+     *
+     * @param  \App\Models\Comment  $comment
+     * @param  \App\Models\Comment  $reply
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Comment $comment, Comment $reply)
+    {
+        $this->authorize('update', $reply);
+
+        $reply->delete();
+
+        $reply->interactions()->delete();
+
+        return new JsonResponse([], 200);
+    }
+
+    /**
      * Like or dislike a reply based on the 'liked' query parameter.
      *
      * @param  \Illuminate\Http\Request  $request
