@@ -22,13 +22,11 @@ class VideoCommentsController extends Controller
      */
     public function index(Request $request, Video $video)
     {
-        return new VideoTutorialResource($video);
-
         $comments = $video->comments()
             ->with('user.latestProfilePhoto')
             ->withCount(['likes', 'dislikes', 'replies'])
             ->whereNull('parent_id') // Only get parent comments
-            ->orderBy('created_at', 'desc')
+            ->orderBy('likes_count', 'desc')
             ->simplePaginate(10);
 
         return VideoCommentResource::collection($comments);

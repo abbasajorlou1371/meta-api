@@ -12,8 +12,6 @@ class Comment extends Model
 
     protected $fillable = ['user_id', 'content', 'parent_id'];
 
-    protected $withCount = ['likes', 'dislikes', 'replies'];
-
     public function commentable()
     {
         return $this->morphTo();
