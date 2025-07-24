@@ -18,16 +18,18 @@ class VideoCommentResource extends JsonResource
             'id' => $this->id,
             'video_id' => $this->commentable->id,
             'parent_id' => $this->parent_id,
-            'user' => [
-                'id' => $this->user->id,
-                'name' => $this->user->name,
-                'code' => $this->user->code,
-                'image' => $this->user->latestProfilePhoto?->url
-            ],
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'code' => $this->user->code,
+                    'image' => $this->user->latestProfilePhoto?->url
+                ];
+            }),
             'content' => $this->content,
-            'likes' => $this->likes_count,
-            'dislikes' => $this->dislikes_count,
-            'replies_count' => $this->replies_count,
+            'likes' => $this->whenCounted('likes_count'),
+            'dislikes' => $this->whenCounted('dislikes_count'),
+            'replies_count' => $this->whenCounted('replies_count'),
             'is_reply' => $this->isReply(),
             'replies' => VideoCommentResource::collection($this->whenLoaded('replies')),
             'created_at' => jdate($this->created_at)->format('Y/m/d')
