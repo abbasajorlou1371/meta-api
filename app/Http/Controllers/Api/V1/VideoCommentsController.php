@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Resources\VideoCommentResource;
 use App\Models\Comment;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class VideoCommentsController extends Controller
 {
@@ -23,8 +22,9 @@ class VideoCommentsController extends Controller
     {
 
         $comments = $video->comments()
-            ->with(['user:id,name,code', 'user.latestProfilePhoto'])
+            ->with('user.latestProfilePhoto')
             ->whereNull('parent_id') // Only get parent comments
+            ->withCount(['likes', 'dislikes', 'replies'])
             ->orderBy('created_at', 'desc')
             ->simplePaginate(10);
 

@@ -17,7 +17,7 @@ class TutorialController extends Controller
 
     public function index()
     {
-        $videos = Video::with(['subCategory.category', 'creator:id,code', 'creator.profilePhotos'])
+        $videos = Video::with(['subCategory.category', 'creator.profilePhotos'])
             ->latest()->paginate(18);
 
         return VideoTutorialResource::collection($videos);
