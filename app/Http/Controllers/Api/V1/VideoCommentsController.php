@@ -22,9 +22,9 @@ class VideoCommentsController extends Controller
     public function index(Request $request, Video $video)
     {
 
-        $comments = Comment::where('commentable_id', $video->id)
-            ->where('commentable_type', Video::class)
+        $comments = $video->comments()
             ->with(['user:id,name,code', 'user.latestProfilePhoto'])
+            ->whereNull('parent_id') // Only get parent comments
             ->orderBy('created_at', 'desc')
             ->simplePaginate(10);
 
