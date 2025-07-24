@@ -37,6 +37,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
+        Route::apiResource('videos.comments', VideoCommentsController::class);
         Route::post('/{video}/comments/{comment}/report', 'report');
         Route::post('/{video}/comments/{comment}/like', 'like');
         Route::post('/{video}/comments/{comment}/dislike', 'dislike');
@@ -46,7 +47,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/{video}/comments/{comment}/replies', 'getReplies');
         Route::post('/{video}/comments/{comment}/replies/{reply}/like', 'likeReply');
         Route::post('/{video}/comments/{comment}/replies/{reply}/dislike', 'dislikeReply');
-        Route::apiResource('videos.comments', VideoCommentsController::class);
     });
 });
 
