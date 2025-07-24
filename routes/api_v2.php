@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\V2\Feature\BuildFeatureController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::controller(TutorialController::class)->prefix('videos')->group(function () {
+    Route::controller(TutorialController::class)->prefix('tutorials')->group(function () {
         Route::withoutMiddleware(['auth:sanctum', 'verified'])->group(function () {
 
             Route::name('categories.')->group(function () {
@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('/{feature}/build/buildings/{buildingModel:model_id}', 'destroyBuilding');
     });
 
-    Route::controller(VideoCommentsController::class)->prefix('videos')->group(function () {
+    Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
         Route::get('/{video}/comments', 'index');
         Route::post('/{video}/comments', 'store');
         Route::put('/{video}/comments/{comment}', 'update');
