@@ -37,7 +37,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {
-        Route::get('/{video}/comments', 'index');
+        Route::get('/{video}/comments', 'index')->withoutMiddleware(['auth:sanctum', 'verified']);
         Route::post('/{video}/comments', 'store');
         Route::put('/{video}/comments/{comment}', 'update');
         Route::delete('/{video}/comments/{comment}', 'destroy');
@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::controller(CommentReplyController::class)->prefix('comments')->group(function () {
         // Reply routes
-        Route::get('{comment}/replies', 'index');
+        Route::get('{comment}/replies', 'index')->withoutMiddleware(['auth:sanctum', 'verified']);
         Route::post('{comment}/reply', 'store');
         Route::put('{comment}/replies/{reply}', 'update');
         Route::delete('{comment}/replies/{reply}', 'destroy');
