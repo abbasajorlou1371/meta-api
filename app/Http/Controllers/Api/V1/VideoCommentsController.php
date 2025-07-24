@@ -23,6 +23,7 @@ class VideoCommentsController extends Controller
         $comments = $video->comments()
             ->whereNull('parent_id') // Only get parent comments
             ->with('user.latestProfilePhoto')
+            ->withCount('likes')
             ->orderByDesc('likes_count')
             ->simplePaginate(10);
 
