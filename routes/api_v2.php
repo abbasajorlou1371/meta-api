@@ -78,5 +78,6 @@ Route::controller(MapsController::class)->prefix('maps')->as('maps.')->group(fun
 Route::get('/users/{user:email}/level', function (User $user) {
     return response()->json([
         'level' => $user->latest_level,
+        'score' => $user->score,
     ]);
 });
