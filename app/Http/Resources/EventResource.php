@@ -26,7 +26,7 @@ class EventResource extends JsonResource
                 'btn_name' => $this->btn_name,
                 'btn_link' => $this->btn_link,
                 'color' => $this->color,
-                'image' => $this->whenNotNull('image'),
+                'image' => $this->image,
                 'likes' => $this->whenCounted('likes'),
                 'dislikes' => $this->whenCounted('dislikes'),
                 'user_interaction' => $this->whenLoaded(
