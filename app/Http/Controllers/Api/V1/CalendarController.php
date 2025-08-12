@@ -40,7 +40,8 @@ class CalendarController extends Controller
 
         if ($date) {
             $carbonDate = jalali_to_carbon($date);
-            $eventsQuery->whereDate('starts_at', $carbonDate);
+            $eventsQuery->whereDate('starts_at', '<=', $carbonDate)
+                        ->whereDate('ends_at', '>=', $carbonDate);
             $events = $eventsQuery->withCount(['views', 'likes', 'dislikes']);
 
             if ($this->user) {
