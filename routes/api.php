@@ -70,9 +70,9 @@ Route::controller(UserController::class)->middleware('auth:sanctum')->prefix('us
     Route::get('/', 'index')->withoutMiddleware('auth:sanctum', 'verified');
     Route::get('/{user}/profile', 'getProfile')->middleware('check.profile.limitation');
     Route::get('/{user}/wallet', 'getWallet');
-    Route::get('/{user}/features/count', 'getFeaturesCount');
     Route::get('/{user}/level', 'getLevel');
     Route::get('/{user}/profile-limitations', 'getProfileLimitations');
+    Route::get('/{user}/features/count', 'getFeaturesCount');
 });
 
 Route::controller(ProfileLimitationController::class)->prefix('profile-limitations')->group(function () {
