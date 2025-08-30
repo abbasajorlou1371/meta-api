@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Video;
 use App\Models\VideoCategory;
 use App\Models\VideoSubCategory;
+use App\Models\Calendar;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +44,8 @@ class SitemapGenerator implements ShouldQueue
         $this->generateVideoSitemaps();
         $this->generateCategorySitemaps();
         $this->generateSubCategorySitemaps();
+        $this->generateCalendarEventSitemaps();
+        $this->generateCalendarVersionSitemaps();
     }
 
     /**
@@ -161,5 +164,52 @@ class SitemapGenerator implements ShouldQueue
     {
         $sitemap = Sitemap::create()->add(VideoSubCategory::with('category')->get());
         $sitemap->writeToDisk('ftp', 'education_sub_category-sitemap.xml');
+    }
+
+    /**
+     * Generate calendar events sitemaps
+     *
+     * @return void
+     */
+    private function generateCalendarEventSitemaps()
+    {
+        $sitemap = Sitemap::create();
+
+        Calendar::events()->select('slug', 'updated_at')->chunk(500, function ($events) use ($sitemap) {
+            foreach ($events as $event) {
+                $sitemap->add(
+                    Url::create('https://rgb.irpsc.com/fa/calendar/events/' . $event->slug)
+                        ->setLastModificationDate(Carbon::create($event->updated_at))
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6)
+                );
+            }
+        });
+
+        $sitemap->writeToDisk('ftp', 'calendar_events-sitemap.xml');
+    }
+
+    /**
+     * Generate calendar versions sitemap.
+     * Adds one link per version using its slug.
+     *
+     * @return void
+     */
+    private function generateCalendarVersionSitemaps()
+    {
+        $sitemap = Sitemap::create();
+
+        Calendar::versions()->select('slug', 'updated_at')->chunk(500, function ($versions) use ($sitemap) {
+            foreach ($versions as $version) {
+                $sitemap->add(
+                    Url::create('https://rgb.irpsc.com/fa/calendar/versions/' . $version->slug)
+                        ->setLastModificationDate(Carbon::create($version->updated_at))
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6)
+                );
+            }
+        });
+
+        $sitemap->writeToDisk('ftp', 'calendar_versions-sitemap.xml');
     }
 }

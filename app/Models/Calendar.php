@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Calendar extends Model
 {
@@ -27,6 +28,15 @@ class Calendar extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Calendar $calendar) {
+            if (empty($calendar->slug) && !empty($calendar->title)) {
+                $calendar->slug = str_replace(' ', '-', $calendar->title);
+            }
+        });
     }
 
     /**
