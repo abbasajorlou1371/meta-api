@@ -178,7 +178,14 @@ class SitemapGenerator implements ShouldQueue
         Calendar::events()->select('slug', 'updated_at')->chunk(500, function ($events) use ($sitemap) {
             foreach ($events as $event) {
                 $sitemap->add(
-                    Url::create('https://rgb.irpsc.com/fa/calendar/events/' . $event->slug)
+                    Url::create('https://rgb.irpsc.com/fa/calendar/' . $event->slug)
+                        ->setLastModificationDate(Carbon::create($event->updated_at))
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6)
+                );
+
+                $sitemap->add(
+                    Url::create('https://rgb.irpsc.com/en/calendar/' . $event->slug)
                         ->setLastModificationDate(Carbon::create($event->updated_at))
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                         ->setPriority(0.6)
@@ -202,7 +209,14 @@ class SitemapGenerator implements ShouldQueue
         Calendar::versions()->select('slug', 'updated_at')->chunk(500, function ($versions) use ($sitemap) {
             foreach ($versions as $version) {
                 $sitemap->add(
-                    Url::create('https://rgb.irpsc.com/fa/calendar/versions/' . $version->slug)
+                    Url::create('https://rgb.irpsc.com/fa/versions/' . $version->version_title)
+                        ->setLastModificationDate(Carbon::create($version->updated_at))
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6)
+                );
+
+                $sitemap->add(
+                    Url::create('https://rgb.irpsc.com/en/versions/' . $version->version_title)
                         ->setLastModificationDate(Carbon::create($version->updated_at))
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                         ->setPriority(0.6)
