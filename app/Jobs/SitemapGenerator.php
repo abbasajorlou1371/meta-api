@@ -175,7 +175,7 @@ class SitemapGenerator implements ShouldQueue
     {
         $sitemap = Sitemap::create();
 
-        Calendar::events()->select('slug', 'updated_at')->chunk(500, function ($events) use ($sitemap) {
+        Calendar::events()->chunk(500, function ($events) use ($sitemap) {
             foreach ($events as $event) {
                 $sitemap->add(
                     Url::create('https://rgb.irpsc.com/fa/calendar/' . $event->slug)
@@ -206,7 +206,7 @@ class SitemapGenerator implements ShouldQueue
     {
         $sitemap = Sitemap::create();
 
-        Calendar::versions()->select('slug', 'updated_at')->chunk(500, function ($versions) use ($sitemap) {
+        Calendar::versions()->chunk(500, function ($versions) use ($sitemap) {
             foreach ($versions as $version) {
                 $sitemap->add(
                     Url::create('https://rgb.irpsc.com/fa/versions/' . $version->version_title)
