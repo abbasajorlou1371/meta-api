@@ -157,4 +157,16 @@ class TutorialController extends Controller
 
         return new VideoSubCategoryResource($subCategory);
     }
+
+    public function showCategoryVideos(VideoCategory $category)
+    {
+        $videos = $category->videos()
+            ->with(['subCategory.category', 'creator:id,code,name', 'creator.profilePhotos' => function ($query) {
+                $query->limit(1);
+            }])
+            ->latest()
+            ->paginate(request()->query('per_page', 18));
+
+        return VideoTutorialResource::collection($videos);
+    }
 }

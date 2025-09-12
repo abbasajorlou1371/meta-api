@@ -4,6 +4,7 @@ namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\V2\VideoSubCategoryResource;
+use App\Http\Resources\VideoTutorialResource;
 
 class VideoCategoryResource extends JsonResource
 {
@@ -27,6 +28,7 @@ class VideoCategoryResource extends JsonResource
             'videos_count' => $this->whenCounted('videos'),
             'description' => $this->whenHas('description'),
             'subcategories' => VideoSubcategoryResource::collection($this->whenLoaded('subCategories')),
+            'videos' => VideoTutorialResource::collection($this->whenLoaded('videos')),
         ];
     }
 }
