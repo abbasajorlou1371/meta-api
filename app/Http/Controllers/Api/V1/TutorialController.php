@@ -127,8 +127,7 @@ class TutorialController extends Controller
 
     public function getCategories()
     {
-        $categories = VideoCategory::select(['id', 'name', 'slug', 'image', 'icon'])
-            ->withCount(['videos', 'views', 'likes', 'dislikes'])
+        $categories = VideoCategory::withCount(['videos', 'views', 'likes', 'dislikes'])
             ->orderByDesc('likes_count')
             ->paginate(request()->query('count', 30));
 

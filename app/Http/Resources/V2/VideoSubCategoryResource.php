@@ -25,12 +25,14 @@ class VideoSubCategoryResource extends JsonResource
             'dislikes_count' => $this->whenCounted('dislikes'),
             'views_count' => $this->whenCounted('views'),
             'videos_count' => $this->whenCounted('videos'),
-            'description' => $this->when($request->routeIs('tutorials.subcategories.show'), $this->description),
-            'category' => [
-                'id' => $this->category->id,
-                'name' => $this->category->name,
-                'slug' => $this->category->slug,
-            ],
+            'description' => $this->description,
+            'category' => $this->whenLoaded('category', function () {
+                return [
+                    'id' => $this->category->id,
+                    'name' => $this->category->name,
+                    'slug' => $this->category->slug,
+                ];
+            }),
             'videos' => VideoTutorialResource::collection($this->whenLoaded('videos'))
         ];
     }
