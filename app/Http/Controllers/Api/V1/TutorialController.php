@@ -163,6 +163,7 @@ class TutorialController extends Controller
             ->with(['subCategory.category', 'creator:id,code,name', 'creator.profilePhotos' => function ($query) {
                 $query->limit(1);
             }])
+            ->withCount(['views', 'likes', 'dislikes'])
             ->latest()
             ->paginate(request()->query('per_page', 18));
 
