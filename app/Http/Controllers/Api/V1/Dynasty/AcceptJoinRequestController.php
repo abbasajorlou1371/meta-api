@@ -65,7 +65,7 @@ class AcceptJoinRequestController extends Controller
         // If the requested user is under 18 and the relationship is father, give the user dynasty permissions
         if ($requestedUser->isUnderEighteen() && $joinRequest->relationship === 'father') {
             $permssions = DynastyPermission::first();
-            $$requestedUser->permissions()->create([
+            $requestedUser->permissions()->create([
                 'verified' => 1,
                 'BFR' => $permssions->BFR,
                 'SF' => $permssions->SF,

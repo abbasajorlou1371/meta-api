@@ -139,7 +139,7 @@ class SendJoinRequestController extends Controller
     /**
      * Remove a join request.
      */
-    public function destrory(JoinRequest $joinRequest)
+    public function destroy(JoinRequest $joinRequest)
     {
         $this->authorize('delete', $joinRequest);
         $joinRequest->delete();
@@ -167,6 +167,6 @@ class SendJoinRequestController extends Controller
         $users = $this->userSearchService->searchUsers($searchTerm);
         $transformedUsers = $users->map(fn($user) => $this->userSearchService->transformUserData($user));
 
-        return response()->json(['date' => $transformedUsers]);
+        return response()->json(['data' => $transformedUsers]);
     }
 }

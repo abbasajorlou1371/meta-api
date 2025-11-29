@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -40,7 +41,7 @@ class UpdateKycRequest extends FormRequest
             ],
             'birthdate' => 'required|shamsi_date',
             'province' => 'required|string|max:255',
-            'melli_card' => 'required|image|max:5000',
+            'melli_card' => ['required', 'file', SecureFileUpload::images(5000)],
             'video' => 'required|array',
             'verify_text_id' => 'required|integer|exists:kyc_verify_texts,id',
             'gender' => 'required|string|in:male,female,other',

@@ -17,10 +17,10 @@ class NoteResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            $this->mergeWhen(request()->routeIs('notes.show'), [
-                'content' => $this->content,
-                'attachment' => config('rgb.uploads-path') . $this->attachment,
-            ]),
+            'content' => $this->content,
+            'attachment' => $this->whenNotNull($this->attachment, function () {
+                return url('uploads/' . $this->attachment);
+            }),
             'date' => jdate($this->updated_at)->format('Y/m/d'),
             'time' => jdate($this->updated_at)->format('H:m:s'),
         ];

@@ -63,9 +63,18 @@ class TicketController extends Controller
      */
     public function store(CreateTicketRequest $request)
     {
-        $attachment = $request->hasFile('attachment')
-            ? url('uploads/' . $request->file('attachment')->store('tickets', 'public'))
-            : '';
+        $attachment = '';
+        if ($request->hasFile('attachment')) {
+            $storedPath = $request->file('attachment')->store('tickets', 'public');
+            
+            // Remove execution permissions from uploaded file (security measure)
+            $fullPath = storage_path('app/public/' . $storedPath);
+            if (file_exists($fullPath)) {
+                chmod($fullPath, 0644);
+            }
+            
+            $attachment = url('uploads/' . $storedPath);
+        }
 
         $ticket = Ticket::create([
             'user_id' => $request->user()->id,
@@ -94,9 +103,19 @@ class TicketController extends Controller
      */
     public function update(CreateTicketRequest $request, Ticket $ticket)
     {
-        $attachment = $request->hasFile('attachment')
-            ? url('uploads/' . $request->file('attachment')->store('tickets'))
-            : '';
+        $attachment = $ticket->attachment; // Keep existing attachment if no new one uploaded
+        
+        if ($request->hasFile('attachment')) {
+            $storedPath = $request->file('attachment')->store('tickets');
+            
+            // Remove execution permissions from uploaded file (security measure)
+            $fullPath = storage_path('app/' . $storedPath);
+            if (file_exists($fullPath)) {
+                chmod($fullPath, 0644);
+            }
+            
+            $attachment = url('uploads/' . $storedPath);
+        }
 
         $ticket->update([
             'title' => $request->title,
@@ -118,9 +137,19 @@ class TicketController extends Controller
     public function response(TicketResponseRequest $request, Ticket $ticket)
     {
         $this->authorize('respond', $ticket);
-        $attachment = $request->hasFile('attachment')
-            ? url('uploads/' . $request->file('attachment')->store('tickets'))
-            : '';
+        
+        $attachment = '';
+        if ($request->hasFile('attachment')) {
+            $storedPath = $request->file('attachment')->store('tickets');
+            
+            // Remove execution permissions from uploaded file (security measure)
+            $fullPath = storage_path('app/' . $storedPath);
+            if (file_exists($fullPath)) {
+                chmod($fullPath, 0644);
+            }
+            
+            $attachment = url('uploads/' . $storedPath);
+        }
 
         TicketResponse::create([
             'ticket_id' => $ticket->id,

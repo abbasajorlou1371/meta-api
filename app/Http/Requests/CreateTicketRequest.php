@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\Departments;
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -29,7 +30,7 @@ class CreateTicketRequest extends FormRequest
         return [
             'title' => 'required|string|max:250',
             'content' => 'required|string|max:500',
-            'attachment' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:5000',
+            'attachment' => ['nullable', 'file', new SecureFileUpload(['png', 'jpg', 'jpeg', 'pdf'], 5000)],
             'reciever' => [
                 'nullable',
                 'integer',

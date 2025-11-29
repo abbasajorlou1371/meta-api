@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 
 class NoteRequest extends FormRequest
@@ -26,7 +27,7 @@ class NoteRequest extends FormRequest
         return [
             'title' => 'required|string|max:130',
             'content' => 'required|string|max:2000',
-            'attachment' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:5000'
+            'attachment' => ['nullable', 'file', new SecureFileUpload(['png', 'jpg', 'jpeg', 'pdf'], 5000)]
         ];
     }
 }

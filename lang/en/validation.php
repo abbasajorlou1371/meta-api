@@ -140,6 +140,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Secure File Upload Validation Messages
+    |--------------------------------------------------------------------------
+    */
+    'secure_file' => [
+        'null_byte' => 'The file name contains invalid characters.',
+        'double_extension' => 'The file appears to have a suspicious double extension.',
+        'dangerous_extension' => 'The file contains a potentially dangerous extension.',
+        'invalid_extension' => 'The file must be one of the following types: :extensions.',
+        'invalid_mime' => 'The file type is not allowed.',
+        'dangerous_mime' => 'The file type is potentially dangerous and not allowed.',
+        'invalid_signature' => 'The file content does not match its extension.',
+        'max_size' => 'The file must not be larger than :max.',
+        'svg_unsafe' => 'The SVG file contains potentially unsafe content.',
+        'mime_mismatch' => 'The file type does not match its extension.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom Validation Language Lines
     |--------------------------------------------------------------------------
     |

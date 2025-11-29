@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TicketResponseRequest extends FormRequest
@@ -25,7 +26,7 @@ class TicketResponseRequest extends FormRequest
     {
         return [
             'response' => 'required|string|max:500',
-            'attachment' => 'nullable|file|mimes:png,jpg,pdf|max:5000'
+            'attachment' => ['nullable', 'file', new SecureFileUpload(['png', 'jpg', 'pdf'], 5000)]
         ];
     }
 }

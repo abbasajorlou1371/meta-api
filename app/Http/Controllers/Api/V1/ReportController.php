@@ -54,8 +54,15 @@ class ReportController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $url = $file->store('reports', 'public');
-                $report->images()->create(['url' => $url]);
+                $storedPath = $file->store('reports', 'public');
+
+                // Remove execution permissions from uploaded file (security measure)
+                $fullPath = storage_path('app/public/' . $storedPath);
+                if (file_exists($fullPath)) {
+                    chmod($fullPath, 0644);
+                }
+
+                $report->images()->create(['url' => $storedPath]);
             }
         }
 

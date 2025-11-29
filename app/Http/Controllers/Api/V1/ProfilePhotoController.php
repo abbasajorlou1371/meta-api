@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfilePhotoResource;
 use App\Models\Image;
+use App\Rules\SecureFileUpload;
 use Illuminate\Http\Request;
 
 class ProfilePhotoController extends Controller
@@ -27,8 +28,16 @@ class ProfilePhotoController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['image' => 'required|image|mimes:png,jpg,jpeg|max:1024']);
-        $url = url('uploads/'.$request->file('image')->store('profile', 'public'));
+        $request->validate(['image' => ['required', 'file', SecureFileUpload::images(1024)]]);
+        $storedPath = $request->file('image')->store('profile', 'public');
+        
+        // Remove execution permissions from uploaded file (security measure)
+        $fullPath = storage_path('app/public/' . $storedPath);
+        if (file_exists($fullPath)) {
+            chmod($fullPath, 0644);
+        }
+        
+        $url = url('uploads/' . $storedPath);
         $image = $request->user()->profilePhotos()->create(['url' => $url]);
         return new ProfilePhotoResource($image);
     }

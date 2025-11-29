@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReportRequest extends FormRequest
@@ -29,7 +30,7 @@ class ReportRequest extends FormRequest
             'content' => 'required|string|max:2000',
             'url'     => 'required|active_url',
             'attachments' => 'nullable|array|max:5',
-            'attachments.*' => 'file|mimes:png,jpg,pdf,jpeg|max:1024'
+            'attachments.*' => ['file', new SecureFileUpload(['png', 'jpg', 'jpeg', 'pdf'], 1024)]
         ];
     }
 }

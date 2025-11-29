@@ -19,3 +19,6 @@ worker.log
 tests
 laravel-worker.conf
 /public/sitemap
+/metargb-microservices
+/.cursor
+/docs

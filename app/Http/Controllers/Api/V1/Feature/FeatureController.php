@@ -26,7 +26,7 @@ class FeatureController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return UserFeatureResource::collection(
-            Feature::whereBelongsTo(request()->user(), 'owner')->simplePaginate(5)
+            Feature::whereBelongsTo(request()->user(), 'owner')->with('properties')->simplePaginate(5)
         );
     }
 
@@ -50,7 +50,15 @@ class FeatureController extends Controller
     {
         $this->authorize('addImage', $feature);
         foreach ($request->file('images') as $image) {
-            $url = url('uploads/'.$image->store('features', 'public'));
+            $storedPath = $image->store('features', 'public');
+            
+            // Remove execution permissions from uploaded file (security measure)
+            $fullPath = storage_path('app/public/' . $storedPath);
+            if (file_exists($fullPath)) {
+                chmod($fullPath, 0644);
+            }
+            
+            $url = url('uploads/' . $storedPath);
             $feature->images()->create(['url' => $url]);
         }
         return FeatureImageResource::collection($feature->images);

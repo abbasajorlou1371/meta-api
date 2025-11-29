@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SecureFileUpload;
 use Illuminate\Foundation\Http\FormRequest;
 
 class FeatureImageRequest extends FormRequest
@@ -23,9 +24,9 @@ class FeatureImageRequest extends FormRequest
      */
     public function rules()
     {
-        return      [
+        return [
             'images' => 'required|array|min:1',
-            'images.*' => 'required|file|mimes:png,jpg,bmp|distinct|min:1|max:1024'
+            'images.*' => ['required', 'file', 'distinct', new SecureFileUpload(['png', 'jpg', 'bmp'], 1024)]
         ];
     }
 }
