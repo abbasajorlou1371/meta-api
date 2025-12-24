@@ -22,3 +22,4 @@ laravel-worker.conf
 /metargb-microservices
 /.cursor
 /docs
+/api-docs

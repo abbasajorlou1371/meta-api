@@ -15,11 +15,11 @@ class WalletResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'psc' => formatCompactNumber($this->psc),
-            'irr' => formatCompactNumber($this->irr),
-            'red' => formatCompactNumber($this->red),
-            'blue' => formatCompactNumber($this->blue),
-            'yellow' => formatCompactNumber($this->yellow),
+            'psc' => $this->psc,
+            'irr' => $this->irr,
+            'red' => $this->red,
+            'blue' => $this->blue,
+            'yellow' => $this->yellow,
             'satisfaction' => number_format($this->satisfaction, 1),
             'effect' => $this->effect,
         ];
