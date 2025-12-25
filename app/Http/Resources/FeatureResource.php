@@ -40,7 +40,8 @@ class FeatureResource extends JsonResource
                         'name' => $buildingModel->name,
                         'file' => $buildingModel->file,
                         'images' => $buildingModel->images,
-                        'status' => $buildingModel->building->construction_end_date < now() ? 'completed' : 'in progress',
+                        'end_date' => $buildingModel->building->construction_end_date,
+                        'status' => $buildingModel->building->construction_end_date < now() ? 'completed' : 'in_progress',
                     ];
                 });
             }),
