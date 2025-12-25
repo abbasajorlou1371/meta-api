@@ -234,6 +234,7 @@ class FeaturePolicy
      */
     public function build(User $user, Feature $feature, BuildingModel $buildingModel)
     {
-        return true;
+        return $user->wallet->satisfaction >= $buildingModel->required_satisfaction
+            && $feature->owner->is($user);
     }
 }

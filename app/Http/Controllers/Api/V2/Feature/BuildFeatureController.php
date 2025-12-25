@@ -62,6 +62,9 @@ class BuildFeatureController extends Controller
         $this->authorize('build', [$feature, $buildingModel]);
 
         $constructionLengthHours = $buildingModel->required_satisfaction * 288000 / $request->launched_satisfaction;
+        // Deduct required satisfaction from user wallet
+        $user = $request->user();
+        $user->wallet->decrement('satisfaction', $buildingModel->required_satisfaction);
 
         $constructionEndDate = $this->getConstructionEndDate($constructionLengthHours);
 
@@ -166,11 +169,14 @@ class BuildFeatureController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws AuthorizationException
      */
-    public function destroyBuilding(Feature $feature, BuildingModel $buildingModel)
+    public function destroyBuilding(Request $request, Feature $feature, BuildingModel $buildingModel)
     {
         $this->authorize('build', [$feature, $buildingModel]);
 
         $feature->buildingModels()->detach($buildingModel);
+
+        $user = $request->user();
+        $user->wallet->increment('satisfaction', $buildingModel->building->launched_satisfaction);
 
         FeatureHourlyProfit::where('feature_id', $feature->id)->update(['is_active' => true]);
 
