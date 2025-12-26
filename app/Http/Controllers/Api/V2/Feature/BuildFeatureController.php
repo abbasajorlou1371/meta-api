@@ -64,7 +64,7 @@ class BuildFeatureController extends Controller
         $constructionLengthHours = $buildingModel->required_satisfaction * 288000 / $request->launched_satisfaction;
         // Deduct required satisfaction from user wallet
         $user = $request->user();
-        $user->wallet->decrement('satisfaction', $buildingModel->required_satisfaction);
+        $user->wallet->decrement('satisfaction', $request->launched_satisfaction);
 
         $constructionEndDate = $this->getConstructionEndDate($constructionLengthHours);
 
