@@ -20,7 +20,7 @@ class WalletResource extends JsonResource
             'red' => $this->red,
             'blue' => $this->blue,
             'yellow' => $this->yellow,
-            'satisfaction' => number_format($this->satisfaction, 1),
+            'satisfaction' => $this->satisfaction,
             'effect' => $this->effect,
         ];
     }
