@@ -4,6 +4,7 @@ namespace App\Models\Feature;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Models\Feature;
+use App\Models\Feature\BuildingModel;
 
 class Building extends Pivot
 {
@@ -55,12 +56,22 @@ class Building extends Pivot
     protected $table = 'buildings';
 
     /**
-     * Get the model that owns the Building
+     * Get the feature that owns the Building
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function feature()
     {
         return $this->belongsTo(Feature::class);
+    }
+
+    /**
+     * Get the building model that owns the Building
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function buildingModel()
+    {
+        return $this->belongsTo(BuildingModel::class, 'model_id');
     }
 }

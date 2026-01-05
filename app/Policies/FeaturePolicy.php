@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Helpers\FeatureIndicators;
 use App\Models\BuyFeatureRequest;
 use App\Models\Feature\BuildingModel;
+use App\Models\Feature\Building;
 use App\Models\Feature\FeatureLimit;
 use App\Models\Image;
 use App\Models\LimitedFeaturePurchase;
@@ -238,8 +239,25 @@ class FeaturePolicy
             && $feature->owner->is($user);
     }
 
+    /**
+     * Determines if a user can destroy a building from a feature.
+     *
+     * @param User $user The user attempting to destroy the building.
+     * @param Feature $feature The feature from which the building is being removed.
+     * @param BuildingModel $buildingModel The building model being removed.
+     * @return bool Returns true if the user can destroy the building, false otherwise.
+     */
     public function destroyBuilding(User $user, Feature $feature, BuildingModel $buildingModel)
     {
-        return $feature->owner->is($user) && $buildingModel->building->is($feature);
+        // Check if the user owns the feature
+        if (!$feature->owner->is($user)) {
+            return false;
+        }
+
+        // Check if the building model is actually attached to this feature
+        // by checking if a Building pivot record exists for this feature and building model
+        return Building::where('feature_id', $feature->id)
+            ->where('model_id', $buildingModel->id)
+            ->exists();
     }
 }

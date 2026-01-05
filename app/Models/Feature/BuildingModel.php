@@ -60,8 +60,13 @@ class BuildingModel extends Model
         return $this->hasMany(ThreeDimentionalEnvironment::class);
     }
 
-    public function building()
+    /**
+     * Get the buildings (pivot records) for the building model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function buildings()
     {
-        return $this->hasOne(Building::class);
+        return $this->hasMany(Building::class, 'model_id');
     }
 }
