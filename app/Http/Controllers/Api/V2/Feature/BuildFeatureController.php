@@ -171,7 +171,7 @@ class BuildFeatureController extends Controller
      */
     public function destroyBuilding(Request $request, Feature $feature, BuildingModel $buildingModel)
     {
-        $this->authorize('build', [$feature, $buildingModel]);
+        $this->authorize('destroyBuilding', [$feature, $buildingModel]);
 
         $feature->buildingModels()->detach($buildingModel);
 
