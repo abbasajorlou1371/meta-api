@@ -7,6 +7,7 @@ use App\Http\Requests\StartBuildingFeatureRequest;
 use App\Http\Requests\UpdateBuildingFeatureRequest;
 use App\Http\Resources\V2\BuildingModelResource;
 use App\Models\Feature;
+use App\Http\Resources\FeatureResource;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Http;
@@ -104,7 +105,9 @@ class BuildFeatureController extends Controller
             'bubble_diameter' => $bubbleDiameter,
         ]);
 
-        return response()->json([], 200);
+        $feature->load('buildingModels');
+
+        return new FeatureResource($feature);
     }
 
     public function getBuildings(Feature $feature)
