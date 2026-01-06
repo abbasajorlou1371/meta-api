@@ -105,7 +105,10 @@ class BuildFeatureController extends Controller
             'bubble_diameter' => $bubbleDiameter,
         ]);
 
-        $feature->load('buildingModels');
+        $feature->load(['buildingModels' => function ($query) {
+            $query->select('building_models.id', 'building_models.model_id', 'building_models.file')
+                ->withPivot('construction_start_date', 'construction_end_date', 'rotation', 'position', 'bubble_diameter');
+        }]);
 
         return new FeatureResource($feature);
     }
