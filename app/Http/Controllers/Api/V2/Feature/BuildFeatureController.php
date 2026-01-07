@@ -110,7 +110,9 @@ class BuildFeatureController extends Controller
                 ->withPivot('construction_start_date', 'construction_end_date', 'rotation', 'position', 'bubble_diameter');
         }]);
 
-        return new FeatureResource($feature);
+        return response()->json([
+            'data' => $feature
+        ], 200);
     }
 
     public function getBuildings(Feature $feature)
