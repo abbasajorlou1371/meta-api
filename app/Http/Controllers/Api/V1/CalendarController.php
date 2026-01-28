@@ -81,7 +81,7 @@ class CalendarController extends Controller
             }]);
         }
 
-        $event->increment('views');
+        $event->incrementViews();
 
         return new EventResource($event);
     }
