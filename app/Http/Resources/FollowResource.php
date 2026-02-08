@@ -26,6 +26,7 @@ class FollowResource extends JsonResource
             'profile_photos' => $this->latestProfilePhoto?->url ?? [],
             'level' => $this->latestLevel?->slug ?? '',
             'online' => $this->isOnline(),
+            'followed' => $isFollowing,
             'can' => [
                 'follow' => $authUser && !$isAuthUser && !$isFollowing,
                 'unfollow' => $isFollowing,
