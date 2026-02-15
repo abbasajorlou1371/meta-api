@@ -348,7 +348,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->loadMissing('levels');
 
-        return $this->levels()->orderByDesc('id')->first();
+        $latestLevel = $this->levels()->orderByDesc('id')->first();
+
+        if ($latestLevel) {
+            $latestLevel->load('gem');
+        }
+
+        return $latestLevel;
     }
 
     /**
