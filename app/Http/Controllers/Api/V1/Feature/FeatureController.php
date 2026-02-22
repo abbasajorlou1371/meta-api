@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Feature;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeatureImageRequest;
 use App\Http\Resources\FeatureImageResource;
+use App\Http\Resources\FeaturePropertiesResource;
 use App\Http\Resources\UserFeatureResource;
 use Illuminate\Http\JsonResponse;
 use App\Models\Feature;
@@ -51,13 +52,13 @@ class FeatureController extends Controller
         $this->authorize('addImage', $feature);
         foreach ($request->file('images') as $image) {
             $storedPath = $image->store('features', 'public');
-            
+
             // Remove execution permissions from uploaded file (security measure)
             $fullPath = storage_path('app/public/' . $storedPath);
             if (file_exists($fullPath)) {
                 chmod($fullPath, 0644);
             }
-            
+
             $url = url('uploads/' . $storedPath);
             $feature->images()->create(['url' => $url]);
         }
@@ -109,6 +110,6 @@ class FeatureController extends Controller
             'minimum_price_percentage' => $request->minimum_price_percentage
         ]);
 
-        return response()->noContent(200);
+        return new FeaturePropertiesResource($feature->properties);
     }
 }
