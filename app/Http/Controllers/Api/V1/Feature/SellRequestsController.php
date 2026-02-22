@@ -43,8 +43,6 @@ class SellRequestsController extends Controller
      */
     public function store(SellFeatureRequestValidate $request, Feature $feature)
     {
-        $this->authorize('sell', $feature);
-
         // Get the public and under 18 pricing limits from system variables or use default values
         $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
         $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;

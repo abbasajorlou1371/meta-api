@@ -152,21 +152,41 @@ class FeaturePolicy
      */
     public function sell(User $user, Feature $feature)
     {
-        $hasUnderEighteenPermissions = true;
+        if (!$feature->owner->is($user)) {
+            return Response::deny('شما مالک این ملک نیستید و نمی‌توانید آن را به فروش برسانید.');
+        }
+
+        if (in_array($feature->properties->rgb, $this->sellLimitedFeatures)) {
+            return Response::deny('امکان فروش این نوع ملک وجود ندارد.');
+        }
+
+        if (!$user->verified()) {
+            return Response::deny('حساب کاربری شما تأیید نشده است.');
+        }
+
+        if ($feature->hasPendingRequests()) {
+            return Response::deny('ملک دارای درخواست معلق است و امکان فروش وجود ندارد.');
+        }
+
+        if ($feature->locked()) {
+            return Response::deny('این ملک قفل شده و امکان فروش وجود ندارد.');
+        }
+
+        if (!is_null($feature->dynasty)) {
+            return Response::deny('ملک جزء سلسله‌ای است و امکان فروش آن وجود ندارد.');
+        }
 
         if ($user->isUnderEighteen()) {
             $hasUnderEighteenPermissions = $user->permissions
                 ? $user->permissions?->verified && $user->permissions?->SF
                 : true;
+
+            if (!$hasUnderEighteenPermissions) {
+                return Response::deny('مجوز فروش ملک برای افراد زیر 18 سال وجود ندارد.');
+            }
         }
 
-        return $feature->owner->is($user)
-            && !in_array($feature->properties->rgb, $this->sellLimitedFeatures)
-            && $user->verified()
-            && !$feature->hasPendingRequests()
-            && !$feature->locked()
-            && is_null($feature->dynasty)
-            && $hasUnderEighteenPermissions;
+        return Response::allow();
     }
 
     /**
