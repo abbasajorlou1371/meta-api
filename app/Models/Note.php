@@ -9,11 +9,10 @@ class Note extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','title','content', 'attachment'];
+    protected $fillable = ['user_id', 'title', 'content', 'attachments'];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
+    protected $casts = [
+        'attachments' => 'array',
     ];
 
     public function user()

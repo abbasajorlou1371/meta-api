@@ -53,6 +53,32 @@ class AccountSecurityController extends Controller
     }
 
     /**
+     * Get remaining time in seconds before account security locks again.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function remainingTime(Request $request)
+    {
+        $user = $request->user();
+        $accountSecurity = $user->accountSecurity;
+
+        if (! $accountSecurity || ! $accountSecurity->unlocked || is_null($accountSecurity->until)) {
+            return response()->json([
+                'remaining_seconds' => 0,
+                'locked' => true,
+            ]);
+        }
+
+        $remaining = max(0, $accountSecurity->until - time());
+
+        return response()->json([
+            'remaining_seconds' => $remaining,
+            'locked' => false,
+        ]);
+    }
+
+    /**
      * @param Request $request
      * @return \Illuminate\Http\Response
      */

@@ -18,9 +18,10 @@ class NoteResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'content' => $this->content,
-            'attachment' => $this->whenNotNull($this->attachment, function () {
-                return url('uploads/' . $this->attachment);
-            }),
+            'attachments' => $this->when(
+                ! empty($this->attachments),
+                fn () => $this->attachments
+            ),
             'date' => jdate($this->updated_at)->format('Y/m/d'),
             'time' => jdate($this->updated_at)->format('H:m:s'),
         ];

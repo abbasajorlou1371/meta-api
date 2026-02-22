@@ -94,6 +94,7 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
     });
 
     Route::controller(AccountSecurityController::class)->prefix('account/security')->group(function () {
+        Route::get('remaining-time', 'remainingTime');
         Route::post('/', 'sendVerifyCode');
         Route::post('verify', 'verify');
     });

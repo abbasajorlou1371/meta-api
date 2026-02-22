@@ -29,25 +29,27 @@ class NoteController extends Controller
      */
     public function store(NoteRequest $request): NoteResource
     {
-        $attachment = '';
-        if ($request->hasFile('attachment')) {
-            $storedPath = $request->file('attachment')->store('notes', 'public');
+        $attachmentUrls = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $storedPath = $file->store('notes', 'public');
 
-            // Remove execution permissions from uploaded file (security measure)
-            $fullPath = storage_path('app/public/' . $storedPath);
-            if (file_exists($fullPath)) {
-                chmod($fullPath, 0644);
+                $fullPath = storage_path('app/public/' . $storedPath);
+                if (file_exists($fullPath)) {
+                    chmod($fullPath, 0644);
+                }
+
+                $attachmentUrls[] = url('uploads/' . $storedPath);
             }
-
-            $attachment = url('uploads/' . $storedPath);
         }
 
         $note = Note::create([
             'user_id' => $request->user()->id,
             'title' => $request->title,
             'content' => $request->content,
-            'attachment' => $attachment,
+            'attachments' => $attachmentUrls,
         ]);
+
         return new NoteResource($note);
     }
 
@@ -71,24 +73,28 @@ class NoteController extends Controller
      */
     public function update(NoteRequest $request, Note $note): NoteResource
     {
-        $attachment = $note->attachment; // Keep existing attachment if no new one uploaded
+        $attachmentUrls = $note->attachments ?? [];
 
-        if ($request->hasFile('attachment')) {
-            $storedPath = $request->file('attachment')->store('notes', 'public');
+        if ($request->hasFile('attachments')) {
+            $newUrls = [];
+            foreach ($request->file('attachments') as $file) {
+                $storedPath = $file->store('notes', 'public');
 
-            // Remove execution permissions from uploaded file (security measure)
-            $fullPath = storage_path('app/public/' . $storedPath);
-            if (file_exists($fullPath)) {
-                chmod($fullPath, 0644);
+                $fullPath = storage_path('app/public/' . $storedPath);
+                if (file_exists($fullPath)) {
+                    chmod($fullPath, 0644);
+                }
+
+                $newUrls[] = url('storage/' . $storedPath);
             }
-
-            $attachment = url('uploads/' . $storedPath);
+            $attachmentUrls = array_merge($attachmentUrls, $newUrls);
+            $attachmentUrls = array_slice($attachmentUrls, 0, 5);
         }
 
         $note->update([
             'title' => $request->title,
             'content' => $request->content,
-            'attachment' => $attachment,
+            'attachments' => $attachmentUrls,
         ]);
 
         return new NoteResource($note);

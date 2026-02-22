@@ -29,7 +29,7 @@ class AuthenticatedUserResource extends JsonResource
                 'fbx_file' => $this->latest_level->gem->fbx_file,
             ] : null,
             'image' => $this->latestProfilePhoto->url ?? [],
-            'notifications' => $this->unreadNotifications_count,
+            'unread_notifications_count' => $this->unreadNotifications_count,
             'socre_percentage_to_next_level' => $this->latest_level ? $this->latest_level->getScorePercentageToNextLevel($this->resource) : 0,
             'unasnwered_questions_count' => getUnansweredQuestionsCount($this->resource),
             'hourly_profit_time_percentage' => hourlyProfitInfo($this->resource),
