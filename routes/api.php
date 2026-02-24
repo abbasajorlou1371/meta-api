@@ -119,6 +119,7 @@ Route::middleware(['auth:sanctum', 'verified', 'activity'])->group(function () {
         Route::controller(SellRequestsController::class)->prefix('sell-requests')->group(function () {
             Route::get('/', 'index');
             Route::post('/store/{feature}', 'store')->can('sell', 'feature');
+            Route::put('/{sellRequest}', 'update')->can('update', 'sellRequest');
             Route::delete('/{sellRequest}', 'destroy')->can('delete', 'sellRequest');
         });
 

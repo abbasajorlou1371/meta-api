@@ -100,6 +100,71 @@ class SellRequestsController extends Controller
         return new SellRequestResource($sellRequest);
     }
 
+    /**
+     * Update an existing sell request.
+     *
+     * @param SellFeatureRequestValidate $request
+     * @param SellFeatureRequest $sellRequest
+     * @return \Illuminate\Http\Response
+     */
+    public function update(SellFeatureRequestValidate $request, SellFeatureRequest $sellRequest)
+    {
+        $this->authorize('update', $sellRequest);
+
+        $feature = $sellRequest->feature;
+
+        $publicPricingLimit = SystemVariable::getByKey('public_pricing_limit') ?? 80;
+        $under18PricingLimit = SystemVariable::getByKey('under_18_pricing_limit') ?? 110;
+
+        $requestedPrice_psc = $request->price_psc;
+        $requestedPrice_irr = $request->price_irr;
+
+        if ($request->has('minimum_price_percentage')) {
+            if ($request->user()->isUnderEighteen() && $request->minimum_price_percentage < $under18PricingLimit) {
+                abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $under18PricingLimit));
+            } elseif ($request->minimum_price_percentage < $publicPricingLimit) {
+                abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $publicPricingLimit));
+            }
+
+            $totalPrice = $feature->properties->stability * Variable::getRate($feature->getColor()) * $request->minimum_price_percentage / 100;
+            $requestedPrice_psc = $totalPrice / Variable::getRate('psc') * 0.5;
+            $requestedPrice_irr = $totalPrice * 0.5;
+            $pricing_percentage = $request->minimum_price_percentage;
+        } else {
+            $totalRequested_price = $request->price_psc * Variable::getRate('psc') + $request->price_irr;
+            $totalTradedPrice = $feature->properties->stability * Variable::getRate($feature->getColor());
+
+            $pricing_percentage = $totalTradedPrice > 0 ? intval($totalRequested_price / $totalTradedPrice * 100) : 100;
+
+            if ($request->user()->isUnderEighteen() && $pricing_percentage < $under18PricingLimit) {
+                abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $under18PricingLimit));
+            } elseif ($pricing_percentage < $publicPricingLimit) {
+                abort(403, sprintf("شما مجاز به فروش زمین خود به کمتر از %s درصد قیمت خرید ملک نمی باشید", $publicPricingLimit));
+            }
+        }
+
+        $sellRequest->update([
+            'price_psc' => $requestedPrice_psc,
+            'price_irr' => $requestedPrice_irr,
+            'limit'     => $pricing_percentage,
+        ]);
+
+        $feature->properties->update([
+            'rgb' => $feature->changeStatusToSoldAndPriced(),
+            'price_psc' => $sellRequest->price_psc,
+            'price_irr' => $sellRequest->price_irr,
+            'minimum_price_percentage' => $pricing_percentage
+        ]);
+
+        broadcast(new FeatureStatusChanged([
+            'id'  => $feature->id,
+            'rgb' => $feature->changeStatusToSoldAndPriced(),
+        ]));
+
+        $request->user()->notify(new SellRequestNotification($feature));
+
+        return new SellRequestResource($sellRequest->fresh());
+    }
 
     /**
      * Delete a sell request.

@@ -11,7 +11,13 @@ class SellRequestPolicy
 {
     use HandlesAuthorization;
 
-    public function delete(User $user, SellFeatureRequest $sellRequest) {
+    public function update(User $user, SellFeatureRequest $sellRequest): bool
+    {
+        return $sellRequest->seller->is($user);
+    }
+
+    public function delete(User $user, SellFeatureRequest $sellRequest): bool
+    {
         return $sellRequest->seller->is($user);
     }
 }
