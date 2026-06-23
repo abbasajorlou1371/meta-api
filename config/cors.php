@@ -22,7 +22,8 @@ return [
     'allowed_origins' => [
         'http://localhost:5173',
         'https://metarang.com',
-        'https://world.metarang.com'
+        'https://world.metarang.com',
+        'http://192.168.1.3:5173/',
     ],
 
     'allowed_origins_patterns' => [],
