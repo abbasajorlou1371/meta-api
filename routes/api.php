@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\V2\ProfileLimitationController;
 use App\Http\Controllers\Api\V2\TransactionController;
+use App\Http\Controllers\Api\V2\WalletHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -84,6 +85,11 @@ Route::controller(UserController::class)->prefix('users')->group(function () {
     Route::get('/{user}/wallet', 'getWallet');
     Route::get('/{user}/profile-limitations', 'getProfileLimitations')->middleware('auth:sanctum');
     Route::get('/{user}/features/count', 'getFeaturesCount');
+});
+
+Route::controller(WalletHistoryController::class)->prefix('users')->group(function () {
+    Route::get('/{user}/wallet/history/summary', 'summary');
+    Route::get('/{user}/wallet/history/chart', 'chart');
 });
 
 Route::controller(ProfileLimitationController::class)->prefix('profile-limitations')->group(function () {

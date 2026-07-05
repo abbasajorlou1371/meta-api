@@ -2,9 +2,11 @@
 
 namespace App\Models\Feature;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Models\Feature;
 use App\Models\Feature\BuildingModel;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Building extends Pivot
 {
@@ -16,13 +18,14 @@ class Building extends Pivot
     protected $fillable = [
         'model_id',
         'feature_id',
+        'user_id',
         'construction_start_date',
         'construction_end_date',
         'launched_satisfaction',
         'information',
         'rotation',
         'position',
-        'bubble_diameter'
+        'bubble_diameter',
     ];
 
     /**
@@ -73,6 +76,11 @@ class Building extends Pivot
     public function buildingModel()
     {
         return $this->belongsTo(BuildingModel::class, 'model_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

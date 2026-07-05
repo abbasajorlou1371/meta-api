@@ -100,6 +100,7 @@ class BuildFeatureController extends Controller
         }
 
         $feature->buildingModels()->attach($buildingModel, [
+            'user_id' => $user->id,
             'construction_start_date' => now(),
             'construction_end_date' => $constructionEndDate,
             'launched_satisfaction' => $request->launched_satisfaction,
