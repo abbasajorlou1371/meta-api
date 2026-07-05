@@ -47,7 +47,7 @@ class OrderController extends Controller
             ->amount($order->amount * $rate)
             ->asset($order->asset)
             ->request()
-            ->callbackUrl(route('sadad.callback'))
+            ->callbackUrl(route('payment.callback'))
             ->send();
 
         if (! $response->success()) {
