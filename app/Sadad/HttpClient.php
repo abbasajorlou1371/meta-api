@@ -13,6 +13,7 @@ class HttpClient
         self::assertAllowedUrl($url);
 
         return Http::timeout((int) config('sadad.http_timeout', 30))
+            ->withHeaders(['User-Agent' => ''])
             ->acceptJson()
             ->asJson()
             ->post($url, $payload);

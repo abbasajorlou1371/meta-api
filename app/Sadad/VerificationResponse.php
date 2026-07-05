@@ -14,6 +14,8 @@ class VerificationResponse
 
     private ?int $orderId;
 
+    private ?string $description;
+
     private ?string $cardHolderFullName;
 
     public function __construct(object $result)
@@ -23,6 +25,7 @@ class VerificationResponse
         $this->systemTraceNo = isset($result->SystemTraceNo) ? (string) $result->SystemTraceNo : null;
         $this->amount = isset($result->Amount) ? (int) $result->Amount : null;
         $this->orderId = isset($result->OrderId) ? (int) $result->OrderId : null;
+        $this->description = isset($result->Description) ? (string) $result->Description : null;
         $this->cardHolderFullName = $result->CardHolderFullName ?? null;
     }
 
@@ -58,6 +61,6 @@ class VerificationResponse
 
     public function error(): Error
     {
-        return new Error($this->resCode);
+        return new Error($this->resCode, $this->description);
     }
 }

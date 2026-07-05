@@ -51,8 +51,11 @@ class OrderController extends Controller
             ->send();
 
         if (! $response->success()) {
+            $gatewayError = $response->error();
+
             throw ValidationException::withMessages([
-                'error' => $response->error()->message(),
+                'code' => (string) $gatewayError->code(),
+                'error' => $gatewayError->message(),
             ]);
         }
 

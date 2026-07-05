@@ -2,6 +2,8 @@
 
 namespace App\Sadad;
 
+use DateTime;
+use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 
 class Request
@@ -50,12 +52,14 @@ class Request
 
     public function send(): RequestResponse
     {
+        $iranTime = new DateTime('now', new DateTimeZone('Asia/Tehran'));
+
         $payload = [
             'MerchantId' => $this->merchantId,
             'TerminalId' => $this->terminalId,
             'Amount' => $this->amount,
             'OrderId' => (int) $this->orderId,
-            'LocalDateTime' => now()->format('Y-m-d\TH:i:s'),
+            'LocalDateTime' => $iranTime->format('m/d/Y g:i:s a'),
             'ReturnUrl' => $this->callbackUrl,
             'SignData' => Crypto::signPaymentRequest($this->terminalId, $this->orderId, $this->amount),
         ];
@@ -75,6 +79,16 @@ class Request
             throw new \RuntimeException('Payment gateway request failed.');
         }
 
-        return new RequestResponse((object) $response->json());
+        $result = (object) $response->json();
+        $requestResponse = new RequestResponse($result);
+
+        if (! $requestResponse->success()) {
+            Log::warning('Sadad PaymentRequest rejected.', [
+                'res_code' => $requestResponse->resCode(),
+                'description' => $requestResponse->message(),
+            ]);
+        }
+
+        return $requestResponse;
     }
 }

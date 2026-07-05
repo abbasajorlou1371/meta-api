@@ -13,8 +13,15 @@ class RequestResponse
     public function __construct(object $result)
     {
         $this->resCode = (int) ($result->ResCode ?? -1);
-        $this->token = isset($result->Token) ? (string) $result->Token : null;
-        $this->description = $result->Description ?? null;
+        $this->token = isset($result->Token) && $result->Token !== ''
+            ? (string) $result->Token
+            : null;
+        $this->description = isset($result->Description) ? (string) $result->Description : null;
+    }
+
+    public function resCode(): int
+    {
+        return $this->resCode;
     }
 
     public function success(): bool
@@ -43,6 +50,6 @@ class RequestResponse
 
     public function error(): Error
     {
-        return new Error($this->resCode);
+        return new Error($this->resCode, $this->description);
     }
 }
