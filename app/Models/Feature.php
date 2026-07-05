@@ -9,6 +9,8 @@ use App\Helpers\FeatureIndicators;
 use App\Models\Feature\Building;
 use App\Models\Feature\BuildingModel;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Feature extends Model
 {
@@ -319,5 +321,53 @@ class Feature extends Model
             FeatureIndicators::Maskoni => 'Residential',
             default => 'Unknown'
         };
+    }
+
+    /**
+     * Compute the centroid of this feature from its geometry coordinates.
+     *
+     * @return array{x: float, y: float}|null
+     */
+    public function computedCenter(): ?array
+    {
+        $result = Coordinate::query()
+            ->whereHas('geometry', fn ($query) => $query->where('feature_id', $this->id))
+            ->selectRaw('AVG(CAST(x AS DECIMAL(20,12))) as cx, AVG(CAST(y AS DECIMAL(20,12))) as cy')
+            ->first();
+
+        if ($result === null || $result->cx === null) {
+            return null;
+        }
+
+        return [
+            'x' => (float) $result->cx,
+            'y' => (float) $result->cy,
+        ];
+    }
+
+    /**
+     * Batch-compute centroids for multiple features in a single query.
+     *
+     * @param  array<int>  $featureIds
+     * @return Collection<int, array{x: float, y: float}>
+     */
+    public static function batchComputedCenters(array $featureIds): Collection
+    {
+        if ($featureIds === []) {
+            return collect();
+        }
+
+        return DB::table('coordinates')
+            ->join('geometries', 'coordinates.geometry_id', '=', 'geometries.id')
+            ->whereIn('geometries.feature_id', $featureIds)
+            ->groupBy('geometries.feature_id')
+            ->selectRaw('geometries.feature_id, AVG(CAST(x AS DECIMAL(20,12))) as cx, AVG(CAST(y AS DECIMAL(20,12))) as cy')
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                (int) $row->feature_id => [
+                    'x' => (float) $row->cx,
+                    'y' => (float) $row->cy,
+                ],
+            ]);
     }
 }

@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\V1\Feature\BuyFeatureController;
 use App\Http\Controllers\Api\V1\Feature\BuyRequestsController;
 use App\Http\Controllers\Api\V1\Feature\FeatureController;
 use App\Http\Controllers\Api\V1\Feature\FeatureHourlyProfitController;
-use App\Http\Controllers\Api\V1\Feature\SellRequestsController;
+use App\Http\Controllers\Api\V1\Feature\PublicUserFeaturesController;
 use App\Http\Controllers\Api\V1\FollowController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\KycController;
@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\V2\ProfileLimitationController;
 use App\Http\Controllers\Api\V2\TransactionController;
 use App\Http\Controllers\Api\V2\WalletHistoryController;
+use App\Http\Controllers\Api\V1\Feature\SellRequestsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -85,11 +86,6 @@ Route::controller(UserController::class)->prefix('users')->group(function () {
     Route::get('/{user}/wallet', 'getWallet');
     Route::get('/{user}/profile-limitations', 'getProfileLimitations')->middleware('auth:sanctum');
     Route::get('/{user}/features/count', 'getFeaturesCount');
-});
-
-Route::controller(WalletHistoryController::class)->prefix('users')->group(function () {
-    Route::get('/{user}/wallet/history/summary', 'summary');
-    Route::get('/{user}/wallet/history/chart', 'chart');
 });
 
 Route::controller(ProfileLimitationController::class)->prefix('profile-limitations')->group(function () {
@@ -274,6 +270,17 @@ Route::controller(PublicProfileController::class)->prefix('citizen')->group(func
     Route::get('/{user:code}', 'home');
     Route::get('/{user:code}/referrals', 'referrals');
     Route::get('/{user:code}/referrals/chart', 'referralChart');
+});
+
+Route::controller(PublicUserFeaturesController::class)->prefix('citizen')->group(function () {
+    Route::get('/{user:code}/features/summary', 'summary');
+    Route::get('/{user:code}/features/chart', 'chart');
+    Route::get('/{user:code}/features', 'index');
+});
+
+Route::controller(WalletHistoryController::class)->prefix('citizen')->group(function () {
+    Route::get('/{user:code}/wallet/history/summary', 'summary');
+    Route::get('/{user:code}/wallet/history/chart', 'chart');
 });
 
 Route::controller(SearchController::class)->prefix('search')->group(function () {
