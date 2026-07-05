@@ -262,7 +262,7 @@ Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial'])
 
 Route::get('ping', static fn() => null);
 
-Route::post('/parsian/callback', [OrderController::class, 'callback'])->name('parsian.callback');
+Route::post('/sadad/callback', [OrderController::class, 'callback'])->name('sadad.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');

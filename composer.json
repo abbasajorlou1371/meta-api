@@ -42,7 +42,7 @@
         "files": [
             "app/Helpers/functions.php",
             "app/Constants/ChildrenPermissionConsts.php",
-            "app/Parsian/helpers.php"
+            "app/Sadad/helpers.php"
         ]
     },
     "autoload-dev": {

@@ -37,7 +37,7 @@ class Transaction extends Model
      */
     protected $casts = [
         'status' => 'integer',
-        'token' => 'integer',
+        'token' => 'string',
         'ref_id' => 'integer',
     ];
 

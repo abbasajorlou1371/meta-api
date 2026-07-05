@@ -12,7 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/api/parsian/callback',
+        '/api/sadad/callback',
         '/api/upload',
         '/uploads/*',
         '/upload',
