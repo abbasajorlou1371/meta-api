@@ -21,6 +21,7 @@ class CompletedBuildingResource extends JsonResource
             'id' => $this->id,
             'feature_id' => $this->feature_id,
             'feature_properties_id' => Str::upper($this->feature->properties->id),
+            'name' => $attributes->firstWhere('slug', 'name')['value'] ?? null,
             'building_total_area' => $attributes->firstWhere('slug', 'area')['value'] ?? null,
             'density' => $attributes->firstWhere('slug', 'density')['value'] ?? null,
         ];
