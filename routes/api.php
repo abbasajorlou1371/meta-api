@@ -262,7 +262,7 @@ Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial'])
 
 Route::get('ping', static fn() => null);
 
-Route::post('/payment/callback', [OrderController::class, 'callback'])->name('payment.callback');
+Route::post('/order/callback', [OrderController::class, 'callback'])->name('order.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');
