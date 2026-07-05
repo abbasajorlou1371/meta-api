@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://metarang.com',
+        'https://world.metarang.com',
+        'http://localhost:5173',
+        'https://localhost:5175',
+    ],
 
     'allowed_origins_patterns' => [],
 
