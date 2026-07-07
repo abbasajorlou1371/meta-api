@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V2\MapsController;
 use App\Http\Controllers\Api\V2\Feature\BuildFeatureController;
+use App\Http\Controllers\Api\V2\Feature\PublicUserBuildingsController;
 use App\Http\Controllers\Api\V2\CommentReplyController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 Route::controller(BuildFeatureController::class)->prefix('features')->group(function () {
     Route::get('/build/completed', 'completedBuildings');
 });
+
+Route::controller(PublicUserBuildingsController::class)
+    ->prefix('citizen/{user:code}/buildings')
+    ->group(function () {
+        Route::get('/summary', 'summary');
+        Route::get('/chart', 'chart');
+        Route::get('/', 'index');
+    });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::controller(TutorialController::class)->prefix('tutorials')->group(function () {
