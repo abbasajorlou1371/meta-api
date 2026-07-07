@@ -164,6 +164,14 @@ class Feature extends Model
     }
 
     /**
+     * Get all trades for the feature.
+     */
+    public function trades()
+    {
+        return $this->hasMany(Trade::class);
+    }
+
+    /**
      * Get the latest sell request for the feature.
      *
      * @return BelongsToMany

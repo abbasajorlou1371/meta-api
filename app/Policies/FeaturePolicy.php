@@ -237,6 +237,14 @@ class FeaturePolicy
     }
 
     /**
+     * Determines if a user can view trade history for a feature.
+     */
+    public function viewTradeHistory(User $user, Feature $feature): bool
+    {
+        return $feature->owner->is($user);
+    }
+
+    /**
      * Determines if a user can add an image to a feature.
      *
      * @param User $user The user attempting to add an image.

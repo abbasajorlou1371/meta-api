@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Commision;
+use App\Models\Comission;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Morilog\Jalali\Jalalian;
 
@@ -22,7 +22,7 @@ class Trade extends Model
     ];
 
     public function comission() {
-        return $this->hasOne(Commision::class);
+        return $this->hasOne(Comission::class);
     }
 
     public function feature() {
