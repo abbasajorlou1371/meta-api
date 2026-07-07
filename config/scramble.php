@@ -35,7 +35,7 @@ return [
     /*
      * The path where your OpenAPI specification will be exported.
      */
-    'export_path' => 'api.json',
+    'export_path' => 'storage/api-docs/api.json',
 
     /*
      * Cache configuration for the generated OpenAPI document.
@@ -60,10 +60,16 @@ return [
     ],
 
     'ui' => [
-        'title' => env('APP_NAME', 'MetaRGB').' API Documentation',
+        'title' => env('API_DOCS_TITLE', 'MetaRGB API Documentation'),
     ],
 
-    'renderer' => 'elements',
+    /*
+     * Whether the interactive docs and OpenAPI JSON are publicly accessible.
+     * In local, docs are always available. Elsewhere, the viewApiDocs gate must pass.
+     */
+    'enabled' => env('API_DOCS_ENABLED', env('APP_ENV', 'local') !== 'production'),
+
+    'renderer' => 'scalar',
 
     'renderers' => [
         /*
@@ -73,7 +79,7 @@ return [
             'view' => 'scramble::docs',
             'theme' => 'light',
             'hideTryIt' => false,
-            'hideSchemas' => false,
+            'hideSchemas' => true,
             'logo' => '',
             'tryItCredentialsPolicy' => 'include',
             'layout' => 'responsive',
@@ -88,7 +94,24 @@ return [
             'theme' => 'laravel',
             'proxyUrl' => 'https://proxy.scalar.com',
             'darkMode' => false,
+            'hideModels' => true,
             'showDeveloperTools' => 'never',
+            /*
+             * Highlight service (x-tagGroups) headers in the sidebar so they
+             * visually stand out from the nested controller groups.
+             */
+            'customCss' => <<<'CSS'
+                li[class*="sidebar-section"] > div[class*="group/button"] {
+                    background-color: #5a67d8;
+                    border-radius: 6px;
+                    margin-bottom: 2px;
+                }
+                li[class*="sidebar-section"] > div[class*="group/button"] * {
+                    color: #ffffff !important;
+                    font-weight: 700 !important;
+                    letter-spacing: 0.03em;
+                }
+                CSS,
             'agent' => ['disabled' => true],
             'credentials' => 'include',
         ],
@@ -148,6 +171,7 @@ return [
 
     'middleware' => [
         'web',
+        RestrictedDocsAccess::class,
     ],
 
     'extensions' => [],

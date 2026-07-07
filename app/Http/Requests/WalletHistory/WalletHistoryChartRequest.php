@@ -15,6 +15,8 @@ class WalletHistoryChartRequest extends FormRequest
     }
 
     /**
+     * Query parameters for the public wallet asset history chart endpoint.
+     *
      * @return array<string, mixed>
      */
     public function rules(): array

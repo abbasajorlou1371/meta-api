@@ -10,6 +10,9 @@ use App\Models\User;
 use App\Models\Variable;
 use App\Notifications\TransactionNotification;
 use App\Services\ReferralService;
+use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -18,9 +21,10 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    /**
-     * Store a new order for buying an asset.
-     */
+    #[Endpoint(
+        title: 'Create order and get Sadad payment URL',
+        description: 'Creates an order for purchasing virtual assets and returns a Bank Melli Sadad IPG payment link. Requires authentication and passes the `buyFromStore` policy gate.',
+    )]
     public function store(BuyAssetRequest $request): JsonResponse
     {
         $this->authorize('buyFromStore', User::class);
@@ -66,9 +70,21 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Handle the callback after a payment is made.
-     */
+    #[Endpoint(
+        title: 'Sadad payment callback',
+        description: 'Public callback endpoint for Bank Melli Sadad IPG. Sadad POSTs form-encoded fields after payment; the server verifies the transaction and redirects the user to the frontend with `OrderId`, `ResCode`, and `status` query parameters.',
+    )]
+    #[BodyParameter('OrderId', description: 'Order primary key.', type: 'integer', required: true)]
+    #[BodyParameter('ResCode', description: 'Sadad gateway result code (`0` indicates success).', type: 'integer', required: true)]
+    #[BodyParameter('Token', description: 'Payment token — must match the token stored on the order transaction.', type: 'string', required: true)]
+    #[BodyParameter('HashedCardNo', description: 'Hashed card number from Sadad.', type: 'string', required: false)]
+    #[BodyParameter('PrimaryAccNo', description: 'Masked card number from Sadad.', type: 'string', required: false)]
+    #[Response(
+        status: 302,
+        description: 'Redirects to `SADAD_FRONTEND_REDIRECT_URL` with `OrderId`, `ResCode`, `status`, and optionally `HashedCardNo`.',
+        mediaType: 'text/html',
+    )]
+    #[Response(status: 404, description: 'Order not found.')]
     public function callback(SadadCallbackRequest $request): RedirectResponse
     {
         $validated = $request->validated();

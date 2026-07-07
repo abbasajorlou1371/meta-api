@@ -65,7 +65,7 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "swagger": "@php artisan scramble:export"
+        "swagger": "@php artisan api:docs:export"
     },
     "extra": {
         "laravel": {

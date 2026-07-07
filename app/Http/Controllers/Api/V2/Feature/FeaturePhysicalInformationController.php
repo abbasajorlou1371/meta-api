@@ -7,6 +7,7 @@ use App\Http\Requests\V2\Feature\UpsertFeaturePhysicalInformationRequest;
 use App\Http\Resources\V2\FeaturePhysicalInformationResource;
 use App\Models\Feature;
 use App\Services\Feature\FeaturePhysicalInformationService;
+use Dedoc\Scramble\Attributes\Endpoint;
 use Illuminate\Http\JsonResponse;
 
 class FeaturePhysicalInformationController extends Controller
@@ -16,6 +17,10 @@ class FeaturePhysicalInformationController extends Controller
     ) {
     }
 
+    #[Endpoint(
+        title: 'Get feature physical information',
+        description: 'Returns the physical information section for a feature. Only the feature owner may access this endpoint. Returns `data: null` when no record exists yet.',
+    )]
     public function show(Feature $feature): JsonResponse|FeaturePhysicalInformationResource
     {
         $this->authorize('viewPhysicalInformation', $feature);
@@ -31,6 +36,10 @@ class FeaturePhysicalInformationController extends Controller
         return new FeaturePhysicalInformationResource($physicalInformation);
     }
 
+    #[Endpoint(
+        title: 'Create or update feature physical information',
+        description: 'Creates physical information when none exists, or fully replaces the stored values. Provide either `isic_code_id` or `activity`, not both. Only the feature owner may write.',
+    )]
     public function upsert(
         UpsertFeaturePhysicalInformationRequest $request,
         Feature $feature,

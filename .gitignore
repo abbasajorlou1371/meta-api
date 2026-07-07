@@ -23,3 +23,5 @@ laravel-worker.conf
 /.cursor
 /docs
 /api-docs
+/api.json
+/storage/api-docs
