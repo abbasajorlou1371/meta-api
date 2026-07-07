@@ -92,7 +92,13 @@ return [
             'view' => 'scramble::scalar',
             'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
             'theme' => 'laravel',
-            'proxyUrl' => 'https://proxy.scalar.com',
+            /*
+             * Docs are served from the same origin as the API, so "Try It"
+             * requests are same-origin and need no CORS proxy. Routing them
+             * through proxy.scalar.com triggers preflight CORS failures, so the
+             * proxy is disabled (empty string = direct requests).
+             */
+            'proxyUrl' => '',
             'darkMode' => false,
             'hideModels' => true,
             'showDeveloperTools' => 'never',
