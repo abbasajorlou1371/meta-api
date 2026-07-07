@@ -221,6 +221,22 @@ class FeaturePolicy
     }
 
     /**
+     * Determines if a user can view physical information for a feature.
+     */
+    public function viewPhysicalInformation(User $user, Feature $feature): bool
+    {
+        return $feature->owner->is($user);
+    }
+
+    /**
+     * Determines if a user can create or update physical information for a feature.
+     */
+    public function updatePhysicalInformation(User $user, Feature $feature): bool
+    {
+        return $feature->owner->is($user);
+    }
+
+    /**
      * Determines if a user can add an image to a feature.
      *
      * @param User $user The user attempting to add an image.

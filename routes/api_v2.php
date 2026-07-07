@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\VideoCommentsController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V2\MapsController;
 use App\Http\Controllers\Api\V2\Feature\BuildFeatureController;
+use App\Http\Controllers\Api\V2\Feature\FeaturePhysicalInformationController;
 use App\Http\Controllers\Api\V2\Feature\PublicUserBuildingsController;
 use App\Http\Controllers\Api\V2\CommentReplyController;
 use App\Models\User;
@@ -53,6 +54,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ->middleware('account.security');
         Route::delete('/{feature}/build/buildings/{buildingModel:model_id}', 'destroyBuilding')
         ->middleware('account.security');
+    });
+
+    Route::controller(FeaturePhysicalInformationController::class)->prefix('features')->group(function () {
+        Route::get('/{feature}/physical-information', 'show');
+        Route::put('/{feature}/physical-information', 'upsert');
     });
 
     Route::controller(VideoCommentsController::class)->prefix('tutorials')->group(function () {

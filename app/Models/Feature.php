@@ -66,6 +66,11 @@ class Feature extends Model
         return $this->hasOne(FeatureProperties::class);
     }
 
+    public function physicalInformation()
+    {
+        return $this->hasOne(FeaturePhysicalInformation::class);
+    }
+
     /**
      * The geometry that belong to the feature.
      *
