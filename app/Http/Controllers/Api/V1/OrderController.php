@@ -46,13 +46,6 @@ class OrderController extends Controller
             'action' => 'deposit',
         ]);
 
-        Log::info('Sadad request', [
-            'order_id' => $order->id,
-            'amount' => $order->amount * $rate,
-            'asset' => $order->asset,
-            'callback_url' => sadad_callback_url(),
-        ]);
-
         $response = sadad()
             ->orderId($order->id)
             ->amount($order->amount * $rate)

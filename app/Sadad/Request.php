@@ -72,6 +72,10 @@ class Request
             $payload['MultiplexingData'] = $this->multiplexingData;
         }
 
+        Log::info('Sadad payment request', [
+            'payload' => $payload,
+        ]);
+
         $response = HttpClient::post(config('sadad.payment_request_url'), $payload);
 
         if (! $response->successful()) {
