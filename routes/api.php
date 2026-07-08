@@ -264,7 +264,7 @@ Route::post('video-tutorials', [TutorialController::class, 'showModalTutorial'])
 
 Route::get('ping', static fn() => null);
 
-Route::post('/order/callback', [OrderController::class, 'callback'])->name('order.callback');
+Route::any('/order/callback', [OrderController::class, 'callback'])->name('order.callback');
 
 Route::controller(PublicProfileController::class)->prefix('citizen')->group(function () {
     Route::get('/{user:code}', 'home');
