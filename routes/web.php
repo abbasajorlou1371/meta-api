@@ -14,8 +14,6 @@ use App\Http\Controllers\Api\FileUploadController;
 |
 */
 
-Route::permanentRedirect('/', 'https://metarang.com');
-
 Route::view('/upload', 'upload');
 
 Route::post('upload', [FileUploadController::class, 'upload'])->name('upload');

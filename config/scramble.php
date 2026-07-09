@@ -20,10 +20,15 @@ return [
      */
     'api_path' => [
         'include' => 'api',
-        'exclude' => [
-            'api/documentation',
-            'api/documentation/*',
-        ],
+        'exclude' => [],
+    ],
+
+    /*
+     * Where the interactive docs UI and OpenAPI JSON are exposed.
+     */
+    'expose' => [
+        'ui' => '/',
+        'document' => 'docs/api-docs.json',
     ],
 
     /*
@@ -54,7 +59,7 @@ return [
         'version' => env('API_VERSION', '1.0.0'),
 
         /*
-         * Description rendered on the home page of the API documentation (`/docs/api`).
+         * Description rendered on the home page of the API documentation.
          */
         'description' => 'REST API documentation for the MetaRGB platform. Endpoints are discovered automatically from registered routes.',
     ],

@@ -30,12 +30,10 @@ class AppServiceProvider extends ServiceProvider
             return filter_var(config('scramble.enabled'), FILTER_VALIDATE_BOOLEAN);
         });
 
-        // Standard Scramble docs: endpoints are grouped by their controller tag
-        // (Controller > Endpoint). Exposed at the existing documentation URLs.
         Scramble::configure()
             ->expose(
-                ui: 'api/documentation',
-                document: 'docs/api-docs.json',
+                ui: config('scramble.expose.ui'),
+                document: config('scramble.expose.document'),
             );
     }
 }
